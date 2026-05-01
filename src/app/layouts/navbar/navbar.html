@@ -1,1 +1,32 @@
-<p>navbar works!</p>
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="nav-left">
+      <div class="logo">
+        <a (click)="scrollTo('hero')">MiRutaHN</a>
+      </div>
+      <div class="nav-menu">
+        <a (click)="scrollTo('hero')">Inicio</a>
+        <a (click)="scrollTo('beneficios')">Beneficios</a>
+        <a (click)="scrollTo('como-funciona')">Cómo funciona</a>
+        <a (click)="scrollTo('contacto')">Contacto</a>
+      </div>
+    </div>
+    
+    <div class="nav-right">
+      <button class="btn-login" routerLink="/login">Iniciar Sesión</button>
+      <button class="btn-registro" routerLink="/registro">Registrarse</button>
+    </div>
+    
+    <button class="menu-toggle" (click)="toggleMenu()">☰</button>
+  </div>
+  
+  <div class="nav-mobile" [class.open]="menuOpen">
+    <a (click)="scrollTo('hero'); closeMenu()">Inicio</a>
+    <a (click)="scrollTo('como-funciona'); closeMenu()">Cómo funciona</a>
+    <a (click)="scrollTo('beneficios'); closeMenu()">Beneficios</a>
+    <a (click)="scrollTo('contacto'); closeMenu()">Contacto</a>
+    <hr>
+    <button class="btn-login-mobile" routerLink="/login">Iniciar Sesión</button>
+    <button class="btn-registro-mobile" routerLink="/registro">Registrarse</button>
+  </div>
+</nav>
