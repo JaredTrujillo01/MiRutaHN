@@ -1,1 +1,64 @@
-<p>dashboard works!</p>
+<div class="dashboard">
+  <app-sidebar></app-sidebar>
+
+  <div class="main-content">
+    <!-- Barra de búsqueda (siempre visible) -->
+    <div class="search-header">
+      <div class="search-box" (click)="irAPaso(2)">
+        <i class="material-icons">search</i>
+        <input 
+          type="text" 
+          placeholder="¿A dónde vamos hoy? Buscar destino..."
+          readonly
+        >
+      </div>
+    </div>
+
+    <!-- Alerta (siempre visible) -->
+    <div class="alerta">
+      <i class="material-icons">warning</i>
+      <div>
+        <h4>ALERTA EN TIEMPO REAL</h4>
+        <p>Tráfico pesado en Blv. Suyapa. Retrasos de 15 min.</p>
+      </div>
+      <i class="material-icons close">close</i>
+    </div>
+
+    <!-- Contenido dinámico según el paso -->
+    <div class="contenido">
+      <!-- Paso 1: Paradas cercanas -->
+      <app-paradas-cercanas 
+        *ngIf="paso === 1"
+        (buscar)="irAPaso(2)">
+      </app-paradas-cercanas>
+
+      <!-- Paso 2: Formulario de búsqueda -->
+      <app-buscar 
+        *ngIf="paso === 2"
+        (buscar)="irAPaso(3)"
+        (cancelar)="irAPaso(1)">
+      </app-buscar>
+
+      <!-- Paso 3: Resultados de búsqueda -->
+      <app-resultados-busqueda 
+        *ngIf="paso === 3"
+        (verDetalle)="irAPaso(4, $event)"
+        (volver)="irAPaso(2)">
+      </app-resultados-busqueda>
+
+      <!-- Paso 4: Detalle de ruta -->
+      <app-detalle-ruta 
+        *ngIf="paso === 4"
+        [ruta]="rutaSeleccionada"
+        (volver)="irAPaso(3)">
+      </app-detalle-ruta>
+    </div>
+
+    <!-- Botones flotantes -->
+    <div class="floating-buttons">
+      <button class="fab rojo">⚠️ Reportar</button>
+      <button class="fab azul">🗺️ Ver Mapa Completo</button>
+      <button class="fab blanco">⭐ Favoritos</button>
+    </div>
+  </div>
+</div>

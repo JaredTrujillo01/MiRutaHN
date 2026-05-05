@@ -1,0 +1,88 @@
+<div class="detalle">
+  <button class="btn-volver" (click)="volver.emit()">
+    <i class="material-icons">arrow_back</i> Volver
+  </button>
+
+  <div class="info-ruta">
+    <h2>Ruta 01: Anillo Periférico</h2>
+    <p>Operado por Transportes Rápidos</p>
+  </div>
+
+  <div class="precio-frecuencia">
+    <div>
+      <span>PRECIO DEL PASAJE</span>
+      <strong>L. 13.00</strong>
+    </div>
+    <div>
+      <span>FRECUENCIA</span>
+      <strong>8 - 12 min</strong>
+    </div>
+  </div>
+
+  <div class="itinerario">
+    <h3>ITINERARIO DE PARADAS</h3>
+    
+    <div class="parada">
+      <div class="circulo verde"></div>
+      <div>
+        <strong>Terminal Metropolitana</strong>
+        <p>Punto de inicio - Salida cada 10 min</p>
+        <span class="hora">06:00 AM</span>
+      </div>
+    </div>
+
+    <div class="parada">
+      <div class="circulo"></div>
+      <div>
+        <strong>Mall Multiplaza</strong>
+        <p>Conexión con Ruta 42</p>
+        <span class="hora">Pasó hace 2 min</span>
+      </div>
+    </div>
+
+    <div class="parada active">
+      <div class="circulo azul"></div>
+      <div>
+        <strong>Hospital Escuela</strong>
+        <p>Parada actual del bus 104-B</p>
+        <span class="hora">En tiempo</span>
+      </div>
+    </div>
+
+    <div class="parada">
+      <div class="circulo"></div>
+      <div>
+        <strong>Universidad Nacional</strong>
+        <p>Próxima parada</p>
+        <span class="hora">~06:45 AM</span>
+      </div>
+    </div>
+
+    <div class="parada">
+      <div class="circulo"></div>
+      <div>
+        <strong>Colonia Kennedy</strong>
+        <p>Punto final de recorrido</p>
+        <span class="hora">~07:15 AM</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="reportes">
+    <h3>REPORTES EN TIEMPO REAL</h3>
+    
+    <div class="reporte">
+      <div class="avatar">👤</div>
+      <div>
+        <strong>Mario Estrada</strong>
+        <p>Bus muy lleno - Casi no hay espacio para subir en Multiplaza.</p>
+        <div class="acciones">
+          <span>👆 12</span>
+          <span>💬 3</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-navegar">🚗 Iniciar Navegación</button>
+</div>
