@@ -1,0 +1,23 @@
+<div class="resultados">
+  <button class="btn-volver" (click)="volver.emit()">
+    <i class="material-icons">arrow_back</i> Volver
+  </button>
+
+  <h2>Rutas recomendadas</h2>
+  <p class="contador">{{ rutas.length }} resultados encontrados</p>
+
+  <div class="lista-rutas">
+    <div *ngFor="let ruta of rutas" class="ruta" [class.active]="ruta.active">
+      <div class="ruta-icon">🚌</div>
+      <div class="ruta-info">
+        <h4>{{ ruta.nombre }}</h4>
+        <div class="detalles">
+          <span>💰 L.{{ ruta.precio }}.00</span>
+          <span>⏱️ {{ ruta.tiempo }} min</span>
+          <span class="badge" [class.verde]="ruta.active">Llega en {{ ruta.llega }}</span>
+        </div>
+      </div>
+      <button class="btn-ver" (click)="seleccionarRuta(ruta)">Ver Ruta</button>
+    </div>
+  </div>
+</div>

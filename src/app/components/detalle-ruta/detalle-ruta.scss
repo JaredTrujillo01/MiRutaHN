@@ -1,0 +1,144 @@
+.detalle {
+  background: white;
+  border-radius: 24px;
+  padding: 24px;
+}
+
+.btn-volver {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 20px;
+  color: #2563eb;
+  font-weight: 500;
+}
+
+.info-ruta h2 {
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+.info-ruta p {
+  color: #64748b;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.precio-frecuencia {
+  background: #eff6ff;
+  display: flex;
+  padding: 16px;
+  border-radius: 16px;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.precio-frecuencia span {
+  font-size: 10px;
+  color: #2563eb;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.precio-frecuencia strong {
+  font-size: 16px;
+  color: #1e40af;
+}
+
+.itinerario h3, .reportes h3 {
+  font-size: 11px;
+  color: #64748b;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.parada {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.circulo {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  margin-top: 4px;
+}
+
+.circulo.verde { background: #10b981; }
+.circulo.azul { background: #2563eb; animation: pulse 1.5s infinite; }
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(37,99,235,0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(37,99,235,0); }
+}
+
+.parada.active .circulo {
+  background: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.2);
+}
+
+.parada strong {
+  font-size: 14px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.parada p {
+  font-size: 12px;
+  color: #475569;
+  margin-bottom: 4px;
+}
+
+.hora {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.reporte {
+  display: flex;
+  gap: 12px;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 16px;
+}
+
+.avatar {
+  font-size: 32px;
+}
+
+.reporte strong {
+  font-size: 13px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.reporte p {
+  font-size: 12px;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.acciones {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.btn-navegar {
+  width: 100%;
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 40px;
+  font-weight: bold;
+  margin-top: 20px;
+  cursor: pointer;
+}

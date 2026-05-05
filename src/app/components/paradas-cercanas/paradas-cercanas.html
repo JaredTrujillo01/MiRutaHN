@@ -1,0 +1,39 @@
+<div class="paradas-container">
+  <div class="paradas-header">
+    <h3>Paradas Cercanas</h3>
+    <span class="material-symbols-outlined">my_location</span>
+  </div>
+
+  <div class="paradas-list">
+    <div class="parada-card">
+      <div class="parada-icon">🚌</div>
+      <div class="parada-info">
+        <p class="parada-nombre">Multiplaza Sur</p>
+        <p class="parada-ruta">Ruta 01 • Anillo Periférico</p>
+      </div>
+      <div class="parada-tiempo">3 min</div>
+    </div>
+
+    <div class="parada-card">
+      <div class="parada-icon green">🚌</div>
+      <div class="parada-info">
+        <p class="parada-nombre">UNAH Principal</p>
+        <p class="parada-ruta">Ruta 14 • Blv. Suyapa</p>
+      </div>
+      <div class="parada-tiempo">8 min</div>
+    </div>
+
+    <div class="parada-card">
+      <div class="parada-icon orange">🚌</div>
+      <div class="parada-info">
+        <p class="parada-nombre">Parque Central</p>
+        <p class="parada-ruta">Ruta 05 • Centro Histórico</p>
+      </div>
+      <div class="parada-tiempo">14 min</div>
+    </div>
+  </div>
+
+  <button class="ver-todas" (click)="onBuscar()">
+    Ver todas las paradas →
+  </button>
+</div>
