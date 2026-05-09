@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, output } from '@angular/core';
 
 @Component({
   selector: 'app-buscar',
@@ -7,6 +7,6 @@ import { Component, Output, EventEmitter } from '@angular/core';
   styleUrl: './buscar.scss',
 })
 export class Buscar {
-   @Output() buscar = new EventEmitter<void>();
-  @Output() cancelar = new EventEmitter<void>();
+  buscar = output<void>();
+  cancelar = output<void>();
 }

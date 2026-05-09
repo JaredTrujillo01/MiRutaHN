@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 
 @Component({
   selector: 'app-detalle-ruta',
@@ -7,6 +7,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
   styleUrl: './detalle-ruta.scss',
 })
 export class DetalleRuta {
-  @Input() ruta: any;
-  @Output() volver = new EventEmitter<void>();
+  ruta = input<any>();
+  volver = output<void>();
+  iniciarNavegacion = output<void>();
 }

@@ -1,43 +1,42 @@
 .paradas-container {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(12px);
-  border-radius: 24px;
-  padding: 1.5rem;
-  border: 1px solid white;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-  max-width: 450px;
-  margin-left: auto;
+  background: white;
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+  max-width: 380px;
 }
 
 .paradas-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.25rem;
+  margin-bottom: 12px;
 }
 
 .paradas-header h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 600;
   color: #0f172a;
+  margin: 0;
 }
 
-.paradas-header span {
+.paradas-header i {
   color: #2563eb;
+  font-size: 20px;
 }
 
 .paradas-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 8px;
 }
 
 .parada-card {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  border-radius: 16px;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 12px;
   background: #f8fafc;
   cursor: pointer;
   transition: all 0.2s;
@@ -48,22 +47,34 @@
 }
 
 .parada-icon {
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   background: #dbeafe;
-  border-radius: 50%;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+}
+
+.parada-icon i {
+  font-size: 18px;
+  color: #2563eb;
 }
 
 .parada-icon.green {
   background: #dcfce7;
 }
 
+.parada-icon.green i {
+  color: #10b981;
+}
+
 .parada-icon.orange {
   background: #ffedd5;
+}
+
+.parada-icon.orange i {
+  color: #f97316;
 }
 
 .parada-info {
@@ -71,35 +82,41 @@
 }
 
 .parada-nombre {
-  font-weight: 700;
-  font-size: 0.9rem;
+  font-weight: 600;
+  font-size: 13px;
   color: #0f172a;
+  margin-bottom: 2px;
 }
 
 .parada-ruta {
-  font-size: 0.7rem;
+  font-size: 10px;
   color: #64748b;
 }
 
 .parada-tiempo {
-  font-weight: 700;
+  font-weight: 600;
   color: #10b981;
-  font-size: 0.85rem;
+  font-size: 12px;
 }
 
 .ver-todas {
   width: 100%;
-  margin-top: 1.25rem;
+  margin-top: 12px;
   background: none;
   border: none;
   color: #2563eb;
-  font-weight: 600;
+  font-weight: 500;
+  font-size: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.25rem;
-  padding: 0.5rem;
+  gap: 4px;
+  padding: 8px;
+}
+
+.ver-todas i {
+  font-size: 14px;
 }
 
 .ver-todas:hover {
