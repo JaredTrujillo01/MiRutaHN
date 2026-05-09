@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, output } from '@angular/core';
 
 @Component({
   selector: 'app-paradas-cercanas',
@@ -7,7 +7,8 @@ import { Component, Output, EventEmitter } from '@angular/core';
   styleUrl: './paradas-cercanas.scss',
 })
 export class ParadasCercanas {
-  @Output() buscar = new EventEmitter<void>();
+  // Output como señal
+  buscar = output<void>();
 
   onBuscar() {
     this.buscar.emit();
