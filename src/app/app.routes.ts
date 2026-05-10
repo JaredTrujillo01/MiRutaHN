@@ -23,14 +23,6 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/usuario/dashboard/dashboard').then(m => m.Dashboard),
     },
     {
-        path: 'buscar-ruta',
-        loadComponent: () => import('./pages/usuario/buscar-ruta/buscar-ruta').then(m => m.BuscarRuta),
-    },
-    {
-        path: 'detalle-ruta',
-        loadComponent: () => import('./pages/usuario/detalle-ruta/detalle-ruta').then(m => m.DetalleRuta),
-    },
-    {
         path: 'favoritos',
         loadComponent: () => import('./pages/usuario/favoritos/favoritos').then(m => m.Favoritos),
     },
