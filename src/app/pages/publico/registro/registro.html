@@ -1,83 +1,42 @@
 <div class="registro-page">
-
   <section class="registro-image">
     <div class="image-overlay">
-
-      <div class="image-text">
-        <h1>Transformando el transporte en Honduras.</h1>
-
-        <p>
-          Únete a la red más grande de movilidad inteligente y accede
-          a rutas optimizadas para tu día a día.
-        </p>
-      </div>
-
+      <h2>MiRutaHN</h2>
+      <p>Únete y ayuda a mejorar el transporte público de Honduras.</p>
     </div>
   </section>
 
   <section class="registro-content">
-
     <div class="registro-card">
+      <h1>Crear cuenta</h1>
+      <p>Completa el formulario para registrarte.</p>
 
-      <h2>MiRutaHN</h2>
+      @if (error) {
+        <div class="alerta-error">{{ error }}</div>
+      }
+      @if (exito) {
+        <div class="alerta-exito">{{ exito }}</div>
+      }
 
-      <h1>Crea tu cuenta gratuita</h1>
-
-      <p>
-        Accede a las registradas y reportes en tiempo real.
-      </p>
-
-      <form>
-
+      <form (ngSubmit)="registrar()">
         <label>Nombre completo</label>
-        <input type="text" placeholder="Ej. Juan Pérez" />
+        <input type="text" [(ngModel)]="nombre" name="nombre" placeholder="Tu nombre" />
 
-        <div class="row">
+        <label>Correo electrónico</label>
+        <input type="email" [(ngModel)]="email" name="email" placeholder="ejemplo@correo.com" />
 
-          <div class="input-group">
-            <label>Correo electrónico</label>
-            <input type="email" placeholder="email@ejemplo.com" />
-          </div>
-
-          <div class="input-group">
-            <label>Teléfono</label>
-            <input type="text" placeholder="+504 9999-9999" />
-          </div>
-
-        </div>
-
-        <label>Ciudad</label>
-
-        <select>
-          <option>Seleccione tu ciudad</option>
-          <option>Tegucigalpa</option>
-          <option>San Pedro Sula</option>
-          <option>La Ceiba</option>
-        </select>
+        <label>Teléfono</label>
+        <input type="tel" [(ngModel)]="telefono" name="telefono" placeholder="Ej: +504 9999-9999" />
 
         <label>Contraseña</label>
-        <input type="password" placeholder="********" />
+        <input type="password" [(ngModel)]="password" name="password" placeholder="Mínimo 6 caracteres" />
 
-        <div class="terms">
-          <input type="checkbox" />
-          <span>
-            Acepto los <a href="#">Términos y Condiciones</a>
-          </span>
-        </div>
-
-        <button type="submit">
-          Crear Cuenta →
+        <button type="submit" [disabled]="cargando">
+          {{ cargando ? 'Creando cuenta...' : 'Crear cuenta' }}
         </button>
-
       </form>
 
-      <div class="login-link">
-        ¿Ya tienes cuenta?
-        <a routerLink="/login">Iniciar Sesión</a>
-      </div>
-
+      <p class="login-link">¿Ya tienes cuenta? <a routerLink="/login">Iniciar sesión</a></p>
     </div>
-
   </section>
-
 </div>

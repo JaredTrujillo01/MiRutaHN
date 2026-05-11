@@ -31,7 +31,7 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/usuario/reportar/reportar').then(m => m.Reportar),
     },
     {
-        path: 'Perfil',
+        path: 'perfil',
         loadComponent: () => import('./pages/usuario/perfil/perfil').then(m => m.Perfil),
     },
     {
