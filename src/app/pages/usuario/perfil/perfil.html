@@ -1,1 +1,66 @@
-<p>perfil works!</p>
+<div class="perfil-page">
+  <div class="perfil-card">
+    <h1>Mi Perfil</h1>
+
+    @if (cargando) {
+      <div class="loading">Cargando...</div>
+    }
+
+    @if (mensaje) {
+      <div class="alerta-exito">{{ mensaje }}</div>
+    }
+
+    @if (error) {
+      <div class="alerta-error">{{ error }}</div>
+    }
+
+    @if (usuario && !cargando) {
+      <div class="avatar">
+        <span>{{ usuario.nombre.charAt(0).toUpperCase() }}</span>
+      </div>
+
+      @if (!editando) {
+        <div class="info-row">
+          <label>Nombre</label>
+          <span>{{ usuario.nombre }}</span>
+        </div>
+        <div class="info-row">
+          <label>Correo</label>
+          <span>{{ usuario.email }}</span>
+        </div>
+        <div class="info-row">
+          <label>Teléfono</label>
+          <span>{{ usuario.telefono ?? 'No registrado' }}</span>
+        </div>
+        <div class="info-row">
+          <label>Rol</label>
+          <span class="badge">{{ usuario.rol }}</span>
+        </div>
+        <div class="info-row">
+          <label>Rutas favoritas</label>
+          <span>{{ usuario.rutasFavoritas?.length ?? 0 }} guardadas</span>
+        </div>
+
+        <div class="acciones">
+          <button class="btn-editar" (click)="iniciarEdicion()">Editar nombre</button>
+          <button class="btn-eliminar" (click)="eliminarCuenta()">Eliminar cuenta</button>
+        </div>
+      }
+
+      @if (editando) {
+        <div class="form-editar">
+          <label>Nuevo nombre</label>
+          <input type="text" [(ngModel)]="nombreEdit" name="nombreEdit" placeholder="Tu nombre" />
+          <div class="acciones">
+            <button class="btn-editar" (click)="guardarCambios()" [disabled]="cargando">Guardar</button>
+            <button class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
+          </div>
+        </div>
+      }
+    }
+
+    @if (!usuario && !cargando) {
+      <p class="sin-datos">No se encontró el perfil.</p>
+    }
+  </div>
+</div>

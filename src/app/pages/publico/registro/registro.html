@@ -1,1 +1,42 @@
-<p>registro works!</p>
+<div class="registro-page">
+  <section class="registro-image">
+    <div class="image-overlay">
+      <h2>MiRutaHN</h2>
+      <p>Únete y ayuda a mejorar el transporte público de Honduras.</p>
+    </div>
+  </section>
+
+  <section class="registro-content">
+    <div class="registro-card">
+      <h1>Crear cuenta</h1>
+      <p>Completa el formulario para registrarte.</p>
+
+      @if (error) {
+        <div class="alerta-error">{{ error }}</div>
+      }
+      @if (exito) {
+        <div class="alerta-exito">{{ exito }}</div>
+      }
+
+      <form (ngSubmit)="registrar()">
+        <label>Nombre completo</label>
+        <input type="text" [(ngModel)]="nombre" name="nombre" placeholder="Tu nombre" />
+
+        <label>Correo electrónico</label>
+        <input type="email" [(ngModel)]="email" name="email" placeholder="ejemplo@correo.com" />
+
+        <label>Teléfono</label>
+        <input type="tel" [(ngModel)]="telefono" name="telefono" placeholder="Ej: +504 9999-9999" />
+
+        <label>Contraseña</label>
+        <input type="password" [(ngModel)]="password" name="password" placeholder="Mínimo 6 caracteres" />
+
+        <button type="submit" [disabled]="cargando">
+          {{ cargando ? 'Creando cuenta...' : 'Crear cuenta' }}
+        </button>
+      </form>
+
+      <p class="login-link">¿Ya tienes cuenta? <a routerLink="/login">Iniciar sesión</a></p>
+    </div>
+  </section>
+</div>

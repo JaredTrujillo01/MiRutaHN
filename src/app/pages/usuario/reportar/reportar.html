@@ -1,1 +1,67 @@
-<p>reportar works!</p>
+<div class="reportar-page">
+
+  <!-- FORMULARIO NUEVO REPORTE -->
+  <div class="card form-card">
+    <h2>Reportar incidencia</h2>
+    <p>Informa a otros usuarios sobre problemas en las rutas.</p>
+
+    @if (mensaje) {
+      <div class="alerta-exito">{{ mensaje }}</div>
+    }
+    @if (error) {
+      <div class="alerta-error">{{ error }}</div>
+    }
+
+    <form (ngSubmit)="enviarReporte()">
+      <label>ID de Ruta afectada</label>
+      <input type="text" [(ngModel)]="rutaId" name="rutaId" placeholder="Ej: ruta_01, linea_norte..." />
+
+      <label>Tipo de incidencia</label>
+      <select [(ngModel)]="tipo" name="tipo">
+        @for (t of tiposReporte; track t.value) {
+          <option [value]="t.value">{{ t.label }}</option>
+        }
+      </select>
+
+      <label>Descripción</label>
+      <textarea [(ngModel)]="descripcion" name="descripcion" rows="3"
+        placeholder="Describe brevemente la situación..."></textarea>
+
+      <button type="submit" [disabled]="enviando">
+        {{ enviando ? 'Enviando...' : 'Enviar reporte' }}
+      </button>
+    </form>
+  </div>
+
+  <!-- LISTA DE REPORTES ACTIVOS -->
+  <div class="card lista-card">
+    <h2>Reportes activos</h2>
+
+    @if (cargando) {
+      <div class="loading">Cargando reportes...</div>
+    }
+
+    @if (!cargando && reportes.length === 0) {
+      <div class="sin-datos">No hay reportes activos en este momento.</div>
+    }
+
+    @for (reporte of reportes; track reporte.id) {
+      <div class="reporte-item">
+        <div class="reporte-header">
+          <span class="tipo-badge">{{ getLabelTipo(reporte.tipo) }}</span>
+          <span class="ruta-id">Ruta: {{ reporte.rutaId }}</span>
+        </div>
+        <p class="descripcion">{{ reporte.descripcion }}</p>
+        <div class="reporte-footer">
+          <span class="usuario">👤 {{ reporte.usuarioNombre }}</span>
+          <span class="votos">👍 {{ reporte.votos }} confirmaciones</span>
+        </div>
+        <div class="acciones-reporte">
+          <button class="btn-votar" (click)="votar(reporte.id!)">Confirmar</button>
+          <button class="btn-resolver" (click)="marcarResuelto(reporte.id!)">Resuelto</button>
+          <button class="btn-eliminar" (click)="eliminar(reporte.id!)">Eliminar</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,84 @@
+.perfil-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F5F7FA;
+  padding: 2rem;
+}
+
+.perfil-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2.5rem;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+
+  h1 { color: #1565C0; margin-bottom: 1.5rem; font-size: 1.8rem; }
+}
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #1565C0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+
+  span { color: white; font-size: 2rem; font-weight: 700; }
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #ECEFF1;
+
+  label { font-weight: 600; color: #455A64; font-size: 0.9rem; }
+  span { color: #263238; }
+}
+
+.badge {
+  background: #E3F2FD;
+  color: #1565C0;
+  padding: 0.2rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.acciones {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+
+  button { flex: 1; padding: 0.75rem; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+}
+
+.btn-editar { background: #1565C0; color: white; &:hover { background: #0D47A1; } &:disabled { opacity: 0.6; } }
+.btn-eliminar { background: #FFEBEE; color: #C62828; &:hover { background: #FFCDD2; } }
+.btn-cancelar { background: #ECEFF1; color: #455A64; &:hover { background: #CFD8DC; } }
+
+.form-editar {
+  margin-top: 1rem;
+
+  label { display: block; font-weight: 600; color: #455A64; margin-bottom: 0.4rem; }
+  input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #CFD8DC;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    &:focus { outline: none; border-color: #1565C0; }
+  }
+}
+
+.loading, .sin-datos { text-align: center; color: #78909C; padding: 2rem; }
+.alerta-error { background: #FFEBEE; color: #C62828; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #EF5350; font-size: 0.9rem; }
+.alerta-exito { background: #E8F5E9; color: #2E7D32; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #66BB6A; font-size: 0.9rem; }
