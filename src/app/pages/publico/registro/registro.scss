@@ -1,0 +1,196 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.registro-page {
+  min-height: 100vh;
+  display: flex;
+  background: #f4f7fb;
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+}
+
+.registro-image,
+.registro-content {
+  flex: 1;
+}
+
+.registro-image {
+  background:
+    linear-gradient(rgba(8, 40, 120, 0.68), rgba(8, 40, 120, 0.82)),
+    url("https://images.pexels.com/photos/68629/pexels-photo-68629.jpeg")
+      center/cover no-repeat;
+
+  color: white;
+}
+
+.image-overlay {
+  height: 100%;
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.logo h2 {
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.image-text {
+  margin-top: auto;
+  margin-bottom: 40px;
+}
+
+.image-text h1 {
+  max-width: 430px;
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1.05;
+  margin-bottom: 24px;
+}
+
+.image-text p {
+  max-width: 440px;
+  font-size: 20px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.9);
+}
+
+.verified-card {
+  background: rgba(255, 255, 255, 0.16);
+  padding: 18px;
+  border-radius: 14px;
+  max-width: 420px;
+  backdrop-filter: blur(8px);
+}
+
+.check-icon {
+  color: #22c55e;
+  margin-right: 6px;
+}
+
+.verified-card strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.verified-card span {
+  font-size: 13px;
+}
+
+.registro-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.registro-card {
+  width: 100%;
+  max-width: 430px;
+  background: white;
+  padding: 42px;
+  border-radius: 24px;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+}
+
+.registro-card h2 {
+  color: #2563eb;
+  font-size: 18px;
+}
+
+.registro-card h1 {
+  color: #0f172a;
+  font-size: 26px;
+  margin: 8px 0;
+}
+
+.registro-card p {
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 22px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  margin-bottom: 14px;
+  font-size: 14px;
+}
+
+.row {
+  display: flex;
+  gap: 14px;
+}
+
+.input-group {
+  flex: 1;
+}
+
+.terms {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.terms input {
+  width: auto;
+  margin: 0;
+}
+
+.terms a,
+.login-link a {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+button {
+  padding: 16px;
+  border: none;
+  border-radius: 10px;
+  background: #009933;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+@media (max-width: 850px) {
+  .registro-page {
+    flex-direction: column;
+  }
+
+  .registro-image {
+    min-height: 360px;
+  }
+
+  .row {
+    flex-direction: column;
+    gap: 0;
+  }
+}
