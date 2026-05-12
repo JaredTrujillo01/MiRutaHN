@@ -1,42 +1,73 @@
 <div class="registro-page">
   <section class="registro-image">
     <div class="image-overlay">
-      <h2>MiRutaHN</h2>
-      <p>Únete y ayuda a mejorar el transporte público de Honduras.</p>
+      <div class="image-text">
+        <h1>Transformando el transporte en Honduras.</h1>
+        <p>
+          Únete a la red más grande de movilidad inteligente y accede
+          a rutas optimizadas para tu día a día.
+        </p>
+      </div>
     </div>
   </section>
 
   <section class="registro-content">
     <div class="registro-card">
-      <h1>Crear cuenta</h1>
-      <p>Completa el formulario para registrarte.</p>
+      <h2>MiRutaHN</h2>
+      <h1>Crea tu cuenta gratuita</h1>
+      <p>Accede a las rutas registradas y reportes en tiempo real.</p>
 
       @if (error) {
         <div class="alerta-error">{{ error }}</div>
       }
+
       @if (exito) {
         <div class="alerta-exito">{{ exito }}</div>
       }
 
-      <form (ngSubmit)="registrar()">
+      <form [formGroup]="registroForm" (ngSubmit)="registrar()">
         <label>Nombre completo</label>
-        <input type="text" [(ngModel)]="nombre" name="nombre" placeholder="Tu nombre" />
+        <input type="text" placeholder="Ej. Juan Pérez" formControlName="nombre" />
 
-        <label>Correo electrónico</label>
-        <input type="email" [(ngModel)]="email" name="email" placeholder="ejemplo@correo.com" />
+        <div class="row">
+          <div class="input-group">
+            <label>Correo electrónico</label>
+            <input type="email" placeholder="email@ejemplo.com" formControlName="email" />
+          </div>
 
-        <label>Teléfono</label>
-        <input type="tel" [(ngModel)]="telefono" name="telefono" placeholder="Ej: +504 9999-9999" />
+          <div class="input-group">
+            <label>Teléfono</label>
+            <input type="text" placeholder="+504 9999-9999" formControlName="telefono" />
+          </div>
+        </div>
+
+        <label>Ciudad</label>
+        <select formControlName="ciudad">
+          <option value="">Seleccione tu ciudad</option>
+          <option value="Tegucigalpa">Tegucigalpa</option>
+          <option value="San Pedro Sula">San Pedro Sula</option>
+          <option value="La Ceiba">La Ceiba</option>
+        </select>
 
         <label>Contraseña</label>
-        <input type="password" [(ngModel)]="password" name="password" placeholder="Mínimo 6 caracteres" />
+        <input type="password" placeholder="********" formControlName="password" />
+
+        <div class="terms">
+          <input type="checkbox" formControlName="aceptaTerminos" />
+          <span>
+            Acepto los <a href="#">Términos y Condiciones</a>
+          </span>
+        </div>
 
         <button type="submit" [disabled]="cargando">
-          {{ cargando ? 'Creando cuenta...' : 'Crear cuenta' }}
+          {{ cargando ? 'Creando cuenta...' : 'Crear Cuenta →' }}
         </button>
       </form>
 
-      <p class="login-link">¿Ya tienes cuenta? <a routerLink="/login">Iniciar sesión</a></p>
+      <div class="login-link">
+        ¿Ya tienes cuenta?
+        <a routerLink="/login">Iniciar Sesión</a>
+      </div>
     </div>
   </section>
 </div>
