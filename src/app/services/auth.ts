@@ -1,9 +1,12 @@
-import { Injectable } from '@angular/core';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { getDoc } from 'firebase/firestore';
+import { Injectable, inject } from '@angular/core';
+import {
+  Auth,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  User,
+} from '@angular/fire/auth';
+import { doc, Firestore, getDoc, setDoc } from '@angular/fire/firestore';
 
 export interface RegistroUsuario {
   nombre: string;
@@ -17,12 +20,12 @@ export interface RegistroUsuario {
   providedIn: 'root',
 })
 export class AuthService {
-  private auth = getAuth();
-  private db = getFirestore();
+  private auth = inject(Auth);
+  private db = inject(Firestore);
 
   loginUsuario(email: string, password: string) {
-  return signInWithEmailAndPassword(this.auth, email, password);
-   }
+    return signInWithEmailAndPassword(this.auth, email, password);
+  }
 
   obtenerUsuarioActual(): Promise<User | null> {
     return new Promise((resolve) => {
