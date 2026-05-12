@@ -2,6 +2,16 @@
   <app-sidebar></app-sidebar>
 
   <div class="main-content">
+
+    @if (!cargandoUsuario && usuario) {
+      <div class="usuario-bienvenida">
+        <h2>¡Bienvenido, {{ usuario.nombre }}!</h2>
+
+        <p>
+          {{ usuario.email }} · {{ usuario.ciudad }}
+        </p>
+      </div>
+    }
     <!-- PASO 1: Pantalla principal (solo barra + alerta) -->
     @if (paso() === 1) {
       <div class="search-header">
