@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-sidebar',
@@ -7,4 +8,16 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
 })
-export class Sidebar {}
+export class Sidebar {
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
+  async cerrarSesion() {
+    try {
+      await this.authService.cerrarSesion();
+      this.router.navigate(['/']);
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
+  }
+}

@@ -1,66 +1,244 @@
 <div class="perfil-page">
-  <div class="perfil-card">
-    <h1>Mi Perfil</h1>
+  <app-sidebar></app-sidebar>
 
-    @if (cargando) {
-      <div class="loading">Cargando...</div>
+  <main class="perfil-main">
+    @if (cargando()) {
+      <div class="loading-card">
+        <i class="material-icons">hourglass_empty</i>
+        <p>Cargando perfil...</p>
+      </div>
     }
 
     @if (mensaje) {
-      <div class="alerta-exito">{{ mensaje }}</div>
+      <div class="alerta exito">{{ mensaje }}</div>
     }
 
     @if (error) {
-      <div class="alerta-error">{{ error }}</div>
+      <div class="alerta error">{{ error }}</div>
     }
 
-    @if (usuario && !cargando) {
-      <div class="avatar">
-        <span>{{ usuario.nombre.charAt(0).toUpperCase() }}</span>
-      </div>
+    @if (usuario() && !cargando()) {
+      <section class="perfil-hero">
+        <div class="hero-bg"></div>
 
-      @if (!editando) {
-        <div class="info-row">
-          <label>Nombre</label>
-          <span>{{ usuario.nombre }}</span>
-        </div>
-        <div class="info-row">
-          <label>Correo</label>
-          <span>{{ usuario.email }}</span>
-        </div>
-        <div class="info-row">
-          <label>Teléfono</label>
-          <span>{{ usuario.telefono ?? 'No registrado' }}</span>
-        </div>
-        <div class="info-row">
-          <label>Rol</label>
-          <span class="badge">{{ usuario.rol }}</span>
-        </div>
-        <div class="info-row">
-          <label>Rutas favoritas</label>
-          <span>{{ usuario.rutasFavoritas?.length ?? 0 }} guardadas</span>
-        </div>
+        <div class="perfil-header">
+          <img
+            class="avatar-principal"
+            [src]="usuario()?.avatarUrl || 'assets/avatars/avatar-1.png'"
+            alt="Avatar de usuario"
+          />
 
-        <div class="acciones">
-          <button class="btn-editar" (click)="iniciarEdicion()">Editar nombre</button>
-          <button class="btn-eliminar" (click)="eliminarCuenta()">Eliminar cuenta</button>
-        </div>
-      }
-
-      @if (editando) {
-        <div class="form-editar">
-          <label>Nuevo nombre</label>
-          <input type="text" [(ngModel)]="nombreEdit" name="nombreEdit" placeholder="Tu nombre" />
-          <div class="acciones">
-            <button class="btn-editar" (click)="guardarCambios()" [disabled]="cargando">Guardar</button>
-            <button class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
+          <div class="perfil-info">
+            <span class="badge">{{ usuario()?.rol || 'Ciudadano' }}</span>
+            <h1>{{ usuario()?.nombre }}</h1>
+            <p>{{ usuario()?.email }}</p>
           </div>
+
+          <button class="btn-editar" (click)="iniciarEdicion()">
+            <i class="material-icons">edit</i>
+            Editar perfil
+          </button>
         </div>
-      }
+      </section>
+
+      <section class="perfil-grid">
+        <div class="stats-grid">
+          <article class="stat-card">
+            <i class="material-icons">favorite</i>
+            <div>
+              <span>Favoritos</span>
+              <strong>{{ usuario()?.rutasFavoritas?.length ?? 0 }} rutas</strong>
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <i class="material-icons">report_problem</i>
+            <div>
+              <span>Actividad</span>
+              <strong>Reportes activos</strong>
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <i class="material-icons">location_city</i>
+            <div>
+              <span>Ciudad</span>
+              <strong>{{ usuario()?.ciudad || 'No registrada' }}</strong>
+            </div>
+          </article>
+        </div>
+
+        <section class="info-card">
+          <div class="section-title">
+            <h2>Información personal</h2>
+            <p>Datos principales de tu cuenta.</p>
+          </div>
+
+          @if (!editando()) {
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Nombre completo</label>
+                <span>{{ usuario()?.nombre }}</span>
+              </div>
+
+              <div class="info-item">
+                <label>Correo electrónico</label>
+                <span>{{ usuario()?.email }}</span>
+              </div>
+
+              <div class="info-item">
+                <label>Teléfono</label>
+                <span>{{ usuario()?.telefono || 'No registrado' }}</span>
+              </div>
+
+              <div class="info-item">
+                <label>Ciudad</label>
+                <span>{{ usuario()?.ciudad || 'No registrada' }}</span>
+              </div>
+            </div>
+          }
+
+          @if (editando()) {
+            <div class="form-editar">
+              <div class="avatar-selector">
+                <label>Elige tu avatar</label>
+
+                <div class="avatar-grid">
+                  @for (avatar of avatares; track avatar) {
+                    <button
+                      type="button"
+                      class="avatar-option"
+                      [class.active]="avatarEdit === avatar"
+                      (click)="seleccionarAvatar(avatar)"
+                    >
+                      <img [src]="avatar" alt="Avatar disponible" />
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="campo">
+                  <label>Nombre completo</label>
+                  <input type="text" [(ngModel)]="nombreEdit" />
+                </div>
+
+                <div class="campo">
+                  <label>Teléfono</label>
+                  <input type="text" [(ngModel)]="telefonoEdit" />
+                </div>
+
+                <div class="campo">
+                  <label>Ciudad</label>
+                  <input type="text" [(ngModel)]="ciudadEdit" />
+                </div>
+
+                <div class="campo disabled">
+                  <label>Correo electrónico</label>
+                  <input type="text" [value]="usuario()?.email" disabled />
+                </div>
+              </div>
+
+              <div class="acciones">
+                <button class="btn-guardar" (click)="guardarCambios()">
+                  <i class="material-icons">save</i>
+                  Guardar cambios
+                </button>
+
+                <button class="btn-cancelar" (click)="cancelarEdicion()">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          }
+        </section>
+
+        <section class="security-card">
+          <div>
+            <h2>Seguridad</h2>
+            <p>Administra opciones importantes de tu cuenta.</p>
+          </div>
+
+          <button class="btn-secundario" (click)="abrirPasswordForm()">
+            <i class="material-icons">lock</i>
+            Cambiar contraseña
+          </button>
+        </section>
+
+        <section class="logout-card">
+          <div>
+            <h2>Cerrar sesión</h2>
+            <p>Sal de tu cuenta y vuelve a la página principal.</p>
+          </div>
+
+          <button class="btn-logout" (click)="cerrarSesion()">
+            <i class="material-icons">logout</i>
+            Cerrar sesión
+          </button>
+        </section>
+      </section>
     }
 
-    @if (!usuario && !cargando) {
-      <p class="sin-datos">No se encontró el perfil.</p>
+    @if (mostrarPasswordForm()) {
+      <div class="password-overlay">
+        <section class="password-card">
+          <button class="btn-close-password" (click)="cerrarPasswordForm()">
+            <i class="material-icons">close</i>
+          </button>
+
+          <div class="section-title">
+            <h2>Cambiar contraseña</h2>
+            <p>Ingresa tu contraseña actual y define una nueva.</p>
+          </div>
+
+          <div class="password-grid">
+            <div class="campo">
+              <label>Contraseña actual</label>
+              <input
+                type="password"
+                [(ngModel)]="passwordActual"
+                placeholder="Ingresa tu contraseña actual"
+              />
+            </div>
+
+            <div class="campo">
+              <label>Nueva contraseña</label>
+              <input
+                type="password"
+                [(ngModel)]="passwordNueva"
+                placeholder="Mínimo 6 caracteres"
+              />
+            </div>
+
+            <div class="campo">
+              <label>Confirmar nueva contraseña</label>
+              <input
+                type="password"
+                [(ngModel)]="passwordConfirmar"
+                placeholder="Repite la nueva contraseña"
+              />
+            </div>
+          </div>
+
+          <div class="acciones">
+            <button class="btn-guardar" (click)="cambiarPassword()">
+              <i class="material-icons">lock_reset</i>
+              Actualizar contraseña
+            </button>
+
+            <button class="btn-cancelar" (click)="cerrarPasswordForm()">
+              Cancelar
+            </button>
+          </div>
+        </section>
+      </div>
     }
-  </div>
+
+    @if (!usuario() && !cargando() && !error) {
+      <div class="loading-card">
+        <i class="material-icons">person_off</i>
+        <p>No se encontró el perfil.</p>
+      </div>
+    }
+  </main>
 </div>
