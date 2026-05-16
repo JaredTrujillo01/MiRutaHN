@@ -1,45 +1,58 @@
 <div class="paradas-container">
   <div class="paradas-header">
-    <h3>Paradas Cercanas</h3>
-    <i class="material-icons">my_location</i>
+    <div>
+      <span class="header-badge">Cercanas</span>
+      <h3>Paradas disponibles</h3>
+    </div>
+
+    <div class="ubicacion-icon">
+      <i class="material-icons">my_location</i>
+    </div>
   </div>
 
   <div class="paradas-list">
-    <div class="parada-card">
+    <article class="parada-card">
       <div class="parada-icon">
         <i class="material-icons">directions_bus</i>
       </div>
+
       <div class="parada-info">
-        <p class="parada-nombre">Multiplaza Sur</p>
+        <strong class="parada-nombre">Multiplaza Sur</strong>
         <p class="parada-ruta">Ruta 01 • Anillo Periférico</p>
       </div>
-      <div class="parada-tiempo">3 min</div>
-    </div>
 
-    <div class="parada-card">
+      <div class="parada-tiempo">3 min</div>
+    </article>
+
+    <article class="parada-card">
       <div class="parada-icon green">
         <i class="material-icons">directions_bus</i>
       </div>
+
       <div class="parada-info">
-        <p class="parada-nombre">UNAH Principal</p>
+        <strong class="parada-nombre">UNAH Principal</strong>
         <p class="parada-ruta">Ruta 14 • Blv. Suyapa</p>
       </div>
-      <div class="parada-tiempo">8 min</div>
-    </div>
 
-    <div class="parada-card">
+      <div class="parada-tiempo">8 min</div>
+    </article>
+
+    <article class="parada-card">
       <div class="parada-icon orange">
         <i class="material-icons">directions_bus</i>
       </div>
+
       <div class="parada-info">
-        <p class="parada-nombre">Parque Central</p>
+        <strong class="parada-nombre">Parque Central</strong>
         <p class="parada-ruta">Ruta 05 • Centro Histórico</p>
       </div>
+
       <div class="parada-tiempo">14 min</div>
-    </div>
+    </article>
   </div>
 
   <button class="ver-todas" (click)="onBuscar()">
-    Ver todas las paradas <i class="material-icons">arrow_forward</i>
+    Ver todas las paradas
+    <i class="material-icons">arrow_forward</i>
   </button>
 </div>

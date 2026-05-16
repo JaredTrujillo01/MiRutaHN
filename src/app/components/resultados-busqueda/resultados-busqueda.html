@@ -1,36 +1,53 @@
 <div class="resultados">
   <div class="resultados-header">
     <button class="btn-volver" (click)="volver.emit()">
-      <i class="material-icons">arrow_back</i> Volver
+      <i class="material-icons">arrow_back</i>
+      Volver
     </button>
-    <h2>Rutas recomendadas</h2>
-    <p class="contador">{{ rutas().length }} resultados encontrados</p>
+
+    <div class="header-info">
+      <h2>Rutas recomendadas</h2>
+      <p class="contador">{{ rutas().length }} resultados encontrados</p>
+    </div>
   </div>
 
   <div class="lista-rutas">
     @for (ruta of rutas(); track ruta.id) {
-      <div class="ruta" [class.active]="ruta.active">
-        <div class="ruta-icon">
-          <i class="material-icons">directions_bus</i>
-        </div>
-        <div class="ruta-info">
-          <h4>{{ ruta.nombre }}</h4>
-          <div class="detalles">
-            <span>
-              <i class="material-icons">payments</i> L.{{ ruta.precio }}.00
-            </span>
-            <span>
-              <i class="material-icons">schedule</i> {{ ruta.tiempo }} min
-            </span>
-            <span class="badge" [class.verde]="ruta.active">
-              <i class="material-icons">timer</i> Llega en {{ ruta.llega }}
-            </span>
+      <article class="ruta" [class.active]="ruta.active">
+        <div class="ruta-top">
+          <div class="ruta-icon">
+            <i class="material-icons">directions_bus</i>
+          </div>
+
+          <div class="ruta-info">
+            <h4>{{ ruta.nombre }}</h4>
+
+            <div class="estado-ruta">
+              <span class="badge" [class.verde]="ruta.active">
+                <i class="material-icons">timer</i>
+                Llega en {{ ruta.llega }}
+              </span>
+            </div>
           </div>
         </div>
+
+        <div class="detalles">
+          <span>
+            <i class="material-icons">payments</i>
+            L.{{ ruta.precio }}.00
+          </span>
+
+          <span>
+            <i class="material-icons">schedule</i>
+            {{ ruta.tiempo }} min
+          </span>
+        </div>
+
         <button class="btn-ver" (click)="seleccionarRuta(ruta)">
-          Ver Ruta <i class="material-icons">arrow_forward</i>
+          Ver ruta
+          <i class="material-icons">arrow_forward</i>
         </button>
-      </div>
+      </article>
     }
   </div>
 </div>

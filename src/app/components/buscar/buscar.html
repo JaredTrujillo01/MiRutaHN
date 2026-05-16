@@ -1,40 +1,49 @@
 <div class="formulario-busqueda">
   <div class="form-header">
-    <button class="btn-cancelar" (click)="cancelar.emit()">
+    <div>
+      <span class="material-icons">travel_explore</span>
+      <h2>Buscar ruta</h2>
+      <p>Ingresa tu origen, destino y horario.</p>
+    </div>
+
+    <button class="btn-cancelar" (click)="cancelar.emit()" aria-label="Cerrar búsqueda">
       <i class="material-icons">close</i>
     </button>
   </div>
 
-  <div class="campo">
-    <label>ORIGEN</label>
-    <div class="campo-input">
-      <i class="material-icons">my_location</i>
-      <input type="text" placeholder="Colonia Miraflores" value="Colonia Miraflores">
+  <div class="form-grid">
+    <div class="campo">
+      <label>Origen</label>
+      <div class="campo-input">
+        <i class="material-icons">my_location</i>
+        <input type="text" placeholder="Colonia Miraflores" value="Colonia Miraflores" />
+      </div>
     </div>
-  </div>
 
-  <div class="campo">
-    <label>DESTINO</label>
-    <div class="campo-input">
-      <i class="material-icons">location_on</i>
-      <input type="text" placeholder="¿A dónde vas?">
+    <div class="campo">
+      <label>Destino</label>
+      <div class="campo-input">
+        <i class="material-icons">location_on</i>
+        <input type="text" placeholder="¿A dónde vas?" />
+      </div>
     </div>
-  </div>
 
-  <div class="campo">
-    <label>HORARIO</label>
-    <div class="campo-input">
-      <i class="material-icons">schedule</i>
-      <select>
-        <option>Ahora</option>
-        <option>En 15 min</option>
-        <option>En 30 min</option>
-        <option>En 1 hora</option>
-      </select>
+    <div class="campo campo-horario">
+      <label>Horario</label>
+      <div class="campo-input">
+        <i class="material-icons">schedule</i>
+        <select>
+          <option>Ahora</option>
+          <option>En 15 min</option>
+          <option>En 30 min</option>
+          <option>En 1 hora</option>
+        </select>
+      </div>
     </div>
   </div>
 
   <button class="btn-buscar" (click)="buscar.emit()">
-    Buscar Ruta <i class="material-icons">arrow_forward</i>
+    Buscar ruta
+    <i class="material-icons">arrow_forward</i>
   </button>
 </div>

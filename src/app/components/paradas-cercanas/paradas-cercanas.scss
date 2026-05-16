@@ -1,124 +1,192 @@
+* {
+  box-sizing: border-box;
+}
+
 .paradas-container {
-  background: white;
-  border-radius: 20px;
-  padding: 16px;
-  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
-  max-width: 380px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 24px;
+  padding: 1rem;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.14);
+  font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
+  backdrop-filter: blur(12px);
+  overflow: hidden;
 }
 
 .paradas-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.header-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #dbeafe;
+  color: #2563eb;
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.68rem;
+  font-weight: 900;
+  margin-bottom: 0.4rem;
 }
 
 .paradas-header h3 {
-  font-size: 16px;
-  font-weight: 600;
   color: #0f172a;
+  font-size: 1.15rem;
   margin: 0;
 }
 
-.paradas-header i {
+.ubicacion-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  background: #eff6ff;
   color: #2563eb;
-  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.ubicacion-icon i {
+  font-size: 1.35rem;
 }
 
 .paradas-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  gap: 0.75rem;
 }
 
 .parada-card {
-  display: flex;
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.75rem;
   align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  border-radius: 12px;
   background: #f8fafc;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.parada-card:hover {
-  background: #eff6ff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 0.85rem;
+  overflow: hidden;
+  transition: 0.2s ease;
 }
 
 .parada-icon {
-  width: 36px;
-  height: 36px;
+  width: 46px;
+  height: 46px;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
   background: #dbeafe;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  color: #2563eb;
+  flex-shrink: 0;
 }
 
 .parada-icon i {
-  font-size: 18px;
-  color: #2563eb;
+  font-size: 1.35rem;
 }
 
 .parada-icon.green {
-  background: #dcfce7;
-}
-
-.parada-icon.green i {
-  color: #10b981;
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
 }
 
 .parada-icon.orange {
-  background: #ffedd5;
-}
-
-.parada-icon.orange i {
-  color: #f97316;
+  background: rgba(249, 115, 22, 0.14);
+  color: #ea580c;
 }
 
 .parada-info {
-  flex: 1;
+  min-width: 0;
 }
 
 .parada-nombre {
-  font-weight: 600;
-  font-size: 13px;
+  display: block;
   color: #0f172a;
-  margin-bottom: 2px;
+  font-size: 0.9rem;
+  margin-bottom: 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .parada-ruta {
-  font-size: 10px;
   color: #64748b;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .parada-tiempo {
-  font-weight: 600;
-  color: #10b981;
-  font-size: 12px;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 900;
+  white-space: nowrap;
 }
 
 .ver-todas {
   width: 100%;
-  margin-top: 12px;
-  background: none;
+  min-height: 48px;
+  margin-top: 1rem;
   border: none;
-  color: #2563eb;
-  font-weight: 500;
-  font-size: 12px;
-  cursor: pointer;
-  display: flex;
+  border-radius: 15px;
+  background: #2563eb;
+  color: #ffffff;
+  font-family: inherit;
+  font-weight: 900;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 8px;
+  gap: 0.4rem;
+  cursor: pointer;
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.22);
+  transition: 0.2s ease;
 }
 
 .ver-todas i {
-  font-size: 14px;
+  font-size: 1.1rem;
 }
 
-.ver-todas:hover {
-  text-decoration: underline;
+@media (max-width: 420px) {
+  .parada-card {
+    grid-template-columns: auto 1fr;
+  }
+
+  .parada-tiempo {
+    grid-column: 2 / 3;
+    width: fit-content;
+  }
+
+  .paradas-container {
+    border-radius: 22px;
+  }
+}
+
+@media (min-width: 768px) {
+  .paradas-container {
+    padding: 1.1rem;
+  }
+
+  .paradas-header h3 {
+    font-size: 1.2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .parada-card:hover {
+    transform: translateY(-2px);
+    background: #ffffff;
+  }
+
+  .ver-todas:hover {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+  }
 }
