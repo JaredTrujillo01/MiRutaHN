@@ -1,6 +1,10 @@
 <aside class="sidebar">
   <div class="sidebar-header">
-    <div class="logo">🚌 MiRutaHN</div>
+    <div class="logo">
+      <span class="material-icons">directions_bus</span>
+      <span>MiRutaHN</span>
+    </div>
+
     <span class="user-badge">Ciudadano</span>
   </div>
 
@@ -9,32 +13,27 @@
       <i class="material-icons">dashboard</i>
       <span>Dashboard</span>
     </a>
+
     <a class="nav-item" routerLink="/favoritos" routerLinkActive="active">
       <i class="material-icons">favorite</i>
       <span>Favoritos</span>
     </a>
+
     <a class="nav-item" routerLink="/reportar" routerLinkActive="active">
       <i class="material-icons">warning</i>
       <span>Reportes</span>
     </a>
+
     <a class="nav-item" routerLink="/perfil" routerLinkActive="active">
       <i class="material-icons">person</i>
-      <span>Mi Perfil</span>
+      <span>Perfil</span>
     </a>
   </nav>
 
   <div class="sidebar-footer">
-    <button class="btn-nueva">
-      <i class="material-icons">add</i>
-      <span>Nueva Ruta</span>
-    </button>
-    <a class="footer-link">
-      <i class="material-icons">settings</i>
-      <span>Ajustes</span>
-    </a>
-    <a class="footer-link logout">
+    <button class="footer-link logout" (click)="cerrarSesion()">
       <i class="material-icons">logout</i>
-      <span>Cerrar Sesión</span>
-    </a>
+      <span>Cerrar sesión</span>
+    </button>
   </div>
 </aside>

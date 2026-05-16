@@ -1,187 +1,247 @@
 <app-navbar></app-navbar>
+
 <main class="landing">
-  <!-- HERO SECTION -->
   <section id="hero" class="hero">
     <div class="hero-overlay"></div>
+
     <div class="hero-content">
-      <div class="hero-badge">
-      </div>
-      
-      <h1 class="hero-title">
-        Tu ciudad,<br/>
-        <span>en movimiento.</span>
-      </h1>
-      
-      <p class="hero-subtitle">
-        Descubre la forma más inteligente de moverte por Honduras. 
-        Rutas, horarios y reportes en tiempo real.
-      </p>
-      
-      <div class="hero-buttons">
-        <button class="btn-primary" routerLink="/registro">Comenzar ahora →</button>
-        <button class="btn-secondary" (click)="scrollTo('como-funciona')">Cómo funciona</button>
-      </div>
-      
-      <div class="hero-stats">
-        <div class="stat">
-          <span class="stat-number">100+</span>
-          <span class="stat-label">Viajes diarios</span>
+      <div class="hero-text">
+        <span class="hero-badge">
+          <span class="material-icons">directions_bus</span>
+          Transporte público colaborativo
+        </span>
+
+        <h1 class="hero-title">
+          Muévete por Honduras con más confianza
+        </h1>
+
+        <p class="hero-subtitle">
+          MiRutaHN te ayuda a conocer rutas, horarios aproximados, paradas y reportes ciudadanos
+          para mejorar tus viajes diarios en transporte público.
+        </p>
+
+        <div class="hero-buttons">
+          <button class="btn-primary" routerLink="/registro">
+            Crear cuenta gratis
+            <span class="material-icons">arrow_forward</span>
+          </button>
+
+          <button class="btn-secondary" (click)="scrollTo('beneficios')">
+            Conocer beneficios
+          </button>
         </div>
-        <div class="stat">
-          <span class="stat-number">30+</span>
-          <span class="stat-label">Rutas activas</span>
+
+        <div class="hero-stats">
+          <div class="stat">
+            <span class="stat-number">30+</span>
+            <span class="stat-label">Rutas proyectadas</span>
+          </div>
+
+          <div class="stat">
+            <span class="stat-number">24/7</span>
+            <span class="stat-label">Reportes ciudadanos</span>
+          </div>
+
+          <div class="stat">
+            <span class="stat-number">100%</span>
+            <span class="stat-label">Pensado para Honduras</span>
+          </div>
         </div>
-        <div class="stat">
-          <span class="stat-number">500+</span>
-          <span class="stat-label">Usuarios felices</span>
+      </div>
+
+      <div class="hero-card">
+        <div class="phone-preview">
+          <div class="phone-header">
+            <span class="material-icons">location_on</span>
+            <div>
+              <strong>MiRutaHN</strong>
+              <p>Ruta recomendada</p>
+            </div>
+          </div>
+
+          <div class="map-preview">
+            <span class="material-icons map-icon bus">directions_bus</span>
+            <span class="material-icons map-icon pin-one">place</span>
+            <span class="material-icons map-icon pin-two">school</span>
+            <div class="route-line"></div>
+          </div>
+
+          <div class="route-card">
+            <div>
+              <strong>Centro → UNAH</strong>
+              <p>Tiempo estimado: 25 min</p>
+            </div>
+            <span class="status">Activa</span>
+          </div>
+
+          <div class="alert-card">
+            <span class="material-icons">campaign</span>
+            <p>Usuarios reportan tráfico moderado en la zona.</p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- PROBLEMA SECTION -->
   <section class="problema">
     <div class="container">
       <div class="section-header">
         <span class="badge">El problema</span>
-        <h2>¿Cuántas veces has esperado un bus sin saber si vendrá?</h2>
-        <p>En Honduras, el transporte público no tiene información clara de rutas ni horarios.</p>
+        <h2>La información del transporte público no siempre es clara</h2>
+        <p>
+          Muchos usuarios esperan buses sin saber horarios, rutas exactas o cambios en el recorrido.
+        </p>
       </div>
-      
+
       <div class="problema-grid">
-        <div class="problema-card">
-          <div class="icon">⏰</div>
+        <article class="info-card">
+          <span class="material-icons card-icon">schedule</span>
           <h3>Esperas innecesarias</h3>
-          <p>Sin saber si el bus pasó o viene con retraso.</p>
-        </div>
-        <div class="problema-card">
-          <div class="icon">🗺️</div>
-          <h3>Desconoces las rutas</h3>
-          <p>No sabes qué bus tomar para llegar a tu destino.</p>
-        </div>
-        <div class="problema-card">
-          <div class="icon">📢</div>
-          <h3>Sin información en tiempo real</h3>
-          <p>No hay forma de saber incidentes o buses llenos.</p>
-        </div>
+          <p>No saber si la unidad ya pasó hace perder tiempo todos los días.</p>
+        </article>
+
+        <article class="info-card">
+          <span class="material-icons card-icon">map</span>
+          <h3>Rutas poco claras</h3>
+          <p>Muchas personas no conocen qué ruta tomar para llegar a su destino.</p>
+        </article>
+
+        <article class="info-card">
+          <span class="material-icons card-icon">warning</span>
+          <h3>Falta de reportes</h3>
+          <p>Los usuarios no tienen una forma sencilla de comunicar atrasos o incidentes.</p>
+        </article>
       </div>
     </div>
   </section>
 
-  <!-- BENEFICIOS SECTION -->
   <section id="beneficios" class="beneficios">
     <div class="container">
       <div class="section-header">
         <span class="badge">La solución</span>
-        <h2>Todo lo que necesitas en una app</h2>
-        <p>MiRutaHN es una plataforma colaborativa que te mantiene informado.</p>
+        <h2>Una plataforma hecha para moverte mejor</h2>
+        <p>
+          MiRutaHN combina mapas, reportes ciudadanos y rutas favoritas en una experiencia simple.
+        </p>
       </div>
-      
+
       <div class="beneficios-grid">
-        <div class="beneficio-card">
-          <div class="icon blue">🗺️</div>
-          <h3>Ver rutas en mapa</h3>
-          <p>Explora todas las líneas de buses en un mapa interactivo.</p>
-        </div>
-        <div class="beneficio-card">
-          <div class="icon green">⏰</div>
+        <article class="beneficio-card">
+          <span class="material-icons beneficio-icon blue">route</span>
+          <h3>Rutas en mapa</h3>
+          <p>Visualiza recorridos y paradas principales desde tu dispositivo.</p>
+        </article>
+
+        <article class="beneficio-card">
+          <span class="material-icons beneficio-icon green">access_time</span>
           <h3>Horarios aproximados</h3>
-          <p>Planifica tu día con horarios confiables.</p>
-        </div>
-        <div class="beneficio-card">
-          <div class="icon red">⚠️</div>
-          <h3>Reportes en tiempo real</h3>
-          <p>Usuarios reportan retrasos, buses llenos y accidentes.</p>
-        </div>
-        <div class="beneficio-card">
-          <div class="icon orange">⭐</div>
-          <h3>Guardar rutas favoritas</h3>
-          <p>Acceso rápido a tus viajes diarios.</p>
-        </div>
+          <p>Consulta tiempos estimados para planificar mejor tus salidas.</p>
+        </article>
+
+        <article class="beneficio-card">
+          <span class="material-icons beneficio-icon red">report_problem</span>
+          <h3>Reportes ciudadanos</h3>
+          <p>Informa retrasos, tráfico, accidentes o unidades llenas.</p>
+        </article>
+
+        <article class="beneficio-card">
+          <span class="material-icons beneficio-icon orange">star</span>
+          <h3>Rutas favoritas</h3>
+          <p>Guarda tus rutas frecuentes para acceder a ellas rápidamente.</p>
+        </article>
       </div>
     </div>
   </section>
 
-  <!-- CÓMO FUNCIONA SECTION -->
   <section id="como-funciona" class="como-funciona">
     <div class="container">
-      <div class="section-header">
+      <div class="section-header light">
         <span class="badge">Cómo funciona</span>
         <h2>3 pasos para moverte mejor</h2>
+        <p>Una experiencia sencilla para ciudadanos, conductores y administradores.</p>
       </div>
-      
+
       <div class="pasos-grid">
-        <div class="paso">
+        <article class="paso">
           <div class="paso-number">1</div>
+          <span class="material-icons paso-icon">person_add</span>
           <h3>Regístrate gratis</h3>
-          <p>Crea tu cuenta en menos de 1 minuto.</p>
-        </div>
-        <div class="paso">
+          <p>Crea tu cuenta y accede a las funcionalidades principales.</p>
+        </article>
+
+        <article class="paso">
           <div class="paso-number">2</div>
-          <h3>Busca tu ruta</h3>
-          <p>Ingresa origen y destino, encuentra la mejor opción.</p>
-        </div>
-        <div class="paso">
+          <span class="material-icons paso-icon">travel_explore</span>
+          <h3>Consulta información</h3>
+          <p>Revisa rutas, paradas, tiempos aproximados y estado actual.</p>
+        </article>
+
+        <article class="paso">
           <div class="paso-number">3</div>
+          <span class="material-icons paso-icon">campaign</span>
           <h3>Reporta y colabora</h3>
-          <p>Comparte incidentes y ayuda a la comunidad.</p>
-        </div>
+          <p>Ayuda a otros usuarios compartiendo incidentes en tiempo real.</p>
+        </article>
       </div>
     </div>
   </section>
 
-  <!-- CONTACTO SECTION -->
   <section id="contacto" class="contacto">
     <div class="container">
       <div class="section-header">
         <span class="badge">Contáctanos</span>
         <h2>¿Tienes preguntas o sugerencias?</h2>
-        <p>Estamos aquí para ayudarte a mejorar tu experiencia.</p>
+        <p>Tu opinión ayuda a mejorar MiRutaHN para más ciudades de Honduras.</p>
       </div>
-      
+
       <div class="contacto-grid">
         <div class="contacto-formulario">
           <h3>Envíanos un mensaje</h3>
+
           <form>
-            <input type="text" placeholder="Tu nombre" class="form-input">
-            <input type="email" placeholder="Tu correo electrónico" class="form-input">
+            <input type="text" placeholder="Tu nombre" class="form-input" />
+            <input type="email" placeholder="Tu correo electrónico" class="form-input" />
             <textarea placeholder="Escribe tu mensaje aquí..." rows="4" class="form-textarea"></textarea>
-            <button type="submit" class="btn-enviar">Enviar mensaje →</button>
+
+            <button type="submit" class="btn-enviar">
+              Enviar mensaje
+              <span class="material-icons">send</span>
+            </button>
           </form>
         </div>
-        
+
         <div class="contacto-info">
           <h3>Información de contacto</h3>
-          
+
           <div class="info-item">
-            <div class="info-icon">📧</div>
+            <span class="material-icons info-icon">mail</span>
             <div>
               <strong>Email</strong>
-              <p>info@mirutahn.com</p>
+              <p>info&#64;mirutahn.com</p>
             </div>
           </div>
-          
+
           <div class="info-item">
-            <div class="info-icon">📱</div>
+            <span class="material-icons info-icon">call</span>
             <div>
               <strong>Teléfono</strong>
               <p>+504 1234-5678</p>
             </div>
           </div>
-          
+
           <div class="info-item">
-            <div class="info-icon">📍</div>
+            <span class="material-icons info-icon">location_city</span>
             <div>
-              <strong>Oficina principal</strong>
+              <strong>Ubicación</strong>
               <p>San Pedro Sula, Honduras</p>
             </div>
           </div>
-          
+
           <div class="info-item">
-            <div class="info-icon">⏰</div>
+            <span class="material-icons info-icon">schedule</span>
             <div>
-              <strong>Horario de atención</strong>
-              <p>Lunes a Viernes: 8am - 5pm</p>
+              <strong>Horario</strong>
+              <p>Lunes a Viernes: 8:00 a.m. - 5:00 p.m.</p>
             </div>
           </div>
         </div>
@@ -189,13 +249,20 @@
     </div>
   </section>
 
-  <!-- CTA FINAL -->
   <section class="cta-final">
     <div class="cta-container">
-      <h2>Empieza a moverte con confianza hoy mismo</h2>
-      <p>Únete a miles de hondureños que ya están ahorrando tiempo.</p>
-      <button class="cta-button" routerLink="/registro">Registrarme gratis →</button>
+      <span class="material-icons cta-icon">directions_bus_filled</span>
+      <h2>Empieza a moverte con más seguridad</h2>
+      <p>
+        Únete a una plataforma pensada para mejorar la movilidad urbana en Honduras.
+      </p>
+
+      <button class="cta-button" routerLink="/registro">
+        Registrarme gratis
+        <span class="material-icons">arrow_forward</span>
+      </button>
     </div>
   </section>
 </main>
+
 <app-footer></app-footer>

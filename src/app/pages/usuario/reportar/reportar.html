@@ -1,147 +1,171 @@
-<div class="reportar">
+<div class="reportar-page">
   <app-sidebar></app-sidebar>
-  <!-- HEADER -->
-  <div class="reportes-header">
-    <h1>Reportes</h1>
-    <p>Ayuda a mejorar la red. Tus reportes permiten que otros ciudadanos planifiquen mejor sus viajes.</p>
-    
-    <div class="stats-cards">
-      <div class="stat-card">
-        <i class="material-icons">speed</i>
-        <div>
-          <span class="stat-value">~5 min</span>
-          <span class="stat-label">Tiempo de respuesta</span>
+
+  <main class="reportar-main">
+    <section class="reportes-layout">
+      <div class="reportes-info">
+        <div class="info-card intro-card">
+          <span class="badge">Comunidad</span>
+          <h2>Ayuda a mejorar la red</h2>
+          <p>
+            Tus reportes permiten que otros ciudadanos planifiquen mejor sus viajes.
+          </p>
         </div>
-      </div>
-      <div class="stat-card">
-        <i class="material-icons">report_problem</i>
-        <div>
-          <span class="stat-value">{{ reportes().length }}</span>
-          <span class="stat-label">Reportes activos</span>
-        </div>
-      </div>
-    </div>
 
-    <button class="btn-reportar" (click)="abrirFormulario()">
-      <i class="material-icons">add</i> Reportar Incidente
-    </button>
-  </div>
-
-  <!-- LISTA DE REPORTES -->
-  <div class="reportes-lista">
-    <h2>Reportes recientes</h2>
-    
-    @if (cargando()) {
-      <div class="loading-state">
-        <i class="material-icons">hourglass_empty</i>
-        <p>Cargando reportes...</p>
-      </div>
-    }
-
-    @if (!cargando() && reportes().length === 0) {
-      <div class="empty-state">
-        <i class="material-icons">report_off</i>
-        <p>No hay reportes activos</p>
-        <p class="empty-sub">Sé el primero en reportar un incidente</p>
-      </div>
-    }
-
-    <div class="lista">
-      @for (reporte of reportes(); track reporte.id) {
-        <div class="reporte-card" [style.border-left-color]="getColorPorTipo(reporte.tipo)">
-          <div class="reporte-icon" [style.background]="getColorPorTipo(reporte.tipo) + '20'">
-            <i class="material-icons" [style.color]="getColorPorTipo(reporte.tipo)">{{ getIconoPorTipo(reporte.tipo) }}</i>
+        <div class="stats-grid">
+          <div class="info-card stat-card">
+            <i class="material-icons">timer</i>
+            <span>Tiempo de respuesta</span>
+            <strong>~5 min</strong>
           </div>
-          <div class="reporte-content">
-            <div class="reporte-header">
-              <span class="reporte-tipo" [style.color]="getColorPorTipo(reporte.tipo)">
-                {{ getLabelPorTipo(reporte.tipo) }}
-              </span>
-              <span class="reporte-fecha">{{ formatearFecha(reporte.timestamp) }}</span>
-            </div>
-            <p class="reporte-comentario">{{ reporte.comentario }}</p>
-            <div class="reporte-meta">
-              <span class="reporte-ruta">
-                <i class="material-icons">directions_bus</i> {{ reporte.rutaNombre }}
-              </span>
-              <span class="reporte-usuario">
-                <i class="material-icons">person</i> {{ reporte.usuarioNombre }}
-              </span>
-            </div>
-            <div class="reporte-acciones">
-              <button class="btn-voto util">
-                <i class="material-icons">thumb_up</i> {{ reporte.votosUtiles }}
-              </button>
-              <button class="btn-voto falso">
-                <i class="material-icons">thumb_down</i> {{ reporte.votosFalso }}
-              </button>
-              <button class="btn-eliminar" (click)="eliminarReporte(reporte.id!)">
-                <i class="material-icons">delete</i>
-              </button>
-            </div>
+
+          <div class="info-card stat-card">
+            <i class="material-icons">report_problem</i>
+            <span>Reportes activos</span>
+            <strong>{{ reportes().length }}</strong>
           </div>
         </div>
-      }
-    </div>
-  </div>
 
-  <!-- MODAL FORMULARIO -->
-  @if (mostrarFormulario()) {
-    <div class="modal-overlay" (click)="cerrarFormulario()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3>Reportar Incidente</h3>
-          <button class="btn-cerrar" (click)="cerrarFormulario()">
-            <i class="material-icons">close</i>
-          </button>
-        </div>
+        <div class="info-card recientes-card">
+          <div class="recientes-header">
+            <span class="badge">En vivo</span>
+            <h3>Reportes recientes</h3>
+          </div>
 
-        <div class="modal-body">
-          <label>¿Qué está pasando?</label>
-          <div class="tipos-grid">
-            @for (tipo of tiposReporte; track tipo.valor) {
-              <button 
-                class="tipo-btn" 
-                [class.active]="nuevoReporte().tipo === tipo.valor"
-                (click)="seleccionarTipo(tipo.valor)">
-                <i class="material-icons">{{ tipo.icono }}</i>
-                <span>{{ tipo.label }}</span>
-              </button>
+          @if (cargando()) {
+            <div class="state-card">
+              <i class="material-icons">hourglass_empty</i>
+              <p>Cargando reportes...</p>
+            </div>
+          }
+
+          @if (!cargando() && reportes().length === 0) {
+            <div class="state-card">
+              <i class="material-icons">report_off</i>
+              <p>No hay reportes activos</p>
+              <small>Sé el primero en reportar un incidente.</small>
+            </div>
+          }
+
+          <div class="reportes-lista">
+            @for (reporte of reportes(); track reporte.id) {
+              <article class="reporte-card" [style.border-left-color]="getColorPorTipo(reporte.tipo)">
+                <div class="reporte-icon" [style.background]="getColorPorTipo(reporte.tipo) + '20'">
+                  <i class="material-icons" [style.color]="getColorPorTipo(reporte.tipo)">
+                    {{ getIconoPorTipo(reporte.tipo) }}
+                  </i>
+                </div>
+
+                <div class="reporte-content">
+                  <div class="reporte-top">
+                    <strong [style.color]="getColorPorTipo(reporte.tipo)">
+                      {{ getLabelPorTipo(reporte.tipo) }}
+                    </strong>
+
+                    <span>{{ formatearFecha(reporte.timestamp) }}</span>
+                  </div>
+
+                  <p>{{ reporte.comentario }}</p>
+
+                  <div class="reporte-meta">
+                    <span>
+                      <i class="material-icons">directions_bus</i>
+                      {{ reporte.rutaNombre }}
+                    </span>
+
+                    <span>
+                      <i class="material-icons">person</i>
+                      {{ reporte.usuarioNombre }}
+                    </span>
+                  </div>
+                </div>
+              </article>
             }
           </div>
-
-          <label>Ruta (opcional)</label>
-          <input 
-            type="text" 
-            class="input-field"
-            placeholder="Ej: Ruta 01 - Anillo Periférico"
-            [ngModel]="nuevoReporte().rutaNombre"
-            (ngModelChange)="actualizarRuta($event)"
-          >
-
-          <label>Comentario</label>
-          <textarea 
-            class="textarea-field"
-            placeholder="Describe brevemente la situación..."
-            [ngModel]="nuevoReporte().comentario"
-            (ngModelChange)="actualizarComentario($event)"
-            rows="3"
-          ></textarea>
-
-          <label>Foto (opcional)</label>
-          <div class="upload-area">
-            <i class="material-icons">cloud_upload</i>
-            <span>Subir foto</span>
-            <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden #fileInput>
-            <button class="btn-subir" (click)="fileInput.click()">Seleccionar archivo</button>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn-cancelar" (click)="cerrarFormulario()">Cancelar</button>
-          <button class="btn-enviar" (click)="enviarReporte()">Enviar Reporte</button>
         </div>
       </div>
-    </div>
-  }
+
+      <aside class="form-panel" [class.open]="mostrarFormulario()">
+        <div class="form-card">
+          <div class="form-header">
+            <span class="form-line"></span>
+
+            <div>
+              <h2>Reportar incidente</h2>
+              <p>Comparte información útil para otros usuarios.</p>
+            </div>
+
+            <button class="btn-close-mobile" (click)="cerrarFormulario()">
+              <i class="material-icons">close</i>
+            </button>
+          </div>
+
+          <div class="form-body">
+            <label>¿Qué está pasando?</label>
+
+            <div class="tipos-grid">
+              @for (tipo of tiposReporte; track tipo.valor) {
+                <button
+                  type="button"
+                  class="tipo-btn"
+                  [class.active]="nuevoReporte().tipo === tipo.valor"
+                  [style.--tipo-color]="tipo.color"
+                  (click)="seleccionarTipo(tipo.valor)"
+                >
+                  <i class="material-icons">{{ tipo.icono }}</i>
+                  <span>{{ tipo.label }}</span>
+                </button>
+              }
+            </div>
+
+            <label>Ruta opcional</label>
+            <input
+              type="text"
+              class="input-field"
+              placeholder="Ej: Ruta 01 - Anillo Periférico"
+              [ngModel]="nuevoReporte().rutaNombre"
+              (ngModelChange)="actualizarRuta($event)"
+            />
+
+            <label>Comentario</label>
+            <textarea
+              class="textarea-field"
+              placeholder="Describe brevemente la situación..."
+              [ngModel]="nuevoReporte().comentario"
+              (ngModelChange)="actualizarComentario($event)"
+              rows="4"
+            ></textarea>
+
+            <label>Foto opcional</label>
+            <div class="upload-area">
+              <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden #fileInput />
+
+              <button type="button" class="upload-button" (click)="fileInput.click()">
+                <i class="material-icons">photo_camera</i>
+                <span>Subir foto</span>
+              </button>
+
+              @if (nuevoReporte().fotoUrl) {
+                <img [src]="nuevoReporte().fotoUrl" alt="Foto seleccionada" />
+              }
+            </div>
+
+            <button class="btn-enviar" (click)="enviarReporte()">
+              Enviar reporte
+              <i class="material-icons">send</i>
+            </button>
+
+            <p class="privacy-note">
+              Tu ubicación podrá vincularse automáticamente al reporte cuando se active la geolocalización.
+            </p>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <button class="mobile-report-btn" (click)="abrirFormulario()">
+      <i class="material-icons">add</i>
+      Reportar
+    </button>
+  </main>
 </div>

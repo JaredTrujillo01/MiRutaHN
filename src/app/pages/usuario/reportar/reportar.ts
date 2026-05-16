@@ -3,6 +3,7 @@ import { Reporte, ReporteService } from '../../../services/reporte.service';
 import { Timestamp } from '@angular/fire/firestore';
 import { FormsModule } from '@angular/forms';
 import { Sidebar } from '../../../layouts/sidebar/sidebar';
+import { AuthService } from '../../../services/auth';
 
 @Component({
   selector: 'app-reportar',
@@ -11,36 +12,47 @@ import { Sidebar } from '../../../layouts/sidebar/sidebar';
   styleUrl: './reportar.scss',
 })
 export class Reportar {
-     private reporteService = inject(ReporteService);
-  
-  // ========== SEÑALES ==========
+  private reporteService = inject(ReporteService);
+  private authService = inject(AuthService);
+
   reportes = signal<Reporte[]>([]);
-  mostrarFormulario = signal<boolean>(false);
   cargando = signal<boolean>(true);
-  
-  // Formulario
+  mostrarFormulario = signal<boolean>(false);
+
+  usuario: any = null;
+
   nuevoReporte = signal({
     tipo: 'retraso' as const,
     rutaNombre: '',
     comentario: '',
-    fotoUrl: ''
+    fotoUrl: '',
   });
 
   tiposReporte = [
     { valor: 'retraso', icono: 'schedule', label: 'Retraso', color: '#f59e0b' },
     { valor: 'bus_lleno', icono: 'groups', label: 'Bus lleno', color: '#ef4444' },
-    { valor: 'no_paso', icono: 'do_not_disturb', label: 'No pasó', color: '#6b7280' },
+    { valor: 'no_paso', icono: 'event_busy', label: 'No pasó', color: '#6b7280' },
     { valor: 'trafico', icono: 'traffic', label: 'Tráfico', color: '#3b82f6' },
     { valor: 'accidente', icono: 'warning', label: 'Accidente', color: '#dc2626' },
-    { valor: 'otros', icono: 'more_horiz', label: 'Otros', color: '#8b5cf6' }
+    { valor: 'otros', icono: 'more_horiz', label: 'Otros', color: '#8b5cf6' },
   ];
 
   constructor() {
+    this.cargarUsuario();
     this.cargarReportes();
+  }
+
+  async cargarUsuario() {
+    const usuarioAuth = await this.authService.obtenerUsuarioActual();
+
+    if (usuarioAuth) {
+      this.usuario = await this.authService.obtenerPerfilUsuario(usuarioAuth.uid);
+    }
   }
 
   cargarReportes() {
     this.cargando.set(true);
+
     this.reporteService.getReportesActivos().subscribe({
       next: (data) => {
         this.reportes.set(data);
@@ -49,13 +61,12 @@ export class Reportar {
       error: (err) => {
         console.error('Error:', err);
         this.cargando.set(false);
-      }
+      },
     });
   }
 
   abrirFormulario() {
     this.mostrarFormulario.set(true);
-    this.resetFormulario();
   }
 
   cerrarFormulario() {
@@ -68,36 +79,35 @@ export class Reportar {
       tipo: 'retraso',
       rutaNombre: '',
       comentario: '',
-      fotoUrl: ''
+      fotoUrl: '',
     });
   }
 
-  // Función para actualizar el comentario (corregida)
   actualizarComentario(valor: string) {
-    this.nuevoReporte.update(r => ({ ...r, comentario: valor }));
+    this.nuevoReporte.update((r) => ({ ...r, comentario: valor }));
   }
 
-  // Función para actualizar la ruta
   actualizarRuta(valor: string) {
-    this.nuevoReporte.update(r => ({ ...r, rutaNombre: valor }));
+    this.nuevoReporte.update((r) => ({ ...r, rutaNombre: valor }));
   }
 
-  // Función para actualizar el tipo
   seleccionarTipo(tipo: string) {
-    this.nuevoReporte.update(r => ({ ...r, tipo: tipo as any }));
+    this.nuevoReporte.update((r) => ({ ...r, tipo: tipo as any }));
   }
 
-  enviarReporte() {
+  async enviarReporte() {
     const reporte = this.nuevoReporte();
-    
+
     if (!reporte.comentario.trim()) {
       alert('Por favor escribe un comentario');
       return;
     }
 
+    const usuarioAuth = await this.authService.obtenerUsuarioActual();
+
     const reporteData = {
-      usuarioId: 'usuario_temp_' + Date.now(),
-      usuarioNombre: 'Ciudadano',
+      usuarioId: usuarioAuth?.uid || 'usuario_temp_' + Date.now(),
+      usuarioNombre: this.usuario?.nombre || usuarioAuth?.email || 'Ciudadano',
       tipo: reporte.tipo,
       rutaNombre: reporte.rutaNombre || 'Ruta no especificada',
       comentario: reporte.comentario,
@@ -105,16 +115,19 @@ export class Reportar {
       timestamp: Timestamp.now(),
       votosUtiles: 0,
       votosFalso: 0,
-      estado: 'activo' as const
+      estado: 'activo' as const,
     };
 
-    this.reporteService.createReporte(reporteData).then(() => {
-      this.cerrarFormulario();
-      this.cargarReportes();
-    }).catch(err => {
-      console.error('Error:', err);
-      alert('Error al enviar reporte');
-    });
+    this.reporteService
+      .createReporte(reporteData)
+      .then(() => {
+        this.cerrarFormulario();
+        this.cargarReportes();
+      })
+      .catch((err) => {
+        console.error('Error:', err);
+        alert('Error al enviar reporte');
+      });
   }
 
   eliminarReporte(id: string) {
@@ -126,18 +139,15 @@ export class Reportar {
   }
 
   getIconoPorTipo(tipo: string): string {
-    const found = this.tiposReporte.find(t => t.valor === tipo);
-    return found?.icono || 'report_problem';
+    return this.tiposReporte.find((t) => t.valor === tipo)?.icono || 'report_problem';
   }
 
   getColorPorTipo(tipo: string): string {
-    const found = this.tiposReporte.find(t => t.valor === tipo);
-    return found?.color || '#6b7280';
+    return this.tiposReporte.find((t) => t.valor === tipo)?.color || '#6b7280';
   }
 
   getLabelPorTipo(tipo: string): string {
-    const found = this.tiposReporte.find(t => t.valor === tipo);
-    return found?.label || tipo;
+    return this.tiposReporte.find((t) => t.valor === tipo)?.label || tipo;
   }
 
   formatearFecha(timestamp: Timestamp): string {
@@ -156,11 +166,17 @@ export class Reportar {
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
+
     if (input.files && input.files[0]) {
       const reader = new FileReader();
+
       reader.onload = (e) => {
-        this.nuevoReporte.update(r => ({ ...r, fotoUrl: e.target?.result as string }));
+        this.nuevoReporte.update((r) => ({
+          ...r,
+          fotoUrl: e.target?.result as string,
+        }));
       };
+
       reader.readAsDataURL(input.files[0]);
     }
   }

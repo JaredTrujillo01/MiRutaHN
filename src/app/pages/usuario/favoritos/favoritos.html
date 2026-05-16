@@ -1,1 +1,84 @@
-<p>favoritos works!</p>
+<div class="favoritos-page">
+  <app-sidebar></app-sidebar>
+
+  <main class="favoritos-main">
+    <header class="favoritos-header">
+      <div>
+        <h1>Mis rutas favoritas</h1>
+        <p>Gestiona tus trayectos frecuentes para acceder más rápido.</p>
+      </div>
+
+      <div class="header-actions">
+        <button>
+          <i class="material-icons">sort</i>
+        </button>
+
+        <button>
+          <i class="material-icons">filter_list</i>
+        </button>
+      </div>
+    </header>
+
+    <section class="favoritos-grid">
+      @for (favorito of favoritos(); track favorito.id) {
+        <article class="favorito-card">
+          <div class="card-top">
+            <div class="ruta-icon" [class]="favorito.color">
+              <i class="material-icons">{{ favorito.icono }}</i>
+            </div>
+
+            <button class="btn-delete" (click)="eliminarFavorito(favorito.id)">
+              <i class="material-icons">delete_outline</i>
+            </button>
+          </div>
+
+          <div class="ruta-info">
+            <h2>{{ favorito.nombre }}</h2>
+            <p>
+              <i class="material-icons">near_me</i>
+              {{ favorito.ruta }}
+            </p>
+          </div>
+
+          <div class="ruta-stats">
+            <div>
+              <span>Tiempo est.</span>
+              <strong>
+                <i class="material-icons">schedule</i>
+                {{ favorito.tiempo }}
+              </strong>
+            </div>
+
+            <div>
+              <span>Precio</span>
+              <strong>{{ favorito.precio }}</strong>
+            </div>
+          </div>
+
+          <div class="ruta-preview">
+            <i class="material-icons">route</i>
+          </div>
+
+          <button class="btn-ver" (click)="verRuta(favorito)">
+            Ver ruta
+            <i class="material-icons">arrow_forward</i>
+          </button>
+        </article>
+      }
+
+      <article class="favorito-card add-card">
+        <div class="add-icon">
+          <i class="material-icons">add_circle_outline</i>
+        </div>
+
+        <h2>Agregar nueva</h2>
+        <p>Crea un acceso rápido para tus destinos más frecuentes.</p>
+
+        <button class="btn-ver" routerLink="/dashboard">
+          Buscar ruta
+          <i class="material-icons">search</i>
+        </button>
+      </article>
+    </section>
+  </main>
+</div>

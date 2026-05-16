@@ -1,38 +1,106 @@
 .footer {
   background: #f8fafc;
   border-top: 1px solid #e2e8f0;
-  padding: 2rem;
-  margin-top: 4rem;
+  padding: 2rem 1rem 1rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .footer-container {
+  width: 100%;
   max-width: 1280px;
   margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.footer-logo {
+  display: inline-flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
+  justify-content: center;
+  gap: 0.45rem;
+  color: #2563eb;
+  font-size: 1.35rem;
+  font-weight: 900;
+  text-decoration: none;
+  margin-bottom: 0.75rem;
+}
+
+.footer-logo .material-icons {
+  font-size: 1.7rem;
+}
+
+.footer-brand p {
+  color: #64748b;
+  line-height: 1.6;
+  max-width: 430px;
+  margin: 0 auto;
 }
 
 .footer-links {
-  display: flex;
-  gap: 2rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
 }
 
 .footer-links a {
-  text-decoration: none;
   color: #64748b;
-  font-size: 0.875rem;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
 .footer-links a:hover {
   color: #2563eb;
 }
 
-@media (max-width: 768px) {
+.footer-bottom {
+  max-width: 1280px;
+  margin: 1.5rem auto 0;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.footer-bottom p {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+@media (min-width: 480px) {
+  .footer-links {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .footer {
+    padding: 2.5rem 1.5rem 1rem;
+  }
+
   .footer-container {
-    flex-direction: column;
-    text-align: center;
+    grid-template-columns: 1.2fr 1fr;
+    align-items: center;
+    text-align: left;
+  }
+
+  .footer-logo {
+    justify-content: flex-start;
+  }
+
+  .footer-brand p {
+    margin: 0;
+  }
+
+  .footer-links {
+    grid-template-columns: repeat(4, auto);
+    justify-content: end;
+  }
+}
+
+@media (min-width: 1024px) {
+  .footer {
+    padding-inline: 2rem;
   }
 }

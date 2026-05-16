@@ -1,111 +1,117 @@
 <div class="dashboard">
   <app-sidebar></app-sidebar>
 
-  <div class="main-content">
-
-    @if (!cargandoUsuario && usuario) {
-      <div class="usuario-bienvenida">
-        <h2>¡Bienvenido, {{ usuario.nombre }}!</h2>
-
-        <p>
-          {{ usuario.email }} · {{ usuario.ciudad }}
-        </p>
-      </div>
-    }
-    <!-- PASO 1: Pantalla principal (solo barra + alerta) -->
-    @if (paso() === 1) {
-      <div class="search-header">
-        <div class="search-box" (click)="irAPaso(2)">
-          <i class="material-icons">search</i>
-          <input 
-            type="text" 
-            placeholder="¿A dónde vamos hoy? Buscar destino..."
-            readonly
-          >
-        </div>
-      </div>
-
-      <div class="alerta">
-        <i class="material-icons">warning</i>
-        <div>
-          <h4>ALERTA EN TIEMPO REAL</h4>
-          <p>Tráfico pesado en Blv. Suyapa. Retrasos de 15 min.</p>
-        </div>
-        <i class="material-icons close">close</i>
-      </div>
-    }
-
-    <!-- PASO 2: Formulario de búsqueda -->
-    @if (paso() === 2) {
-      <div class="contenido-buscar">
-        <app-buscar 
-          (buscar)="irAPaso(3)" 
-          (cancelar)="irAPaso(1)">
-        </app-buscar>
-      </div>
-    }
-
-    <!-- PASO 3: Resultados de búsqueda -->
-    @if (paso() === 3) {
-      <div class="contenido-resultados">
-        <app-resultados-busqueda 
-          (verDetalle)="irAPaso(4, $event)" 
-          (volver)="irAPaso(2)">
-        </app-resultados-busqueda>
-      </div>
-    }
-
-    <!-- PASO 4: Detalle de ruta (pequeño a la derecha) + Mapa -->
-    @if (paso() === 4 && !navegacionActiva()) {
-      <div class="contenido-detalle">
-        <div class="mapa-principal">
-          <div class="mapa-placeholder">
+  <main class="main-content">
+    <section class="map-shell">
+      <div class="mapa-principal">
+        <div class="mapa-placeholder">
+          <div class="mapa-card">
             <i class="material-icons">map</i>
-            <p>Mapa interactivo</p>
+            <h3>Mapa interactivo</h3>
+            <p>Aquí irá la integración del mapa de rutas.</p>
           </div>
         </div>
-        <div class="detalle-lateral">
-          <app-detalle-ruta 
-            [ruta]="rutaSeleccionada()" 
-            (volver)="irAPaso(3)"
-            (iniciarNavegacion)="onIniciarNavegacion()">
-          </app-detalle-ruta>
+      </div>
+
+      @if (paso() === 1) {
+        <div class="top-overlay">
+          <div class="search-box" (click)="irAPaso(2)">
+            <i class="material-icons">search</i>
+            <input type="text" placeholder="¿A dónde vamos hoy? Buscar destino..." readonly />
+          </div>
+
+          <div class="alerta">
+            <i class="material-icons">warning</i>
+            <div>
+              <h4>Alerta en tiempo real</h4>
+              <p>Tráfico pesado en Blv. Suyapa. Retrasos de 15 min.</p>
+            </div>
+          </div>
         </div>
-      </div>
-    }
+      }
 
-    <!-- PASO 4 CON NAVEGACIÓN ACTIVA: Mapa + Paradas cercanas + Botón salir -->
-    @if (paso() === 4 && navegacionActiva()) {
-    <div class="contenido-navegacion">
-    <div class="mapa-principal">
-      <div class="mapa-placeholder">
-        <i class="material-icons">map</i>
-        <p>Navegación activa</p>
-      </div>
-    </div>
-    <div class="paradas-lateral">
-      <div class="navegacion-header">
-        <h3>Navegación en curso</h3>
-        <button class="btn-salir" (click)="salirNavegacion()">
-          <i class="material-icons">exit_to_app</i> Salir
-        </button>
-      </div>
-      <app-paradas-cercanas></app-paradas-cercanas>
-    </div>
-  </div>
-}
+      @if (paso() === 2) {
+        <div class="flow-overlay">
+          <app-buscar (buscar)="irAPaso(3)" (cancelar)="irAPaso(1)"> </app-buscar>
+        </div>
+      }
 
-    <!-- Botones flotantes -->
-    <div class="floating-buttons">
-      <button class="fab rojo">
-        <i class="material-icons">warning</i> Reportar
-      </button>
-      <button class="fab azul">
-        <i class="material-icons">map</i> Ver Mapa Completo
-      </button>
-      <button class="fab blanco">
-        <i class="material-icons">favorite</i> Favoritos
-      </button>
-    </div>
-  </div>
+      @if (paso() === 3) {
+        <div class="flow-overlay flow-results">
+          <app-buscar (buscar)="irAPaso(3)" (cancelar)="irAPaso(1)"> </app-buscar>
+
+          <app-resultados-busqueda (verDetalle)="irAPaso(4, $event)" (volver)="irAPaso(2)">
+          </app-resultados-busqueda>
+        </div>
+      }
+
+      @if (paso() === 4 && !navegacionActiva()) {
+        <div class="contenido-detalle">
+          <div class="mapa-panel">
+            <div class="mapa-placeholder-panel">
+              <i class="material-icons">map</i>
+              <p>Mapa interactivo</p>
+              <span>Recorrido de la ruta seleccionada</span>
+            </div>
+          </div>
+
+          <aside class="detalle-lateral">
+            <app-detalle-ruta
+              [ruta]="rutaSeleccionada()"
+              (volver)="irAPaso(3)"
+              (iniciarNavegacion)="onIniciarNavegacion()"
+            >
+            </app-detalle-ruta>
+          </aside>
+        </div>
+      }
+
+      @if (paso() === 4 && navegacionActiva()) {
+        <div class="contenido-navegacion">
+          <div class="mapa-panel">
+            <div class="mapa-placeholder-panel">
+              <i class="material-icons">navigation</i>
+              <p>Navegación activa</p>
+              <span>Seguimiento del recorrido en tiempo real</span>
+            </div>
+          </div>
+
+          <aside class="paradas-lateral">
+            <div class="navegacion-header">
+              <div>
+                <h3>Navegación en curso</h3>
+                <p>Paradas cercanas actualizadas</p>
+              </div>
+
+              <button class="btn-salir" (click)="salirNavegacion()">
+                <i class="material-icons">exit_to_app</i>
+                Salir
+              </button>
+            </div>
+
+            <app-paradas-cercanas></app-paradas-cercanas>
+          </aside>
+        </div>
+      }
+
+      @if (paso() === 1) {
+        <div class="floating-buttons">
+          <button class="fab rojo">
+            <i class="material-icons">warning</i>
+            <span>Reportar</span>
+          </button>
+
+          <button class="fab azul">
+            <i class="material-icons">map</i>
+            <span>Ver mapa</span>
+          </button>
+
+          <button class="fab blanco">
+            <i class="material-icons">favorite</i>
+            <span>Favoritos</span>
+          </button>
+        </div>
+      }
+    </section>
+  </main>
 </div>
