@@ -1,32 +1,58 @@
 <nav class="navbar">
   <div class="nav-container">
-    <div class="nav-left">
-      <div class="logo">
-        <a (click)="scrollTo('hero')">MiRutaHN</a>
-      </div>
-      <div class="nav-menu">
-        <a (click)="scrollTo('hero')">Inicio</a>
-        <a (click)="scrollTo('beneficios')">Beneficios</a>
-        <a (click)="scrollTo('como-funciona')">Cómo funciona</a>
-        <a (click)="scrollTo('contacto')">Contacto</a>
-      </div>
+    <a class="logo" (click)="scrollTo('hero')" aria-label="Ir al inicio">
+      <span class="material-icons">directions_bus</span>
+      MiRutaHN
+    </a>
+
+    <div class="nav-menu">
+      <a (click)="scrollTo('hero')">Inicio</a>
+      <a (click)="scrollTo('beneficios')">Beneficios</a>
+      <a (click)="scrollTo('como-funciona')">Cómo funciona</a>
+      <a (click)="scrollTo('contacto')">Contacto</a>
     </div>
-    
-    <div class="nav-right">
-      <button class="btn-login" routerLink="/login">Iniciar Sesión</button>
+
+    <div class="nav-actions">
+      <button class="btn-login" routerLink="/login">Iniciar sesión</button>
       <button class="btn-registro" routerLink="/registro">Registrarse</button>
     </div>
-    
-    <button class="menu-toggle" (click)="toggleMenu()">☰</button>
+
+    <button class="menu-toggle" (click)="toggleMenu()" aria-label="Abrir menú">
+      <span class="material-icons">
+        {{ menuOpen ? 'close' : 'menu' }}
+      </span>
+    </button>
   </div>
-  
+
   <div class="nav-mobile" [class.open]="menuOpen">
-    <a (click)="scrollTo('hero'); closeMenu()">Inicio</a>
-    <a (click)="scrollTo('como-funciona'); closeMenu()">Cómo funciona</a>
-    <a (click)="scrollTo('beneficios'); closeMenu()">Beneficios</a>
-    <a (click)="scrollTo('contacto'); closeMenu()">Contacto</a>
-    <hr>
-    <button class="btn-login-mobile" routerLink="/login">Iniciar Sesión</button>
-    <button class="btn-registro-mobile" routerLink="/registro">Registrarse</button>
+    <a (click)="scrollTo('hero')">
+      <span class="material-icons">home</span>
+      Inicio
+    </a>
+
+    <a (click)="scrollTo('beneficios')">
+      <span class="material-icons">star</span>
+      Beneficios
+    </a>
+
+    <a (click)="scrollTo('como-funciona')">
+      <span class="material-icons">info</span>
+      Cómo funciona
+    </a>
+
+    <a (click)="scrollTo('contacto')">
+      <span class="material-icons">mail</span>
+      Contacto
+    </a>
+
+    <div class="mobile-actions">
+      <button class="btn-login-mobile" routerLink="/login" (click)="closeMenu()">
+        Iniciar sesión
+      </button>
+
+      <button class="btn-registro-mobile" routerLink="/registro" (click)="closeMenu()">
+        Registrarse
+      </button>
+    </div>
   </div>
 </nav>
