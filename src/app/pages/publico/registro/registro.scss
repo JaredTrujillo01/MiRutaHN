@@ -7,13 +7,16 @@
 .registro-page {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   background: #f4f7fb;
   font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  overflow-x: hidden;
 }
 
 .registro-image,
 .registro-content {
-  flex: 1;
+  width: 100%;
+  min-width: 0;
 }
 
 .registro-image {
@@ -23,14 +26,16 @@
       center/cover no-repeat;
 
   color: white;
+  min-height: 180px;
 }
 
 .image-overlay {
   height: 100%;
-  padding: 60px;
+  min-height: 180px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 .logo h2 {
@@ -39,22 +44,21 @@
 }
 
 .image-text {
-  margin-top: auto;
-  margin-bottom: 40px;
+  margin: 0;
 }
 
 .image-text h1 {
   max-width: 430px;
-  font-size: 56px;
+  font-size: 28px;
   font-weight: 800;
-  line-height: 1.05;
-  margin-bottom: 24px;
+  line-height: 1.12;
+  margin-bottom: 12px;
 }
 
 .image-text p {
   max-width: 440px;
-  font-size: 20px;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 1.5;
   color: rgba(255,255,255,0.9);
 }
 
@@ -83,16 +87,16 @@
 .registro-content {
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 40px;
+  align-items: flex-start;
+  padding: 24px 16px 36px;
 }
 
 .registro-card {
   width: 100%;
   max-width: 430px;
   background: white;
-  padding: 42px;
-  border-radius: 24px;
+  padding: 24px 18px;
+  border-radius: 18px;
   box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
 }
 
@@ -103,7 +107,7 @@
 
 .registro-card h1 {
   color: #0f172a;
-  font-size: 26px;
+  font-size: 24px;
   margin: 8px 0;
 }
 
@@ -137,11 +141,13 @@ select {
 
 .row {
   display: flex;
-  gap: 14px;
+  flex-direction: column;
+  gap: 0;
 }
 
 .input-group {
   flex: 1;
+  min-width: 0;
 }
 
 .terms {
@@ -165,6 +171,7 @@ select {
 }
 
 button {
+  width: 100%;
   padding: 16px;
   border: none;
   border-radius: 10px;
@@ -180,17 +187,90 @@ button {
   font-size: 14px;
 }
 
-@media (max-width: 850px) {
+@media (min-width: 768px) {
+  .registro-image {
+    min-height: 300px;
+  }
+
+  .image-overlay {
+    min-height: 300px;
+    padding: 44px;
+  }
+
+  .image-text {
+    margin-top: auto;
+    margin-bottom: 20px;
+  }
+
+  .image-text h1 {
+    font-size: 42px;
+  }
+
+  .image-text p {
+    font-size: 18px;
+  }
+
+  .registro-content {
+    align-items: center;
+    padding: 40px 28px;
+  }
+
+  .registro-card {
+    padding: 36px;
+    border-radius: 24px;
+  }
+}
+
+@media (min-width: 900px) {
   .registro-page {
-    flex-direction: column;
+    height: 100vh;
+    flex-direction: row;
+    overflow: hidden;
+  }
+
+  .registro-image,
+  .registro-content {
+    flex: 1;
+    height: 100vh;
   }
 
   .registro-image {
-    min-height: 360px;
+    min-height: 100vh;
+  }
+
+  .image-overlay {
+    min-height: 100vh;
+    padding: 60px;
+    justify-content: space-between;
+  }
+
+  .image-text {
+    margin-top: auto;
+    margin-bottom: 40px;
+  }
+
+  .image-text h1 {
+    font-size: 56px;
+    line-height: 1.05;
+    margin-bottom: 24px;
+  }
+
+  .image-text p {
+    font-size: 20px;
+    line-height: 1.6;
+  }
+
+  .registro-content {
+    padding: 40px;
+    overflow-y: auto;
+  }
+
+  .registro-card {
+    padding: 42px;
   }
 
   .row {
-    flex-direction: column;
-    gap: 0;
+    flex-direction: row;
+    gap: 14px;
   }
 }
