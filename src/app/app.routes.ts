@@ -41,10 +41,35 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/usuario/perfil/perfil').then((m) => m.Perfil),
   },
   {
+    path: 'admin/dashboard-admin',
+    canActivate: [roleGuard],
+    data: { roles: ['admin'] },
+    loadComponent: () =>
+      import('./pages/admin/dashboard-admin/dashboard-admin').then((m) => m.DashboardAdmin),
+  },
+  {
     path: 'admin/rutas',
     canActivate: [roleGuard],
     data: { roles: ['admin'] },
     loadComponent: () => import('./pages/admin/rutas/rutas').then((m) => m.Rutas),
+  },
+  {
+    path: 'admin/conductores',
+    canActivate: [roleGuard],
+    data: { roles: ['admin'] },
+    loadComponent: () => import('./pages/admin/conductores/conductores').then((m) => m.Conductores),
+  },
+  {
+    path: 'admin/reportes',
+    canActivate: [roleGuard],
+    data: { roles: ['admin'] },
+    loadComponent: () => import('./pages/admin/reportes-admin/reportes-admin').then((m) => m.ReportesAdmin),
+  },
+  {
+    path: 'admin/usuarios',
+    canActivate: [roleGuard],
+    data: { roles: ['admin'] },
+    loadComponent: () => import('./pages/admin/usuarios-admin/usuarios-admin').then((m) => m.UsuariosAdmin),
   },
   {
     path: '**',

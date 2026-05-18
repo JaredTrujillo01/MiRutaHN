@@ -3,7 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import {
   ReactiveFormsModule,
   FormBuilder,
-  Validators
+  Validators,
 } from '@angular/forms';
 
 import { AuthService } from '../../../services/auth';
@@ -15,9 +15,9 @@ import { AuthService } from '../../../services/auth';
   styleUrl: './login.scss',
 })
 export class Login {
-
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private router = inject(Router);
 
   error = '';
   cargando = false;
@@ -27,10 +27,7 @@ export class Login {
     password: ['', [Validators.required]],
   });
 
-  constructor(private router: Router) {}
-
   async login() {
-
     this.error = '';
 
     if (this.loginForm.invalid) {
@@ -42,26 +39,29 @@ export class Login {
     const { email, password } = this.loginForm.getRawValue();
 
     try {
-
       this.cargando = true;
 
-      await this.authService.loginUsuario(
-        email,
-        password
-      );
+      await this.authService.loginUsuario(email, password);
+
+      const rol = await this.authService.getCurrentUserRole();
+      localStorage.setItem('rol', rol ?? 'usuario');
+
+      if (rol === 'admin') {
+        this.router.navigate(['/admin/dashboard-admin']);
+        return;
+      }
+
+      if (rol === 'conductor') {
+        this.router.navigate(['/conductor/dashboard']);
+        return;
+      }
 
       this.router.navigate(['/dashboard']);
-
     } catch (err: any) {
-
       console.error(err);
-
       this.error = 'Correo o contraseña incorrectos';
-
     } finally {
-
       this.cargando = false;
-
     }
   }
 }

@@ -5,29 +5,75 @@
       <span>MiRutaHN</span>
     </div>
 
-    <span class="user-badge">Ciudadano</span>
+    <span class="user-badge">{{ badgeRol }}</span>
   </div>
 
   <nav class="sidebar-nav">
-    <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
-      <i class="material-icons">dashboard</i>
-      <span>Dashboard</span>
-    </a>
+    @if (rol === 'usuario') {
+      <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
+        <i class="material-icons">dashboard</i>
+        <span>Dashboard</span>
+      </a>
 
-    <a class="nav-item" routerLink="/favoritos" routerLinkActive="active">
-      <i class="material-icons">favorite</i>
-      <span>Favoritos</span>
-    </a>
+      <a class="nav-item" routerLink="/favoritos" routerLinkActive="active">
+        <i class="material-icons">favorite</i>
+        <span>Favoritos</span>
+      </a>
 
-    <a class="nav-item" routerLink="/reportar" routerLinkActive="active">
-      <i class="material-icons">warning</i>
-      <span>Reportes</span>
-    </a>
+      <a class="nav-item" routerLink="/reportar" routerLinkActive="active">
+        <i class="material-icons">warning</i>
+        <span>Reportes</span>
+      </a>
 
-    <a class="nav-item" routerLink="/perfil" routerLinkActive="active">
-      <i class="material-icons">person</i>
-      <span>Perfil</span>
-    </a>
+      <a class="nav-item" routerLink="/perfil" routerLinkActive="active">
+        <i class="material-icons">person</i>
+        <span>Perfil</span>
+      </a>
+    }
+
+    @if (rol === 'admin') {
+      <a class="nav-item" routerLink="/admin/dashboard-admin" routerLinkActive="active">
+        <i class="material-icons">dashboard</i>
+        <span>Dashboard</span>
+      </a>
+
+      <a class="nav-item" routerLink="/admin/rutas" routerLinkActive="active">
+        <i class="material-icons">route</i>
+        <span>Rutas</span>
+      </a>
+
+      <a class="nav-item" routerLink="/admin/conductores" routerLinkActive="active">
+        <i class="material-icons">directions_bus</i>
+        <span>Conductores</span>
+      </a>
+
+      <a class="nav-item" routerLink="/admin/reportes" routerLinkActive="active">
+        <i class="material-icons">report_problem</i>
+        <span>Reportes</span>
+      </a>
+
+      <a class="nav-item" routerLink="/admin/usuarios" routerLinkActive="active">
+        <i class="material-icons">groups</i>
+        <span>Usuarios</span>
+      </a>
+
+      <a class="nav-item" routerLink="/perfil" routerLinkActive="active">
+        <i class="material-icons">person</i>
+        <span>Perfil</span>
+      </a>
+    }
+
+    @if (rol === 'conductor') {
+      <a class="nav-item" routerLink="/conductor/dashboard" routerLinkActive="active">
+        <i class="material-icons">dashboard</i>
+        <span>Dashboard</span>
+      </a>
+
+      <a class="nav-item" routerLink="/perfil" routerLinkActive="active">
+        <i class="material-icons">person</i>
+        <span>Perfil</span>
+      </a>
+    }
   </nav>
 
   <div class="sidebar-footer">
