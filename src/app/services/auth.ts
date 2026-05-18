@@ -10,7 +10,7 @@ import {
   updatePassword,
   User,
 } from '@angular/fire/auth';
-import { doc, Firestore, getDoc, setDoc } from '@angular/fire/firestore';
+import { UsuarioService, PerfilUsuario, UserRole } from './usuario.service';
 
 export interface RegistroUsuario {
   nombre: string;
@@ -25,7 +25,7 @@ export interface RegistroUsuario {
 })
 export class AuthService {
   private auth = inject(Auth);
-  private db = inject(Firestore);
+  private usuarioService = inject(UsuarioService);
 
   loginUsuario(email: string, password: string) {
     return signInWithEmailAndPassword(this.auth, email, password);
@@ -65,15 +65,48 @@ export class AuthService {
     });
   }
 
-  async obtenerPerfilUsuario(uid: string) {
-    const referencia = doc(this.db, 'usuarios', uid);
-    const documento = await getDoc(referencia);
+  getCurrentUser(): Promise<User | null> {
+    return this.obtenerUsuarioActual();
+  }
 
-    if (!documento.exists()) {
+  async isLoggedIn(): Promise<boolean> {
+    return !!(await this.obtenerUsuarioActual());
+  }
+
+  async obtenerPerfilUsuario(uid: string): Promise<PerfilUsuario | null> {
+    return this.usuarioService.obtenerPerfil(uid);
+  }
+
+  async getCurrentUserProfile(): Promise<PerfilUsuario | null> {
+    const usuario = await this.obtenerUsuarioActual();
+
+    if (!usuario) {
       return null;
     }
 
-    return documento.data();
+    return this.obtenerPerfilUsuario(usuario.uid);
+  }
+
+  async getCurrentUserRole(): Promise<UserRole | null> {
+    const perfil = await this.getCurrentUserProfile();
+
+    if (!perfil) {
+      return null;
+    }
+
+    // Accept new role and previous rol fields for existing profiles.
+    return this.usuarioService.normalizarRol(perfil.role ?? perfil.rol);
+  }
+
+  async hasRole(roles: UserRole | UserRole[]): Promise<boolean> {
+    const rolActual = await this.getCurrentUserRole();
+    const rolesPermitidos = Array.isArray(roles) ? roles : [roles];
+
+    return !!rolActual && rolesPermitidos.includes(rolActual);
+  }
+
+  async isAdmin(): Promise<boolean> {
+    return this.hasRole('admin');
   }
 
   async registrarUsuario(usuario: RegistroUsuario) {
@@ -83,13 +116,13 @@ export class AuthService {
       usuario.password
     );
 
-    await setDoc(doc(this.db, 'usuarios', credenciales.user.uid), {
-      uid: credenciales.user.uid,
+    await this.usuarioService.crearPerfil(credenciales.user.uid, {
       nombre: usuario.nombre,
       email: usuario.email,
       telefono: usuario.telefono,
       ciudad: usuario.ciudad,
-      rol: 'ciudadano',
+      role: 'usuario',
+      rol: 'usuario',
       avatarUrl: 'assets/avatars/avatar-1.png',
       creadoEn: new Date(),
     });
