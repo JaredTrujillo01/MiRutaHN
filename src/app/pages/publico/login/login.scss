@@ -1,13 +1,24 @@
 .login-page {
   min-height: 100vh;
-  display: flex;
+  height: 100vh;
+  width: 100%;
   background: #f4f7fb;
-   font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  display: flex;
+  overflow: hidden;
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-x: hidden;
 }
 
 .login-image,
 .login-content {
-  flex: 1;
+  height: 100vh;
 }
 
 .login-image {
@@ -17,6 +28,9 @@
       center/cover no-repeat;
   position: relative;
   color: white;
+    flex: 1;
+  background-size: cover;
+  background-position: center;
 }
 
 .image-overlay {
@@ -58,10 +72,11 @@
 }
 
 .login-content {
+  flex: 1;
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 40px;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .login-card {
