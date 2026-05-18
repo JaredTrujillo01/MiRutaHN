@@ -18,6 +18,7 @@ export class Reportar {
   reportes = signal<Reporte[]>([]);
   cargando = signal<boolean>(true);
   mostrarFormulario = signal<boolean>(false);
+  esAdmin = false;
 
   usuario: any = null;
 
@@ -48,6 +49,8 @@ export class Reportar {
     if (usuarioAuth) {
       this.usuario = await this.authService.obtenerPerfilUsuario(usuarioAuth.uid);
     }
+
+    this.esAdmin = await this.authService.isAdmin();
   }
 
   cargarReportes() {
@@ -105,9 +108,14 @@ export class Reportar {
 
     const usuarioAuth = await this.authService.obtenerUsuarioActual();
 
+    if (!usuarioAuth) {
+      alert('Debes iniciar sesion para enviar reportes');
+      return;
+    }
+
     const reporteData = {
-      usuarioId: usuarioAuth?.uid || 'usuario_temp_' + Date.now(),
-      usuarioNombre: this.usuario?.nombre || usuarioAuth?.email || 'Ciudadano',
+      usuarioId: usuarioAuth.uid,
+      usuarioNombre: this.usuario?.nombre || usuarioAuth.email || 'Ciudadano',
       tipo: reporte.tipo,
       rutaNombre: reporte.rutaNombre || 'Ruta no especificada',
       comentario: reporte.comentario,
@@ -131,9 +139,17 @@ export class Reportar {
   }
 
   eliminarReporte(id: string) {
+    if (!this.esAdmin) {
+      alert('Solo un administrador puede eliminar reportes.');
+      return;
+    }
+
     if (confirm('¿Eliminar este reporte?')) {
       this.reporteService.deleteReporte(id).then(() => {
         this.cargarReportes();
+      }).catch((err) => {
+        console.error('Error:', err);
+        alert(err.message || 'Error al eliminar reporte');
       });
     }
   }

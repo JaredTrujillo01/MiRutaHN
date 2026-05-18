@@ -62,7 +62,19 @@
                       {{ getLabelPorTipo(reporte.tipo) }}
                     </strong>
 
-                    <span>{{ formatearFecha(reporte.timestamp) }}</span>
+                    <div class="reporte-actions">
+                      <span>{{ formatearFecha(reporte.timestamp) }}</span>
+
+                      @if (esAdmin) {
+                        <button
+                          type="button"
+                          class="btn-eliminar-reporte"
+                          (click)="eliminarReporte(reporte.id!)"
+                        >
+                          <i class="material-icons">delete</i>
+                        </button>
+                      }
+                    </div>
                   </div>
 
                   <p>{{ reporte.comentario }}</p>

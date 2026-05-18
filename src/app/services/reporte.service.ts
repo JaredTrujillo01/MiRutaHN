@@ -12,6 +12,7 @@ import {
   where,
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
+import { AuthService } from './auth';
 
 export interface Reporte {
   id?: string;
@@ -32,6 +33,7 @@ export interface Reporte {
 })
 export class ReporteService {
   firestore = inject(Firestore);
+  private authService = inject(AuthService);
 
   getReportesActivos() {
     const reportesCollection = collection(this.firestore, 'reportes');
@@ -48,7 +50,12 @@ export class ReporteService {
     return addDoc(reportesCollection, reporte);
   }
 
-  deleteReporte(id: string) {
+  async deleteReporte(id: string) {
+    // Double-check permissions before deleting from Firestore.
+    if (!(await this.authService.isAdmin())) {
+      throw new Error('No tienes permisos para eliminar reportes.');
+    }
+
     const reportesCollection = collection(this.firestore, 'reportes');
     const reporteDoc = doc(reportesCollection, id);
     return deleteDoc(reporteDoc);

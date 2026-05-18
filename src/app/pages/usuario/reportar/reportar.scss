@@ -166,6 +166,29 @@
   white-space: nowrap;
 }
 
+.reporte-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.btn-eliminar-reporte {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: #fee2e2;
+  color: #dc2626;
+  cursor: pointer;
+}
+
+.btn-eliminar-reporte i {
+  font-size: 1rem;
+  color: inherit;
+}
+
 .reporte-content p {
   color: #475569;
   font-size: 0.85rem;
