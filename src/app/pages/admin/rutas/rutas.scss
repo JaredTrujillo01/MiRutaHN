@@ -613,4 +613,696 @@
   .horario-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+}* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.rutas-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 34%),
+    linear-gradient(135deg, #e0f2fe, #f8fafc);
+  font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
+  color: #0f172a;
+}
+
+.rutas-main {
+  min-height: 100vh;
+  padding: 1rem;
+  padding-bottom: 6.5rem;
+}
+
+.rutas-header,
+.rutas-layout,
+.lista-card {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto 1rem;
+}
+
+.rutas-header,
+.map-card,
+.form-card,
+.lista-card {
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 26px;
+  padding: 1rem;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.1);
+}
+
+.badge {
+  display: inline-flex;
+  width: fit-content;
+  background: #dbeafe;
+  color: #2563eb;
+  border-radius: 999px;
+  padding: 0.32rem 0.75rem;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.rutas-header h1 {
+  font-size: 1.55rem;
+  margin-bottom: 0.35rem;
+}
+
+.rutas-header p {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.rutas-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.map-toolbar {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.map-toolbar h2,
+.form-header h2,
+.lista-header h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.25rem;
+}
+
+.map-toolbar p,
+.form-header p,
+.lista-header p {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.map-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.6rem;
+}
+
+.map-actions button,
+.form-actions button,
+.ruta-actions button {
+  min-height: 42px;
+  border: none;
+  border-radius: 14px;
+  padding: 0 0.85rem;
+  font-family: inherit;
+  font-weight: 900;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  transition: 0.2s ease;
+}
+
+.map-actions button,
+.ruta-actions button,
+.btn-secondary {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.map-actions .primary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.map-actions .danger,
+.ruta-actions .danger {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.map-actions button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.mapa-rutas {
+  width: 100%;
+  height: 360px;
+  min-height: 360px;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid #dbeafe;
+  background: #e0f2fe;
+  position: relative;
+  z-index: 1;
+}
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 22px;
+}
+
+.map-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.map-summary span {
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 999px;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.78rem;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.form-header {
+  margin-bottom: 1rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+}
+
+.campo label {
+  display: block;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #f8fafc;
+  padding: 0 1rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.campo textarea {
+  padding-top: 0.9rem;
+  resize: vertical;
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+  border-color: #2563eb;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.horario-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.horario-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 0.8rem;
+}
+
+.horario-card > span {
+  display: block;
+  color: #64748b;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 0.55rem;
+}
+
+.time-selects {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.4rem;
+}
+
+.time-selects select {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 0 0.45rem;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 900;
+  color: #0f172a;
+  outline: none;
+}
+
+.time-selects select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 48px);
+  gap: 0.85rem;
+  align-items: center;
+  margin-top: 0.35rem;
+}
+
+.color-grid.compact {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  align-items: center;
+  overflow-x: auto;
+  padding: 0.25rem 0.15rem 0.45rem;
+}
+
+.color-option {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border: 2px solid #ffffff;
+  border-radius: 10px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+  transition: 0.2s ease;
+  outline: 2px solid transparent;
+}
+
+.color-option.active {
+  outline: 3px solid #2563eb;
+  transform: scale(1.05);
+}
+
+.color-option i {
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.paradas-box {
+  background: #f8fafc;
+  border-radius: 18px;
+  padding: 1rem;
+  margin-top: 1rem;
+  border: 1px solid #e2e8f0;
+}
+
+.paradas-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.paradas-title h3 {
+  font-size: 0.95rem;
+}
+
+.paradas-title span {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #16a34a;
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.paradas-box p {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.parada-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0;
+}
+
+.parada-item span {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #16a34a;
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.parada-item strong {
+  font-size: 0.85rem;
+}
+
+.form-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.22);
+}
+
+.lista-card {
+  margin-top: 1rem;
+}
+
+.lista-header {
+  margin-bottom: 1rem;
+}
+
+.state-card {
+  text-align: center;
+  padding: 2rem;
+  color: #64748b;
+}
+
+.state-card i {
+  color: #2563eb;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.rutas-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.ruta-card {
+  background: #f8fafc;
+  border-radius: 20px;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  display: grid;
+  gap: 1rem;
+}
+
+.ruta-top {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.ruta-color {
+  width: 14px;
+  height: 44px;
+  border-radius: 999px;
+}
+
+.ruta-top h3 {
+  font-size: 1rem;
+}
+
+.ruta-top p {
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+.estado {
+  background: #dcfce7;
+  color: #166534;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.estado.inactiva {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.ruta-info {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.ruta-info span {
+  color: #475569;
+  font-size: 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ruta-info i {
+  color: #2563eb;
+  font-size: 1rem;
+}
+
+.ruta-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+/* SOLO MÓVIL */
+@media (max-width: 639px) {
+  .rutas-main {
+    padding: 0.65rem;
+    padding-bottom: 6.5rem;
+  }
+
+  .rutas-header,
+  .map-card,
+  .form-card,
+  .lista-card {
+    border-radius: 22px;
+    padding: 0.85rem;
+  }
+
+  .rutas-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .rutas-header p,
+  .map-toolbar p,
+  .form-header p,
+  .lista-header p {
+    font-size: 0.8rem;
+    line-height: 1.35;
+  }
+
+  .map-toolbar {
+    gap: 0.75rem;
+  }
+
+  .map-actions {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.3rem;
+  }
+
+  .map-actions button {
+    min-width: max-content;
+    min-height: 38px;
+    border-radius: 13px;
+    padding: 0 0.75rem;
+    font-size: 0.82rem;
+  }
+
+  .mapa-rutas {
+    height: 300px;
+    min-height: 300px;
+    border-radius: 18px;
+  }
+
+  .leaflet-container {
+    border-radius: 18px;
+  }
+
+  .map-summary {
+    gap: 0.45rem;
+  }
+
+  .map-summary span {
+    font-size: 0.68rem;
+    padding: 0.38rem 0.6rem;
+  }
+
+  .form-grid {
+    gap: 0.7rem;
+  }
+
+  .campo label {
+    font-size: 0.66rem;
+    margin-bottom: 0.32rem;
+  }
+
+  .campo input,
+  .campo select,
+  .campo textarea {
+    min-height: 44px;
+    border-radius: 13px;
+    font-size: 0.86rem;
+    padding: 0 0.8rem;
+  }
+
+  .campo textarea {
+    padding-top: 0.75rem;
+    min-height: 82px;
+  }
+
+  .horario-grid {
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+  }
+
+  .horario-card {
+    padding: 0.65rem;
+    border-radius: 14px;
+  }
+
+  .time-selects {
+    gap: 0.35rem;
+  }
+
+  .time-selects select {
+    min-height: 38px;
+    border-radius: 11px;
+    font-size: 0.78rem;
+    padding: 0 0.35rem;
+  }
+
+  .color-grid.compact {
+    gap: 0.45rem;
+    overflow-x: auto;
+    padding-bottom: 0.35rem;
+  }
+
+  .color-option {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    border-radius: 9px;
+  }
+
+  .color-option i {
+    font-size: 0.95rem;
+  }
+
+  .paradas-box {
+    padding: 0.85rem;
+    border-radius: 16px;
+  }
+
+  .form-actions {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+  }
+
+  .form-actions button {
+    min-height: 42px;
+    font-size: 0.85rem;
+    padding: 0 0.7rem;
+  }
+
+  .rutas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ruta-card {
+    padding: 0.85rem;
+    border-radius: 18px;
+  }
+}
+
+@media (min-width: 480px) {
+  .horario-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 640px) {
+  .map-actions,
+  .form-actions {
+    grid-template-columns: repeat(4, auto);
+    justify-content: start;
+  }
+
+  .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .campo.full {
+    grid-column: 1 / -1;
+  }
+
+  .rutas-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .rutas-main {
+    width: calc(100% - 280px);
+    margin-left: 280px;
+    padding: 2.5rem;
+  }
+
+  .rutas-layout {
+    grid-template-columns: 1.25fr 0.75fr;
+    align-items: start;
+  }
+
+  .mapa-rutas {
+    height: 620px;
+    min-height: 620px;
+  }
+
+  .form-card {
+    position: sticky;
+    top: 2rem;
+  }
+
+  .rutas-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .map-actions button:hover,
+  .form-actions button:hover,
+  .ruta-actions button:hover,
+  .ruta-card:hover,
+  .color-option:hover {
+    transform: translateY(-2px);
+  }
+
+  .btn-primary:hover,
+  .map-actions .primary:hover {
+    background: #1d4ed8;
+  }
 }
