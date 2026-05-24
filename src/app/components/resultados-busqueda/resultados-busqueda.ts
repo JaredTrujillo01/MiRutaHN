@@ -1,4 +1,5 @@
-import { Component, output, signal } from '@angular/core';
+import { Component, inject, output, signal } from '@angular/core';
+import { RutaService, RutaTransporte } from '../../services/ruta.service';
 
 @Component({
   selector: 'app-resultados-busqueda',
@@ -7,16 +8,37 @@ import { Component, output, signal } from '@angular/core';
   styleUrl: './resultados-busqueda.scss',
 })
 export class ResultadosBusqueda {
+  private rutaService = inject(RutaService);
+
   verDetalle = output<any>();
   volver = output<void>();
 
-  rutas = signal([
-    { id: 1, nombre: 'Ruta 2 - Anillo Periférico', precio: 13, tiempo: 45, llega: '10 min', active: true },
-    { id: 2, nombre: 'Ruta 35 - Centro Directo', precio: 16, tiempo: 30, llega: '18 min', active: false },
-    { id: 3, nombre: 'Trans-H - Rápido Metropolitano', precio: 20, tiempo: 22, llega: '2 min', active: false }
-  ]);
+  rutas = signal<RutaTransporte[]>([]);
+  cargando = signal(true);
 
-  seleccionarRuta(ruta: any) {
+  constructor() {
+    this.rutaService.getRutas().subscribe({
+      next: (rutas) => {
+        this.rutas.set(rutas.filter((ruta) => ruta.estado === 'activa'));
+        this.cargando.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.cargando.set(false);
+      },
+    });
+  }
+
+  seleccionarRuta(ruta: RutaTransporte) {
     this.verDetalle.emit(ruta);
+  }
+
+  tiempoEstimado(ruta: RutaTransporte) {
+    const paradas = ruta.paradas?.length || 1;
+    return Math.max(12, paradas * 6);
+  }
+
+  llegadaEstimada(index: number) {
+    return `${8 + index * 5} min`;
   }
 }

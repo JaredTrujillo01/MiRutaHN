@@ -184,6 +184,10 @@
   border: 1px solid #e2e8f0;
 }
 
+.parada-contenido.solo {
+  grid-column: 1 / -1;
+}
+
 .parada-item.active .parada-contenido {
   background: #eff6ff;
   border-color: #bfdbfe;

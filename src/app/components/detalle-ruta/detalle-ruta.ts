@@ -40,6 +40,29 @@ export class DetalleRuta {
     });
   }
 
+  tituloRuta() {
+    const ruta = this.ruta();
+
+    if (!ruta) {
+      return 'Ruta seleccionada';
+    }
+
+    return ruta.numero ? `${ruta.nombre} - Ruta ${ruta.numero}` : ruta.nombre;
+  }
+
+  precioRuta() {
+    const precio = this.ruta()?.precio;
+    return precio ? `L. ${precio}` : 'No definido';
+  }
+
+  frecuenciaRuta() {
+    return this.ruta()?.frecuencia || 'No definida';
+  }
+
+  paradasRuta() {
+    return this.ruta()?.paradas || [];
+  }
+
   actualizarNotaCampo(campo: 'campoMarcado' | 'comentario', valor: string) {
     this.nuevaNota.update((nota) => ({
       ...nota,

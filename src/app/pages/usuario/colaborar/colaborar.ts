@@ -8,6 +8,8 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Timestamp } from '@angular/fire/firestore';
+import * as L from 'leaflet';
 import * as L from 'leaflet';
 import { Timestamp } from '@angular/fire/firestore';
 
@@ -15,6 +17,7 @@ import { Sidebar } from '../../../layouts/sidebar/sidebar';
 import { AuthService } from '../../../services/auth';
 import { OpenRouteService } from '../../../services/open-route.service';
 import {
+  APPROVAL_THRESHOLD,
   Coordenada,
   NotaComunitaria,
   Parada,
@@ -38,6 +41,7 @@ export class Colaborar implements AfterViewInit, OnDestroy {
   private authService = inject(AuthService);
   private openRouteService = inject(OpenRouteService);
 
+  approvalThreshold = APPROVAL_THRESHOLD;
   propuestas = signal<PropuestaRuta[]>([]);
   rutas = signal<RutaTransporte[]>([]);
   notas = signal<NotaComunitaria[]>([]);
@@ -47,6 +51,7 @@ export class Colaborar implements AfterViewInit, OnDestroy {
   calculandoRuta = signal(false);
   guardando = signal(false);
   esAdmin = signal(false);
+  filtroRutas = signal('');
 
   usuarioAuth: Awaited<ReturnType<AuthService['obtenerUsuarioActual']>> = null;
   usuarioPerfil: any = null;
@@ -173,6 +178,8 @@ export class Colaborar implements AfterViewInit, OnDestroy {
     }
   }
 
+  actualizarComentarioValidacion(comentario: string) {
+    this.nuevaValidacion.set({ comentario });
   seleccionarColor(color: string) {
     this.actualizarCampo('color', color);
   }
@@ -377,6 +384,7 @@ export class Colaborar implements AfterViewInit, OnDestroy {
 
   seleccionarPropuesta(propuesta: PropuestaRuta) {
     this.propuestaSeleccionada.set(propuesta);
+    this.nuevaValidacion.set({ comentario: '' });
     this.nuevaValidacion.set({ tipo: 'comentario', comentario: '' });
 
     if (!propuesta.id) return;
@@ -386,6 +394,7 @@ export class Colaborar implements AfterViewInit, OnDestroy {
       .subscribe((data) => this.validaciones.set(data));
   }
 
+  async enviarValidacion(tipo: TipoValidacionRuta) {
   async enviarValidacion(tipo?: TipoValidacionRuta) {
     const propuesta = this.propuestaSeleccionada();
     const validacion = this.nuevaValidacion();
@@ -395,6 +404,12 @@ export class Colaborar implements AfterViewInit, OnDestroy {
       return;
     }
 
+    if (propuesta.estado !== 'pendiente') {
+      alert('Esta propuesta ya fue cerrada.');
+      return;
+    }
+
+    if (tipo === 'comentario' && !validacion.comentario.trim()) {
     const tipoFinal = tipo || validacion.tipo;
 
     if (tipoFinal === 'comentario' && !validacion.comentario.trim()) {
@@ -402,6 +417,25 @@ export class Colaborar implements AfterViewInit, OnDestroy {
       return;
     }
 
+    try {
+      await this.rutaService.createValidacionRuta({
+        propuestaId: propuesta.id,
+        usuarioId: this.usuarioAuth.uid,
+        usuarioNombre: this.usuarioPerfil?.nombre || this.usuarioAuth.email || 'Ciudadano',
+        tipo,
+        comentario: validacion.comentario,
+        creadoEn: Timestamp.now(),
+      });
+
+      this.nuevaValidacion.set({ comentario: '' });
+    } catch (err: any) {
+      alert(err.message || 'No se pudo registrar la validacion.');
+    }
+  }
+
+  async publicarManual(propuesta: PropuestaRuta) {
+    if (!this.esAdmin()) {
+      alert('Solo un administrador puede publicar manualmente.');
     await this.rutaService.createValidacionRuta({
       propuestaId: propuesta.id,
       usuarioId: this.usuarioAuth.uid,
@@ -425,6 +459,13 @@ export class Colaborar implements AfterViewInit, OnDestroy {
 
   async rechazarPropuesta(propuesta: PropuestaRuta) {
     if (!this.esAdmin() || !propuesta.id) return;
+    await this.rutaService.rechazarPropuestaRuta(propuesta.id);
+  }
+
+  async eliminarPropuesta(propuesta: PropuestaRuta) {
+    if (!this.esAdmin() || !propuesta.id) return;
+    if (!confirm('Eliminar esta propuesta de la revision comunitaria?')) return;
+    await this.rutaService.deletePropuestaRuta(propuesta.id);
 
     await this.rutaService.updatePropuestaRuta(propuesta.id, {
       estado: 'rechazada',
@@ -474,6 +515,32 @@ export class Colaborar implements AfterViewInit, OnDestroy {
     this.rutaService.confirmarNota(id);
   }
 
+  resolverNota(id?: string) {
+    if (!this.esAdmin() || !id) return;
+    this.rutaService.resolverNotaComunitaria(id);
+  }
+
+  rutasFiltradas() {
+    const filtro = this.filtroRutas().trim().toLowerCase();
+
+    if (!filtro) {
+      return this.rutas();
+    }
+
+    return this.rutas().filter((ruta) => {
+      const texto = [
+        ruta.nombre,
+        ruta.numero,
+        ruta.descripcion,
+        ruta.horario,
+        ruta.frecuencia,
+        ...(ruta.paradas || []).map((parada) => parada.nombre),
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      return texto.includes(filtro);
+    });
   notasPorRuta(rutaId?: string) {
     if (!rutaId) return [];
     return this.notas().filter((nota) => nota.rutaId === rutaId);
@@ -483,6 +550,15 @@ export class Colaborar implements AfterViewInit, OnDestroy {
     return this.rutas().find((ruta) => ruta.id === rutaId)?.nombre || 'Ruta aprobada';
   }
 
+  votosDelUsuario(propuesta?: PropuestaRuta | null) {
+    if (!propuesta || !this.usuarioAuth) return false;
+
+    return this.validaciones().some(
+      (validacion) =>
+        validacion.propuestaId === propuesta.id &&
+        validacion.usuarioId === this.usuarioAuth?.uid &&
+        (validacion.tipo === 'aprobacion' || validacion.tipo === 'rechazo')
+    );
   formatearFecha(timestamp?: Timestamp) {
     if (!timestamp) return '';
     return timestamp.toDate().toLocaleDateString('es-HN', {

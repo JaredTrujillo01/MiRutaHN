@@ -6,6 +6,8 @@ import {
   deleteDoc,
   doc,
   Firestore,
+  getDoc,
+  getDocs,
   increment,
   orderBy,
   query,
@@ -14,6 +16,8 @@ import {
   where,
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
+
+export const APPROVAL_THRESHOLD = 10;
 
 export interface Coordenada {
   lat: number;
@@ -36,10 +40,63 @@ export interface RutaTransporte {
   color: string;
   estado: 'activa' | 'inactiva';
   descripcion?: string;
+  frecuencia?: string;
+  origenPropuestaId?: string;
+  publicadoDesdePropuesta?: boolean;
   puntosGuia?: Coordenada[];
   recorrido: Coordenada[];
   paradas: Parada[];
   creadoEn: Timestamp;
+}
+
+export type EstadoPropuestaRuta = 'pendiente' | 'aprobada' | 'rechazada';
+export type TipoValidacionRuta = 'aprobacion' | 'rechazo' | 'comentario';
+
+export interface PropuestaRuta {
+  id?: string;
+  nombre: string;
+  numero: string;
+  precio: number;
+  horario: string;
+  frecuencia: string;
+  color: string;
+  descripcion?: string;
+  comentarios?: string;
+  puntosGuia?: Coordenada[];
+  recorrido: Coordenada[];
+  paradas: Parada[];
+  estado: EstadoPropuestaRuta;
+  creadoPor: string;
+  creadoPorNombre: string;
+  creadoEn: Timestamp;
+  actualizadoEn?: Timestamp;
+  aprobaciones: number;
+  rechazos: number;
+  rutaPublicadaId?: string;
+}
+
+export interface ValidacionRuta {
+  id?: string;
+  propuestaId: string;
+  usuarioId: string;
+  usuarioNombre: string;
+  tipo: TipoValidacionRuta;
+  comentario: string;
+  creadoEn: Timestamp;
+}
+
+export interface NotaComunitaria {
+  id?: string;
+  rutaId: string;
+  usuarioId: string;
+  usuarioNombre: string;
+  comentario: string;
+  campoMarcado?: 'precio' | 'horario' | 'recorrido' | 'paradas' | 'descripcion' | 'otro';
+  estado: 'activa' | 'resuelta';
+  votosUtiles: number;
+  confirmaciones: number;
+  creadoEn: Timestamp;
+  actualizadoEn?: Timestamp;
 }
 
 export type EstadoPropuestaRuta = 'pendiente' | 'aprobada' | 'rechazada';
@@ -136,6 +193,14 @@ export class RutaService {
     return updateDoc(propuestaDoc, propuesta);
   }
 
+  deletePropuestaRuta(id: string) {
+    const propuestaDoc = doc(this.firestore, 'propuestas_rutas', id);
+    return deleteDoc(propuestaDoc);
+  }
+
+  getValidacionesPorPropuesta(propuestaId: string) {
+    const validacionesCollection = collection(this.firestore, 'validaciones_rutas');
+    const q = query(validacionesCollection, where('propuestaId', '==', propuestaId));
   getValidacionesPorPropuesta(propuestaId: string) {
     const validacionesCollection = collection(this.firestore, 'validaciones_rutas');
     const q = query(
@@ -147,6 +212,10 @@ export class RutaService {
   }
 
   async createValidacionRuta(validacion: Omit<ValidacionRuta, 'id'>) {
+    if (validacion.tipo !== 'comentario') {
+      await this.validarVotoUnico(validacion.propuestaId, validacion.usuarioId);
+    }
+
     const validacionesCollection = collection(this.firestore, 'validaciones_rutas');
     const propuestaDoc = doc(this.firestore, 'propuestas_rutas', validacion.propuestaId);
 
@@ -157,6 +226,8 @@ export class RutaService {
         aprobaciones: increment(1),
         actualizadoEn: Timestamp.now(),
       });
+
+      await this.publicarSiAlcanzaUmbral(validacion.propuestaId);
     }
 
     if (validacion.tipo === 'rechazo') {
@@ -172,17 +243,45 @@ export class RutaService {
       throw new Error('La propuesta no tiene identificador.');
     }
 
+    if (propuesta.rutaPublicadaId) {
+      await this.updatePropuestaRuta(propuesta.id, {
+        estado: 'aprobada',
+        actualizadoEn: Timestamp.now(),
+      });
+      return propuesta.rutaPublicadaId;
+    }
+
     const rutaPublica: Omit<RutaTransporte, 'id'> = {
       nombre: propuesta.nombre,
       numero: propuesta.numero,
       precio: Number(propuesta.precio),
       horario: propuesta.horario,
+      frecuencia: propuesta.frecuencia,
       color: propuesta.color,
       estado: 'activa',
       descripcion: propuesta.descripcion,
       puntosGuia: propuesta.puntosGuia || [],
       recorrido: propuesta.recorrido || [],
       paradas: propuesta.paradas || [],
+      origenPropuestaId: propuesta.id,
+      publicadoDesdePropuesta: true,
+      creadoEn: Timestamp.now(),
+    };
+
+    const rutaRef = await this.createRuta(rutaPublica);
+
+    await this.updatePropuestaRuta(propuesta.id, {
+      estado: 'aprobada',
+      rutaPublicadaId: rutaRef.id,
+      actualizadoEn: Timestamp.now(),
+    });
+
+    return rutaRef.id;
+  }
+
+  async rechazarPropuestaRuta(id: string) {
+    return this.updatePropuestaRuta(id, {
+      estado: 'rechazada',
       creadoEn: Timestamp.now(),
     };
 
@@ -206,6 +305,7 @@ export class RutaService {
 
   getNotasActivas() {
     const notasCollection = collection(this.firestore, 'notas_comunitarias');
+    const q = query(notasCollection, where('estado', '==', 'activa'));
     const q = query(
       notasCollection,
       where('estado', '==', 'activa')
@@ -235,5 +335,54 @@ export class RutaService {
       confirmaciones: increment(1),
       actualizadoEn: Timestamp.now(),
     });
+  }
+
+  resolverNotaComunitaria(id: string) {
+    const notaDoc = doc(this.firestore, 'notas_comunitarias', id);
+
+    return updateDoc(notaDoc, {
+      estado: 'resuelta',
+      actualizadoEn: Timestamp.now(),
+    });
+  }
+
+  private async validarVotoUnico(propuestaId: string, usuarioId: string) {
+    const validacionesCollection = collection(this.firestore, 'validaciones_rutas');
+    const q = query(
+      validacionesCollection,
+      where('propuestaId', '==', propuestaId),
+      where('usuarioId', '==', usuarioId)
+    );
+    const snapshot = await getDocs(q);
+    const yaVoto = snapshot.docs.some((documento) => {
+      const data = documento.data() as ValidacionRuta;
+      return data.tipo === 'aprobacion' || data.tipo === 'rechazo';
+    });
+
+    if (yaVoto) {
+      throw new Error('Ya validaste esta propuesta.');
+    }
+  }
+
+  private async publicarSiAlcanzaUmbral(propuestaId: string) {
+    const propuestaDoc = doc(this.firestore, 'propuestas_rutas', propuestaId);
+    const snapshot = await getDoc(propuestaDoc);
+
+    if (!snapshot.exists()) {
+      return;
+    }
+
+    const propuesta = {
+      id: snapshot.id,
+      ...snapshot.data(),
+    } as PropuestaRuta;
+
+    if (
+      propuesta.estado === 'pendiente' &&
+      !propuesta.rutaPublicadaId &&
+      propuesta.aprobaciones >= APPROVAL_THRESHOLD
+    ) {
+      await this.aprobarPropuestaComoRuta(propuesta);
+    }
   }
 }

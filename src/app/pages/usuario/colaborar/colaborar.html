@@ -6,6 +6,9 @@
       <div>
         <span class="badge">Comunidad</span>
         <h1>Rutas colaborativas</h1>
+        <p>
+          Las propuestas con {{ approvalThreshold }} aprobaciones se publican automaticamente como rutas oficiales.
+        </p>
         <p>Propone recorridos, valida aportes ciudadanos y agrega notas sobre rutas aprobadas.</p>
       </div>
     </header>
@@ -15,6 +18,7 @@
         <div class="map-toolbar">
           <div>
             <h2>Dibujar propuesta</h2>
+            <p>Marca puntos guia en el mapa, calcula el recorrido y nombra las paradas principales.</p>
             <p>Haz clic en el mapa para marcar puntos guia. Usa Parada para nombrar el ultimo punto.</p>
           </div>
 
@@ -64,6 +68,7 @@
       <aside class="form-card">
         <div class="form-header">
           <h2>Nueva propuesta</h2>
+          <p>Se guarda como pendiente y la comunidad puede validarla.</p>
           <p>Se guardara como pendiente hasta recibir validacion.</p>
         </div>
 
@@ -127,6 +132,7 @@
                   class="color-option"
                   [class.active]="nuevaPropuesta().color === color"
                   [style.background]="color"
+                  (click)="actualizarCampo('color', color)"
                   (click)="seleccionarColor(color)"
                 >
                   @if (nuevaPropuesta().color === color) {
@@ -141,6 +147,7 @@
             <label>Descripcion</label>
             <textarea
               rows="3"
+              placeholder="Describe referencias, zonas cubiertas o datos utiles."
               placeholder="Describe hacia donde va, referencias o datos utiles."
               [ngModel]="nuevaPropuesta().descripcion"
               (ngModelChange)="actualizarCampo('descripcion', $event)"
@@ -148,6 +155,7 @@
           </div>
 
           <div class="campo full">
+            <label>Comentario para revision</label>
             <label>Comentario para revisores</label>
             <textarea
               rows="2"
@@ -219,6 +227,11 @@
                   <h3>{{ propuesta.nombre }}</h3>
                   <p>Ruta {{ propuesta.numero }} - L. {{ propuesta.precio }}</p>
                 </div>
+                <span
+                  class="estado"
+                  [class.rechazada]="propuesta.estado === 'rechazada'"
+                  [class.aprobada]="propuesta.estado === 'aprobada'"
+                >
                 <span class="estado" [class.rechazada]="propuesta.estado === 'rechazada'" [class.aprobada]="propuesta.estado === 'aprobada'">
                   {{ propuesta.estado }}
                 </span>
@@ -227,6 +240,17 @@
               <p class="descripcion">{{ propuesta.descripcion || 'Sin descripcion adicional.' }}</p>
 
               <div class="ruta-info">
+                <span><i class="material-icons">schedule</i>{{ propuesta.horario || 'Horario no definido' }}</span>
+                <span><i class="material-icons">sync</i>{{ propuesta.frecuencia || 'Frecuencia no definida' }}</span>
+                <span><i class="material-icons">place</i>{{ propuesta.paradas.length }} paradas</span>
+              </div>
+
+              <div class="validacion-resumen">
+                <span><i class="material-icons">thumb_up</i>{{ propuesta.aprobaciones }} / {{ approvalThreshold }}</span>
+                <span><i class="material-icons">thumb_down</i>{{ propuesta.rechazos }} rechazos</span>
+                @if (propuesta.rutaPublicadaId) {
+                  <span><i class="material-icons">published_with_changes</i>Publicada</span>
+                }
                 <span>
                   <i class="material-icons">schedule</i>
                   {{ propuesta.horario || 'Horario no definido' }}
@@ -258,6 +282,21 @@
                   Revisar
                 </button>
 
+                @if (esAdmin()) {
+                  @if (propuesta.estado === 'pendiente') {
+                    <button class="success" (click)="publicarManual(propuesta)">
+                      <i class="material-icons">publish</i>
+                      Publicar
+                    </button>
+                    <button class="danger" (click)="rechazarPropuesta(propuesta)">
+                      <i class="material-icons">block</i>
+                      Rechazar
+                    </button>
+                  }
+
+                  <button class="danger soft" (click)="eliminarPropuesta(propuesta)">
+                    <i class="material-icons">delete</i>
+                    Eliminar
                 @if (esAdmin() && propuesta.estado === 'pendiente') {
                   <button class="success" (click)="aprobarComoRuta(propuesta)">
                     <i class="material-icons">publish</i>
@@ -277,6 +316,7 @@
       <aside class="lista-card validation-panel">
         <div class="lista-header">
           <h2>Validacion comunitaria</h2>
+          <p>Un usuario solo puede aprobar o rechazar una vez cada propuesta.</p>
           <p>Selecciona una propuesta para ver comentarios y aportar.</p>
         </div>
 
@@ -289,11 +329,25 @@
 
         @if (propuestaSeleccionada()) {
           <div class="selected-summary">
+            <span class="badge">{{ propuestaSeleccionada()?.estado }}</span>
             <span class="badge">Pendiente</span>
             <h3>{{ propuestaSeleccionada()?.nombre }}</h3>
             <p>{{ propuestaSeleccionada()?.comentarios || 'Sin comentario de contexto.' }}</p>
           </div>
 
+          @if (propuestaSeleccionada()?.estado === 'pendiente') {
+            <div class="quick-actions">
+              <button class="success" (click)="enviarValidacion('aprobacion')" [disabled]="votosDelUsuario(propuestaSeleccionada())">
+                <i class="material-icons">thumb_up</i>
+                Aprobar
+              </button>
+
+              <button class="danger" (click)="enviarValidacion('rechazo')" [disabled]="votosDelUsuario(propuestaSeleccionada())">
+                <i class="material-icons">thumb_down</i>
+                Rechazar
+              </button>
+            </div>
+          }
           <div class="quick-actions">
             <button class="success" (click)="enviarValidacion('aprobacion')">
               <i class="material-icons">thumb_up</i>
@@ -326,6 +380,9 @@
               <article class="comentario-card">
                 <div>
                   <strong>{{ validacion.usuarioNombre }}</strong>
+                  <span>{{ validacion.tipo }}</span>
+                </div>
+                <p>{{ validacion.comentario || validacion.tipo }}</p>
                   <span>{{ formatearFecha(validacion.creadoEn) }}</span>
                 </div>
                 <p>{{ validacion.comentario || validacion.tipo }}</p>
@@ -337,6 +394,54 @@
       </aside>
     </section>
 
+    <section class="lista-card rutas-publicas">
+      <div class="lista-header">
+        <div>
+          <h2>Rutas oficiales disponibles</h2>
+          <p>Las propuestas aprobadas aparecen aqui y tambien en el flujo oficial de rutas.</p>
+        </div>
+      </div>
+
+      <div class="campo filtro">
+        <label>Buscar por parada, zona o ruta</label>
+        <input
+          type="text"
+          placeholder="Ej: City Mall, Megamall, Centro"
+          [ngModel]="filtroRutas()"
+          (ngModelChange)="filtroRutas.set($event)"
+        />
+      </div>
+
+      <div class="rutas-grid">
+        @for (ruta of rutasFiltradas(); track ruta.id) {
+          <article class="ruta-publica-card">
+            <div class="ruta-top">
+              <div class="ruta-color" [style.background]="ruta.color"></div>
+              <div>
+                <h3>{{ ruta.nombre }}</h3>
+                <p>Ruta {{ ruta.numero }}</p>
+              </div>
+              @if (ruta.publicadoDesdePropuesta) {
+                <span class="estado aprobada">Comunidad</span>
+              }
+            </div>
+
+            <div class="ruta-info">
+              <span><i class="material-icons">payments</i>L. {{ ruta.precio }}</span>
+              <span><i class="material-icons">schedule</i>{{ ruta.horario || 'Horario no definido' }}</span>
+              <span><i class="material-icons">sync</i>{{ ruta.frecuencia || 'Frecuencia no definida' }}</span>
+              <span><i class="material-icons">place</i>{{ ruta.paradas.length }} paradas</span>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="lista-card notas-section">
+      <div class="lista-header">
+        <div>
+          <h2>Notas comunitarias</h2>
+          <p>Reporta datos incorrectos o temporales en rutas ya aprobadas.</p>
     <section class="lista-card notas-section">
       <div class="lista-header">
         <div>
@@ -348,6 +453,7 @@
       <div class="nota-form">
         <div class="campo">
           <label>Ruta aprobada</label>
+          <select [ngModel]="nuevaNota().rutaId" (ngModelChange)="actualizarNotaCampo('rutaId', $event)">
           <select
             [ngModel]="nuevaNota().rutaId"
             (ngModelChange)="actualizarNotaCampo('rutaId', $event)"
@@ -416,6 +522,12 @@
                 <i class="material-icons">verified</i>
                 Confirmar ({{ nota.confirmaciones }})
               </button>
+              @if (esAdmin()) {
+                <button class="danger" (click)="resolverNota(nota.id)">
+                  <i class="material-icons">done</i>
+                  Resolver
+                </button>
+              }
             </div>
           </article>
         }

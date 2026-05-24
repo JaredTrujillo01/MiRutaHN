@@ -13,22 +13,22 @@
   <section class="info-ruta">
     <span class="estado">
       <i class="material-icons">check_circle</i>
-      En tiempo
+      Ruta oficial
     </span>
 
-    <h2>Ruta 01: Anillo Periférico</h2>
-    <p>Operado por Transportes Rápidos</p>
+    <h2>{{ tituloRuta() }}</h2>
+    <p>{{ ruta()?.descripcion || 'Ruta oficial disponible para la comunidad.' }}</p>
   </section>
 
   <section class="precio-frecuencia">
     <div class="item">
       <span>Precio</span>
-      <strong>L. 13.00</strong>
+      <strong>{{ precioRuta() }}</strong>
     </div>
 
     <div class="item">
       <span>Frecuencia</span>
-      <strong>8 - 12 min</strong>
+      <strong>{{ frecuenciaRuta() }}</strong>
     </div>
   </section>
 
@@ -36,70 +36,27 @@
     <h3>Itinerario de paradas</h3>
 
     <div class="paradas-timeline">
-      <div class="parada-item">
-        <div class="circulo verde"></div>
-
-        <div class="parada-contenido">
-          <strong>Terminal Metropolitana</strong>
-          <p>Punto de inicio - Salida cada 10 min</p>
-          <span class="hora">
-            <i class="material-icons">schedule</i>
-            06:00 AM
-          </span>
+      @if (paradasRuta().length === 0) {
+        <div class="parada-contenido solo">
+          <strong>Paradas no registradas</strong>
+          <p>Esta ruta aun no tiene paradas detalladas.</p>
         </div>
-      </div>
+      }
 
-      <div class="parada-item">
-        <div class="circulo"></div>
+      @for (parada of paradasRuta(); track parada.orden; let index = $index) {
+        <div class="parada-item" [class.active]="index === 0">
+          <div class="circulo" [class.verde]="index === 0" [class.azul]="index > 0"></div>
 
-        <div class="parada-contenido">
-          <strong>Mall Multiplaza</strong>
-          <p>Conexión con Ruta 42</p>
-          <span class="hora">
-            <i class="material-icons">history</i>
-            Pasó hace 2 min
-          </span>
+          <div class="parada-contenido">
+            <strong>{{ parada.nombre }}</strong>
+            <p>{{ index === 0 ? 'Punto de referencia inicial' : 'Parada registrada por la comunidad' }}</p>
+            <span class="hora">
+              <i class="material-icons">schedule</i>
+              {{ ruta()?.horario || 'Horario no definido' }}
+            </span>
+          </div>
         </div>
-      </div>
-
-      <div class="parada-item active">
-        <div class="circulo azul"></div>
-
-        <div class="parada-contenido">
-          <strong>Hospital Escuela</strong>
-          <p>Parada actual del bus 104-B</p>
-          <span class="hora">
-            <i class="material-icons">directions_bus</i>
-            En tiempo
-          </span>
-        </div>
-      </div>
-
-      <div class="parada-item">
-        <div class="circulo"></div>
-
-        <div class="parada-contenido">
-          <strong>Universidad Nacional</strong>
-          <p>Próxima parada</p>
-          <span class="hora">
-            <i class="material-icons">schedule</i>
-            ~06:45 AM
-          </span>
-        </div>
-      </div>
-
-      <div class="parada-item">
-        <div class="circulo"></div>
-
-        <div class="parada-contenido">
-          <strong>Colonia Kennedy</strong>
-          <p>Punto final de recorrido</p>
-          <span class="hora">
-            <i class="material-icons">flag</i>
-            ~07:15 AM
-          </span>
-        </div>
-      </div>
+      }
     </div>
   </section>
 
@@ -116,21 +73,21 @@
 
       <div class="reporte-contenido">
         <div class="reporte-nombre">
-          <strong>Mario Estrada</strong>
-          <span>Hace 5 min</span>
+          <strong>Comunidad MiRutaHN</strong>
+          <span>En vivo</span>
         </div>
 
-        <p>Bus muy lleno. Casi no hay espacio para subir en Multiplaza.</p>
+        <p>Los reportes ciudadanos siguen disponibles para complementar esta ruta.</p>
 
         <div class="acciones">
           <button>
             <i class="material-icons">thumb_up</i>
-            12
+            0
           </button>
 
           <button>
             <i class="material-icons">comment</i>
-            3
+            0
           </button>
         </div>
       </div>
@@ -204,6 +161,6 @@
 
   <button class="btn-navegar" (click)="iniciarNavegacion.emit()">
     <i class="material-icons">navigation</i>
-    Iniciar navegación
+    Iniciar navegacion
   </button>
 </div>
