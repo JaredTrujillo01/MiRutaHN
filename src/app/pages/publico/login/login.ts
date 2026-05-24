@@ -51,11 +51,6 @@ export class Login {
         return;
       }
 
-      if (rol === 'conductor') {
-        this.router.navigate(['/conductor/dashboard']);
-        return;
-      }
-
       this.router.navigate(['/dashboard']);
     } catch (err: any) {
       console.error(err);

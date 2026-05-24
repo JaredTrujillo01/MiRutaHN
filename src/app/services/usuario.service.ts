@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { doc, Firestore, getDoc, setDoc } from '@angular/fire/firestore';
 
-export type UserRole = 'usuario' | 'admin' | 'conductor';
+export type UserRole = 'usuario' | 'admin';
 
 export interface PerfilUsuario {
   uid: string;
@@ -46,8 +46,9 @@ export class UsuarioService {
   }
 
   normalizarRol(valor?: string | null): UserRole {
-    if (valor === 'admin') return 'admin';
-    if (valor === 'conductor') return 'conductor';
+    if (valor === 'admin') {
+      return 'admin';
+    }
 
     return 'usuario';
   }

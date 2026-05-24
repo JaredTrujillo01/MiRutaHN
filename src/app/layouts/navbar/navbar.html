@@ -13,8 +13,9 @@
     </div>
 
     <div class="nav-actions">
-      <button class="btn-login" routerLink="/login">Iniciar sesión</button>
-      <button class="btn-registro" routerLink="/registro">Registrarse</button>
+      <button class="btn-portal" routerLink="/dashboard">
+        Entrar a MiRutaHN
+      </button>
     </div>
 
     <button class="menu-toggle" (click)="toggleMenu()" aria-label="Abrir menú">
@@ -46,12 +47,8 @@
     </a>
 
     <div class="mobile-actions">
-      <button class="btn-login-mobile" routerLink="/login" (click)="closeMenu()">
-        Iniciar sesión
-      </button>
-
-      <button class="btn-registro-mobile" routerLink="/registro" (click)="closeMenu()">
-        Registrarse
+      <button class="btn-portal-mobile" routerLink="/dashboard" (click)="closeMenu()">
+        Entrar a MiRutaHN
       </button>
     </div>
   </div>
