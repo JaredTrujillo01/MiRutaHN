@@ -6,10 +6,12 @@ import {
   deleteDoc,
   doc,
   Firestore,
+  increment,
   orderBy,
   query,
   Timestamp,
   updateDoc,
+  where,
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
@@ -40,6 +42,55 @@ export interface RutaTransporte {
   creadoEn: Timestamp;
 }
 
+export type EstadoPropuestaRuta = 'pendiente' | 'aprobada' | 'rechazada';
+export type TipoValidacionRuta = 'aprobacion' | 'rechazo' | 'comentario';
+
+export interface PropuestaRuta {
+  id?: string;
+  nombre: string;
+  numero: string;
+  precio: number;
+  horario: string;
+  frecuencia: string;
+  color: string;
+  descripcion?: string;
+  comentarios?: string;
+  puntosGuia?: Coordenada[];
+  recorrido: Coordenada[];
+  paradas: Parada[];
+  estado: EstadoPropuestaRuta;
+  creadoPor: string;
+  creadoPorNombre: string;
+  creadoEn: Timestamp;
+  actualizadoEn?: Timestamp;
+  aprobaciones: number;
+  rechazos: number;
+}
+
+export interface ValidacionRuta {
+  id?: string;
+  propuestaId: string;
+  usuarioId: string;
+  usuarioNombre: string;
+  tipo: TipoValidacionRuta;
+  comentario: string;
+  creadoEn: Timestamp;
+}
+
+export interface NotaComunitaria {
+  id?: string;
+  rutaId: string;
+  usuarioId: string;
+  usuarioNombre: string;
+  comentario: string;
+  campoMarcado?: 'precio' | 'horario' | 'recorrido' | 'paradas' | 'descripcion' | 'otro';
+  estado: 'activa' | 'resuelta';
+  votosUtiles: number;
+  confirmaciones: number;
+  creadoEn: Timestamp;
+  actualizadoEn?: Timestamp;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -66,5 +117,123 @@ export class RutaService {
   deleteRuta(id: string) {
     const rutaDoc = doc(this.firestore, 'rutas', id);
     return deleteDoc(rutaDoc);
+  }
+
+  getPropuestasRuta() {
+    const propuestasCollection = collection(this.firestore, 'propuestas_rutas');
+    const q = query(propuestasCollection, orderBy('creadoEn', 'desc'));
+
+    return collectionData(q, { idField: 'id' }) as Observable<PropuestaRuta[]>;
+  }
+
+  createPropuestaRuta(propuesta: Omit<PropuestaRuta, 'id'>) {
+    const propuestasCollection = collection(this.firestore, 'propuestas_rutas');
+    return addDoc(propuestasCollection, propuesta);
+  }
+
+  updatePropuestaRuta(id: string, propuesta: Partial<PropuestaRuta>) {
+    const propuestaDoc = doc(this.firestore, 'propuestas_rutas', id);
+    return updateDoc(propuestaDoc, propuesta);
+  }
+
+  getValidacionesPorPropuesta(propuestaId: string) {
+    const validacionesCollection = collection(this.firestore, 'validaciones_rutas');
+    const q = query(
+      validacionesCollection,
+      where('propuestaId', '==', propuestaId)
+    );
+
+    return collectionData(q, { idField: 'id' }) as Observable<ValidacionRuta[]>;
+  }
+
+  async createValidacionRuta(validacion: Omit<ValidacionRuta, 'id'>) {
+    const validacionesCollection = collection(this.firestore, 'validaciones_rutas');
+    const propuestaDoc = doc(this.firestore, 'propuestas_rutas', validacion.propuestaId);
+
+    await addDoc(validacionesCollection, validacion);
+
+    if (validacion.tipo === 'aprobacion') {
+      await updateDoc(propuestaDoc, {
+        aprobaciones: increment(1),
+        actualizadoEn: Timestamp.now(),
+      });
+    }
+
+    if (validacion.tipo === 'rechazo') {
+      await updateDoc(propuestaDoc, {
+        rechazos: increment(1),
+        actualizadoEn: Timestamp.now(),
+      });
+    }
+  }
+
+  async aprobarPropuestaComoRuta(propuesta: PropuestaRuta) {
+    if (!propuesta.id) {
+      throw new Error('La propuesta no tiene identificador.');
+    }
+
+    const rutaPublica: Omit<RutaTransporte, 'id'> = {
+      nombre: propuesta.nombre,
+      numero: propuesta.numero,
+      precio: Number(propuesta.precio),
+      horario: propuesta.horario,
+      color: propuesta.color,
+      estado: 'activa',
+      descripcion: propuesta.descripcion,
+      puntosGuia: propuesta.puntosGuia || [],
+      recorrido: propuesta.recorrido || [],
+      paradas: propuesta.paradas || [],
+      creadoEn: Timestamp.now(),
+    };
+
+    await this.createRuta(rutaPublica);
+    await this.updatePropuestaRuta(propuesta.id, {
+      estado: 'aprobada',
+      actualizadoEn: Timestamp.now(),
+    });
+  }
+
+  getNotasPorRuta(rutaId: string) {
+    const notasCollection = collection(this.firestore, 'notas_comunitarias');
+    const q = query(
+      notasCollection,
+      where('rutaId', '==', rutaId),
+      where('estado', '==', 'activa')
+    );
+
+    return collectionData(q, { idField: 'id' }) as Observable<NotaComunitaria[]>;
+  }
+
+  getNotasActivas() {
+    const notasCollection = collection(this.firestore, 'notas_comunitarias');
+    const q = query(
+      notasCollection,
+      where('estado', '==', 'activa')
+    );
+
+    return collectionData(q, { idField: 'id' }) as Observable<NotaComunitaria[]>;
+  }
+
+  createNotaComunitaria(nota: Omit<NotaComunitaria, 'id'>) {
+    const notasCollection = collection(this.firestore, 'notas_comunitarias');
+    return addDoc(notasCollection, nota);
+  }
+
+  votarNotaUtil(id: string) {
+    const notaDoc = doc(this.firestore, 'notas_comunitarias', id);
+
+    return updateDoc(notaDoc, {
+      votosUtiles: increment(1),
+      actualizadoEn: Timestamp.now(),
+    });
+  }
+
+  confirmarNota(id: string) {
+    const notaDoc = doc(this.firestore, 'notas_comunitarias', id);
+
+    return updateDoc(notaDoc, {
+      confirmaciones: increment(1),
+      actualizadoEn: Timestamp.now(),
+    });
   }
 }
