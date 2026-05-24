@@ -118,6 +118,26 @@
   color: #166534;
 }
 
+.badge.comunidad {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.estado-vacio {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 16px;
+  padding: 1.25rem;
+  text-align: center;
+  color: #64748b;
+}
+
+.estado-vacio i {
+  color: #2563eb;
+  font-size: 1.8rem;
+  margin-bottom: 0.4rem;
+}
+
 .detalles {
   grid-column: 2 / 3;
   display: flex;

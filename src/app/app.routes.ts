@@ -36,6 +36,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/usuario/reportar/reportar').then((m) => m.Reportar),
   },
   {
+    path: 'colaborar',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/usuario/colaborar/colaborar').then((m) => m.Colaborar),
+  },
+  {
     path: 'perfil',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/usuario/perfil/perfil').then((m) => m.Perfil),

@@ -7,26 +7,40 @@
 
     <div class="header-info">
       <h2>Rutas recomendadas</h2>
-      <p class="contador">{{ rutas().length }} resultados encontrados</p>
+      <p class="contador">{{ cargando() ? 'Buscando rutas...' : rutas().length + ' resultados encontrados' }}</p>
     </div>
   </div>
 
+  @if (!cargando() && rutas().length === 0) {
+    <div class="estado-vacio">
+      <i class="material-icons">route</i>
+      <p>No hay rutas oficiales activas todavia.</p>
+    </div>
+  }
+
   <div class="lista-rutas">
-    @for (ruta of rutas(); track ruta.id) {
-      <article class="ruta" [class.active]="ruta.active">
+    @for (ruta of rutas(); track ruta.id; let index = $index) {
+      <article class="ruta" [class.active]="index === 0">
         <div class="ruta-top">
           <div class="ruta-icon">
             <i class="material-icons">directions_bus</i>
           </div>
 
           <div class="ruta-info">
-            <h4>{{ ruta.nombre }}</h4>
+            <h4>{{ ruta.nombre }} - Ruta {{ ruta.numero }}</h4>
 
             <div class="estado-ruta">
-              <span class="badge" [class.verde]="ruta.active">
+              <span class="badge" [class.verde]="index === 0">
                 <i class="material-icons">timer</i>
-                Llega en {{ ruta.llega }}
+                Llega en {{ llegadaEstimada(index) }}
               </span>
+
+              @if (ruta.publicadoDesdePropuesta) {
+                <span class="badge comunidad">
+                  <i class="material-icons">diversity_3</i>
+                  Comunidad
+                </span>
+              }
             </div>
           </div>
         </div>
@@ -34,12 +48,17 @@
         <div class="detalles">
           <span>
             <i class="material-icons">payments</i>
-            L.{{ ruta.precio }}.00
+            L.{{ ruta.precio }}
           </span>
 
           <span>
             <i class="material-icons">schedule</i>
-            {{ ruta.tiempo }} min
+            {{ tiempoEstimado(ruta) }} min
+          </span>
+
+          <span>
+            <i class="material-icons">sync</i>
+            {{ ruta.frecuencia || 'Frecuencia no definida' }}
           </span>
         </div>
 
