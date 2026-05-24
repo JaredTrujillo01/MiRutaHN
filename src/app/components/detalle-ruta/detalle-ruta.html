@@ -137,6 +137,71 @@
     </div>
   </section>
 
+  <section class="notas-comunitarias">
+    <div class="reportes-header">
+      <h3>Notas comunitarias</h3>
+      <span class="nota-count">{{ notas().length }}</span>
+    </div>
+
+    @if (notas().length > 0) {
+      <div class="notas-list">
+        @for (nota of notas(); track nota.id) {
+          <article class="nota-card" [class.warning]="nota.confirmaciones >= 3">
+            <div class="nota-top">
+              <span>{{ nota.campoMarcado || 'otro' }}</span>
+              @if (nota.confirmaciones >= 3) {
+                <strong>
+                  <i class="material-icons">warning</i>
+                  Validada
+                </strong>
+              }
+            </div>
+
+            <p>{{ nota.comentario }}</p>
+
+            <div class="acciones">
+              <button (click)="votarNota(nota.id)">
+                <i class="material-icons">thumb_up</i>
+                {{ nota.votosUtiles }}
+              </button>
+
+              <button (click)="confirmarNota(nota.id)">
+                <i class="material-icons">verified</i>
+                {{ nota.confirmaciones }}
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    }
+
+    <div class="nota-form">
+      <select
+        [ngModel]="nuevaNota().campoMarcado"
+        (ngModelChange)="actualizarNotaCampo('campoMarcado', $event)"
+      >
+        <option value="precio">Precio</option>
+        <option value="horario">Horario</option>
+        <option value="recorrido">Recorrido</option>
+        <option value="paradas">Paradas</option>
+        <option value="descripcion">Descripcion</option>
+        <option value="otro">Otro</option>
+      </select>
+
+      <textarea
+        rows="3"
+        placeholder="Agregar una observacion sobre esta ruta..."
+        [ngModel]="nuevaNota().comentario"
+        (ngModelChange)="actualizarNotaCampo('comentario', $event)"
+      ></textarea>
+
+      <button (click)="crearNota()">
+        <i class="material-icons">add_comment</i>
+        Agregar nota
+      </button>
+    </div>
+  </section>
+
   <button class="btn-navegar" (click)="iniciarNavegacion.emit()">
     <i class="material-icons">navigation</i>
     Iniciar navegación

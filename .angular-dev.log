@@ -1,0 +1,37 @@
+
+> mi-ruta-hn@0.0.0 start
+> ng serve --host 127.0.0.1 --port 4200
+
+[33m>[39m Building...
+[32m√[39m Building...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m          [2m | [22m [1mRaw size[22m
+[32mstyles.css[39m         [2m | [22m[2mstyles[22m         [2m | [22m [36m13.15 kB[39m[2m | [22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m           [2m | [22m  [36m6.03 kB[39m[2m | [22m
+[32mchunk-YR44LFTG.js[39m  [2m | [22m[2m-[22m              [2m | [22m  [36m5.17 kB[39m[2m | [22m
+[32mchunk-CZJLB7T5.js[39m  [2m | [22m[2m-[22m              [2m | [22m  [36m1.08 kB[39m[2m | [22m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m  [2m | [22m [1m25.43 kB[22m
+
+[1mLazy chunk files[22m   [2m | [22m[1mNames[22m          [2m | [22m [1mRaw size[22m
+[32mchunk-YHBHDMAI.js[39m  [2m | [22m[2mdashboard[22m      [2m | [22m[36m119.26 kB[39m[2m | [22m
+[32mchunk-6D747IUW.js[39m  [2m | [22m[2mrutas[22m          [2m | [22m [36m98.11 kB[39m[2m | [22m
+[32mchunk-6I6WLETA.js[39m  [2m | [22m[2mcolaborar[22m      [2m | [22m [36m86.22 kB[39m[2m | [22m
+[32mchunk-WVSHCYAL.js[39m  [2m | [22m[2mlanding[22m        [2m | [22m [36m79.33 kB[39m[2m | [22m
+[32mchunk-OGPPB26M.js[39m  [2m | [22m[2mperfil[22m         [2m | [22m [36m53.48 kB[39m[2m | [22m
+[32mchunk-3LGLJNNM.js[39m  [2m | [22m[2mreportar[22m       [2m | [22m [36m49.51 kB[39m[2m | [22m
+[32mchunk-2UU6GFJG.js[39m  [2m | [22m[2mregistro[22m       [2m | [22m [36m21.40 kB[39m[2m | [22m
+[32mchunk-BKJL4BE4.js[39m  [2m | [22m[2mfavoritos[22m      [2m | [22m [36m20.85 kB[39m[2m | [22m
+[32mchunk-7XMGKUHD.js[39m  [2m | [22m[2mlogin[22m          [2m | [22m [36m20.02 kB[39m[2m | [22m
+[32mchunk-OQJGUHI7.js[39m  [2m | [22m[2m-[22m              [2m | [22m [36m19.59 kB[39m[2m | [22m
+[32mchunk-KWZ5PJUT.js[39m  [2m | [22m[2m-[22m              [2m | [22m  [36m4.70 kB[39m[2m | [22m
+[32mchunk-QXCTYOQS.js[39m  [2m | [22m[2mdashboard-admin[22m[2m | [22m  [36m2.16 kB[39m[2m | [22m
+[32mchunk-R2XZF6ZY.js[39m  [2m | [22m[2mreportes-admin[22m [2m | [22m  [36m2.13 kB[39m[2m | [22m
+[32mchunk-ZA5YLJNN.js[39m  [2m | [22m[2musuarios-admin[22m [2m | [22m  [36m2.13 kB[39m[2m | [22m
+[32mchunk-66JQBFVM.js[39m  [2m | [22m[2mconductores[22m    [2m | [22m  [36m2.07 kB[39m[2m | [22m
+[2m...and 1 more lazy chunks files. Use "--verbose" to show all the files.[22m
+
+Application bundle generation complete. [3.128 seconds] - 2026-05-24T20:25:53.077Z
+
+Watch mode enabled. Watching for file changes...
+NOTE: Raw file sizes do not reflect development server per-request transformations.
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m4200[22m/[39m
