@@ -10,6 +10,8 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Timestamp } from '@angular/fire/firestore';
 import * as L from 'leaflet';
+import * as L from 'leaflet';
+import { Timestamp } from '@angular/fire/firestore';
 
 import { Sidebar } from '../../../layouts/sidebar/sidebar';
 import { AuthService } from '../../../services/auth';
@@ -73,6 +75,7 @@ export class Colaborar implements AfterViewInit, OnDestroy {
   });
 
   nuevaValidacion = signal({
+    tipo: 'comentario' as TipoValidacionRuta,
     comentario: '',
   });
 
@@ -177,6 +180,15 @@ export class Colaborar implements AfterViewInit, OnDestroy {
 
   actualizarComentarioValidacion(comentario: string) {
     this.nuevaValidacion.set({ comentario });
+  seleccionarColor(color: string) {
+    this.actualizarCampo('color', color);
+  }
+
+  actualizarComentarioValidacion(comentario: string) {
+    this.nuevaValidacion.update((validacion) => ({
+      ...validacion,
+      comentario,
+    }));
   }
 
   actualizarNotaCampo(campo: 'rutaId' | 'campoMarcado' | 'comentario', valor: string) {
@@ -373,6 +385,7 @@ export class Colaborar implements AfterViewInit, OnDestroy {
   seleccionarPropuesta(propuesta: PropuestaRuta) {
     this.propuestaSeleccionada.set(propuesta);
     this.nuevaValidacion.set({ comentario: '' });
+    this.nuevaValidacion.set({ tipo: 'comentario', comentario: '' });
 
     if (!propuesta.id) return;
 
@@ -382,6 +395,7 @@ export class Colaborar implements AfterViewInit, OnDestroy {
   }
 
   async enviarValidacion(tipo: TipoValidacionRuta) {
+  async enviarValidacion(tipo?: TipoValidacionRuta) {
     const propuesta = this.propuestaSeleccionada();
     const validacion = this.nuevaValidacion();
 
@@ -396,6 +410,9 @@ export class Colaborar implements AfterViewInit, OnDestroy {
     }
 
     if (tipo === 'comentario' && !validacion.comentario.trim()) {
+    const tipoFinal = tipo || validacion.tipo;
+
+    if (tipoFinal === 'comentario' && !validacion.comentario.trim()) {
       alert('Escribe un comentario para aportar una correccion.');
       return;
     }
@@ -419,6 +436,21 @@ export class Colaborar implements AfterViewInit, OnDestroy {
   async publicarManual(propuesta: PropuestaRuta) {
     if (!this.esAdmin()) {
       alert('Solo un administrador puede publicar manualmente.');
+    await this.rutaService.createValidacionRuta({
+      propuestaId: propuesta.id,
+      usuarioId: this.usuarioAuth.uid,
+      usuarioNombre: this.usuarioPerfil?.nombre || this.usuarioAuth.email || 'Ciudadano',
+      tipo: tipoFinal,
+      comentario: validacion.comentario,
+      creadoEn: Timestamp.now(),
+    });
+
+    this.nuevaValidacion.set({ tipo: 'comentario', comentario: '' });
+  }
+
+  async aprobarComoRuta(propuesta: PropuestaRuta) {
+    if (!this.esAdmin()) {
+      alert('Solo un administrador puede publicar una propuesta como ruta oficial.');
       return;
     }
 
@@ -434,6 +466,11 @@ export class Colaborar implements AfterViewInit, OnDestroy {
     if (!this.esAdmin() || !propuesta.id) return;
     if (!confirm('Eliminar esta propuesta de la revision comunitaria?')) return;
     await this.rutaService.deletePropuestaRuta(propuesta.id);
+
+    await this.rutaService.updatePropuestaRuta(propuesta.id, {
+      estado: 'rechazada',
+      actualizadoEn: Timestamp.now(),
+    });
   }
 
   async crearNota() {
@@ -504,6 +541,9 @@ export class Colaborar implements AfterViewInit, OnDestroy {
 
       return texto.includes(filtro);
     });
+  notasPorRuta(rutaId?: string) {
+    if (!rutaId) return [];
+    return this.notas().filter((nota) => nota.rutaId === rutaId);
   }
 
   nombreRuta(rutaId: string) {
@@ -519,5 +559,12 @@ export class Colaborar implements AfterViewInit, OnDestroy {
         validacion.usuarioId === this.usuarioAuth?.uid &&
         (validacion.tipo === 'aprobacion' || validacion.tipo === 'rechazo')
     );
+  formatearFecha(timestamp?: Timestamp) {
+    if (!timestamp) return '';
+    return timestamp.toDate().toLocaleDateString('es-HN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
   }
 }

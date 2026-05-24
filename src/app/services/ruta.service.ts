@@ -99,6 +99,55 @@ export interface NotaComunitaria {
   actualizadoEn?: Timestamp;
 }
 
+export type EstadoPropuestaRuta = 'pendiente' | 'aprobada' | 'rechazada';
+export type TipoValidacionRuta = 'aprobacion' | 'rechazo' | 'comentario';
+
+export interface PropuestaRuta {
+  id?: string;
+  nombre: string;
+  numero: string;
+  precio: number;
+  horario: string;
+  frecuencia: string;
+  color: string;
+  descripcion?: string;
+  comentarios?: string;
+  puntosGuia?: Coordenada[];
+  recorrido: Coordenada[];
+  paradas: Parada[];
+  estado: EstadoPropuestaRuta;
+  creadoPor: string;
+  creadoPorNombre: string;
+  creadoEn: Timestamp;
+  actualizadoEn?: Timestamp;
+  aprobaciones: number;
+  rechazos: number;
+}
+
+export interface ValidacionRuta {
+  id?: string;
+  propuestaId: string;
+  usuarioId: string;
+  usuarioNombre: string;
+  tipo: TipoValidacionRuta;
+  comentario: string;
+  creadoEn: Timestamp;
+}
+
+export interface NotaComunitaria {
+  id?: string;
+  rutaId: string;
+  usuarioId: string;
+  usuarioNombre: string;
+  comentario: string;
+  campoMarcado?: 'precio' | 'horario' | 'recorrido' | 'paradas' | 'descripcion' | 'otro';
+  estado: 'activa' | 'resuelta';
+  votosUtiles: number;
+  confirmaciones: number;
+  creadoEn: Timestamp;
+  actualizadoEn?: Timestamp;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -152,6 +201,12 @@ export class RutaService {
   getValidacionesPorPropuesta(propuestaId: string) {
     const validacionesCollection = collection(this.firestore, 'validaciones_rutas');
     const q = query(validacionesCollection, where('propuestaId', '==', propuestaId));
+  getValidacionesPorPropuesta(propuestaId: string) {
+    const validacionesCollection = collection(this.firestore, 'validaciones_rutas');
+    const q = query(
+      validacionesCollection,
+      where('propuestaId', '==', propuestaId)
+    );
 
     return collectionData(q, { idField: 'id' }) as Observable<ValidacionRuta[]>;
   }
@@ -227,6 +282,12 @@ export class RutaService {
   async rechazarPropuestaRuta(id: string) {
     return this.updatePropuestaRuta(id, {
       estado: 'rechazada',
+      creadoEn: Timestamp.now(),
+    };
+
+    await this.createRuta(rutaPublica);
+    await this.updatePropuestaRuta(propuesta.id, {
+      estado: 'aprobada',
       actualizadoEn: Timestamp.now(),
     });
   }
@@ -245,6 +306,10 @@ export class RutaService {
   getNotasActivas() {
     const notasCollection = collection(this.firestore, 'notas_comunitarias');
     const q = query(notasCollection, where('estado', '==', 'activa'));
+    const q = query(
+      notasCollection,
+      where('estado', '==', 'activa')
+    );
 
     return collectionData(q, { idField: 'id' }) as Observable<NotaComunitaria[]>;
   }

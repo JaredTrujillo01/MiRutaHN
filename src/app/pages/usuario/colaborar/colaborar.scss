@@ -44,6 +44,11 @@
 .campo-chip {
   display: inline-flex;
   width: fit-content;
+.badge {
+  display: inline-flex;
+  width: fit-content;
+  background: #dbeafe;
+  color: #2563eb;
   border-radius: 999px;
   padding: 0.32rem 0.75rem;
   font-size: 0.68rem;
@@ -69,6 +74,7 @@
 .lista-header p,
 .selected-summary p,
 .descripcion {
+.selected-summary p {
   color: #64748b;
   font-size: 0.9rem;
   line-height: 1.45;
@@ -158,6 +164,7 @@ button {
 
 button:disabled {
   opacity: 0.55;
+  opacity: 0.7;
   cursor: not-allowed;
 }
 
@@ -292,6 +299,12 @@ button:disabled {
 .paradas-box,
 .selected-summary,
 .nota-form {
+.color-option i {
+  font-size: 1rem;
+}
+
+.paradas-box,
+.selected-summary {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 18px;
@@ -322,6 +335,11 @@ button:disabled {
 .paradas-box p {
   color: #64748b;
   font-size: 0.85rem;
+.paradas-box p,
+.descripcion {
+  color: #64748b;
+  font-size: 0.85rem;
+  line-height: 1.45;
 }
 
 .parada-item {
@@ -351,6 +369,7 @@ button:disabled {
 .comentarios-list,
 .notas-grid,
 .rutas-grid {
+.notas-grid {
   display: grid;
   gap: 1rem;
 }
@@ -359,6 +378,7 @@ button:disabled {
 .nota-card,
 .comentario-card,
 .ruta-publica-card {
+.comentario-card {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 20px;
@@ -398,6 +418,11 @@ button:disabled {
 .estado {
   background: #fef3c7;
   color: #92400e;
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .estado.aprobada {
@@ -443,6 +468,10 @@ button:disabled {
   font-size: 0.72rem;
   text-transform: uppercase;
   font-weight: 900;
+.comentario-card span,
+.comentario-card small {
+  color: #94a3b8;
+  font-size: 0.72rem;
 }
 
 .comentario-card p,
@@ -454,6 +483,24 @@ button:disabled {
 
 .filtro {
   margin-bottom: 1rem;
+}
+
+.nota-form {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.campo-chip {
+  background: #dbeafe;
+  color: #2563eb;
+  border-radius: 999px;
+  padding: 0.28rem 0.62rem;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .nota-card.warning {
@@ -501,6 +548,7 @@ button:disabled {
 
   .notas-grid,
   .rutas-grid {
+  .notas-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
@@ -535,6 +583,7 @@ button:disabled {
 
   .notas-grid,
   .rutas-grid {
+  .notas-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 
@@ -542,6 +591,7 @@ button:disabled {
   .propuesta-card:hover,
   .nota-card:hover,
   .ruta-publica-card:hover {
+  .nota-card:hover {
     transform: translateY(-2px);
   }
 }
