@@ -93,6 +93,8 @@
 .sidebar-footer {
   border-top: 1px solid #e2e8f0;
   padding-top: 1rem;
+  display: grid;
+  gap: 0.65rem;
 }
 
 .footer-link {
@@ -109,20 +111,41 @@
   gap: 0.8rem;
   padding: 0 1rem;
   transition: 0.2s ease;
+}
+
+.footer-link.logout {
   background: #fef2f2;
   color: #dc2626;
 }
 
-.footer-link:hover {
+.footer-link.logout:hover {
   background: #fee2e2;
+}
+
+.footer-link.login {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.footer-link.login:hover {
+  background: #dbeafe;
+}
+
+.footer-link.register {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.footer-link.register:hover {
+  background: #dcfce7;
 }
 
 .footer-link i {
   font-size: 1.25rem;
 }
 
-/* MOBILE */
 
+/* MOBILE */
 @media (max-width: 1023px) {
   .sidebar {
     width: 100%;

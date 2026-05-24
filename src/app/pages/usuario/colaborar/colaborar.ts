@@ -10,8 +10,6 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Timestamp } from '@angular/fire/firestore';
 import * as L from 'leaflet';
-import * as L from 'leaflet';
-import { Timestamp } from '@angular/fire/firestore';
 
 import { Sidebar } from '../../../layouts/sidebar/sidebar';
 import { AuthService } from '../../../services/auth';
@@ -42,11 +40,13 @@ export class Colaborar implements AfterViewInit, OnDestroy {
   private openRouteService = inject(OpenRouteService);
 
   approvalThreshold = APPROVAL_THRESHOLD;
+
   propuestas = signal<PropuestaRuta[]>([]);
   rutas = signal<RutaTransporte[]>([]);
   notas = signal<NotaComunitaria[]>([]);
   validaciones = signal<ValidacionRuta[]>([]);
   propuestaSeleccionada = signal<PropuestaRuta | null>(null);
+
   cargando = signal(false);
   calculandoRuta = signal(false);
   guardando = signal(false);
@@ -61,7 +61,14 @@ export class Colaborar implements AfterViewInit, OnDestroy {
   private guiaLayer!: L.Polyline;
   private markersLayer = L.layerGroup();
 
-  coloresRuta = ['#2563eb', '#16a34a', '#ea580c', '#dc2626', '#7c3aed', '#0891b2'];
+  coloresRuta = [
+    '#2563eb',
+    '#16a34a',
+    '#ea580c',
+    '#dc2626',
+    '#7c3aed',
+    '#0891b2',
+  ];
 
   nuevaPropuesta = signal({
     nombre: '',
@@ -108,7 +115,9 @@ export class Colaborar implements AfterViewInit, OnDestroy {
     this.usuarioAuth = await this.authService.obtenerUsuarioActual();
 
     if (this.usuarioAuth) {
-      this.usuarioPerfil = await this.authService.obtenerPerfilUsuario(this.usuarioAuth.uid);
+      this.usuarioPerfil = await this.authService.obtenerPerfilUsuario(
+        this.usuarioAuth.uid
+      );
     }
 
     this.esAdmin.set(await this.authService.isAdmin());
@@ -137,7 +146,10 @@ export class Colaborar implements AfterViewInit, OnDestroy {
       this.map.remove();
     }
 
-    this.map = L.map(this.mapaPropuesta.nativeElement).setView([15.5042, -88.025], 13);
+    this.map = L.map(this.mapaPropuesta.nativeElement).setView(
+      [15.5042, -88.025],
+      13
+    );
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
@@ -178,8 +190,6 @@ export class Colaborar implements AfterViewInit, OnDestroy {
     }
   }
 
-  actualizarComentarioValidacion(comentario: string) {
-    this.nuevaValidacion.set({ comentario });
   seleccionarColor(color: string) {
     this.actualizarCampo('color', color);
   }
@@ -191,7 +201,17 @@ export class Colaborar implements AfterViewInit, OnDestroy {
     }));
   }
 
-  actualizarNotaCampo(campo: 'rutaId' | 'campoMarcado' | 'comentario', valor: string) {
+  actualizarTipoValidacion(tipo: TipoValidacionRuta) {
+    this.nuevaValidacion.update((validacion) => ({
+      ...validacion,
+      tipo,
+    }));
+  }
+
+  actualizarNotaCampo(
+    campo: 'rutaId' | 'campoMarcado' | 'comentario',
+    valor: string
+  ) {
     this.nuevaNota.update((nota) => ({
       ...nota,
       [campo]: valor,
@@ -208,7 +228,7 @@ export class Colaborar implements AfterViewInit, OnDestroy {
     const puntos = this.puntosGuia();
 
     if (puntos.length < 2) {
-      alert('Agrega al menos 2 puntos guia.');
+      alert('Agrega al menos 2 puntos guía.');
       return;
     }
 
@@ -244,7 +264,10 @@ export class Colaborar implements AfterViewInit, OnDestroy {
       return;
     }
 
-    const nombre = prompt('Nombre de la parada:', `Parada ${this.paradas().length + 1}`);
+    const nombre = prompt(
+      'Nombre de la parada:',
+      `Parada ${this.paradas().length + 1}`
+    );
 
     if (!nombre) return;
 
@@ -272,6 +295,7 @@ export class Colaborar implements AfterViewInit, OnDestroy {
 
     this.puntosGuia.set(puntos.slice(0, -1));
     this.recorrido.set([]);
+
     this.paradas.update((actual) =>
       actual
         .filter((p) => !(p.lat === eliminado.lat && p.lng === eliminado.lng))
@@ -289,15 +313,24 @@ export class Colaborar implements AfterViewInit, OnDestroy {
   }
 
   actualizarMapa() {
-    const guia = this.puntosGuia().map((p) => [p.lat, p.lng] as [number, number]);
-    const recorrido = this.recorrido().map((p) => [p.lat, p.lng] as [number, number]);
+    if (!this.guiaLayer || !this.recorridoLayer || !this.markersLayer) return;
+
+    const guia = this.puntosGuia().map(
+      (p) => [p.lat, p.lng] as [number, number]
+    );
+
+    const recorrido = this.recorrido().map(
+      (p) => [p.lat, p.lng] as [number, number]
+    );
 
     this.guiaLayer.setLatLngs(guia);
     this.recorridoLayer.setLatLngs(recorrido);
     this.markersLayer.clearLayers();
 
     this.puntosGuia().forEach((punto, index) => {
-      const parada = this.paradas().find((p) => p.lat === punto.lat && p.lng === punto.lng);
+      const parada = this.paradas().find(
+        (p) => p.lat === punto.lat && p.lng === punto.lng
+      );
 
       L.circleMarker([punto.lat, punto.lng], {
         radius: parada ? 9 : 6,
@@ -306,13 +339,13 @@ export class Colaborar implements AfterViewInit, OnDestroy {
         fillOpacity: 1,
         weight: 3,
       })
-        .bindPopup(parada ? parada.nombre : `Punto guia ${index + 1}`)
+        .bindPopup(parada ? parada.nombre : `Punto guía ${index + 1}`)
         .addTo(this.markersLayer);
     });
 
     const boundsSource = recorrido.length > 0 ? recorrido : guia;
 
-    if (boundsSource.length > 0) {
+    if (boundsSource.length > 0 && this.map) {
       this.map.fitBounds(L.latLngBounds(boundsSource), { padding: [30, 30] });
     }
   }
@@ -321,17 +354,17 @@ export class Colaborar implements AfterViewInit, OnDestroy {
     const propuesta = this.nuevaPropuesta();
 
     if (!this.usuarioAuth) {
-      alert('Debes iniciar sesion para proponer rutas.');
+      alert('Debes iniciar sesión para proponer rutas.');
       return;
     }
 
     if (!propuesta.nombre.trim() || !propuesta.numero.trim()) {
-      alert('Completa el nombre y numero de la ruta.');
+      alert('Completa el nombre y número de la ruta.');
       return;
     }
 
     if (this.puntosGuia().length < 2) {
-      alert('Dibuja al menos 2 puntos guia en el mapa.');
+      alert('Dibuja al menos 2 puntos guía en el mapa.');
       return;
     }
 
@@ -351,7 +384,8 @@ export class Colaborar implements AfterViewInit, OnDestroy {
       paradas: this.paradas(),
       estado: 'pendiente',
       creadoPor: this.usuarioAuth.uid,
-      creadoPorNombre: this.usuarioPerfil?.nombre || this.usuarioAuth.email || 'Ciudadano',
+      creadoPorNombre:
+        this.usuarioPerfil?.nombre || this.usuarioAuth.email || 'Ciudadano',
       creadoEn: Timestamp.now(),
       aprobaciones: 0,
       rechazos: 0,
@@ -379,12 +413,12 @@ export class Colaborar implements AfterViewInit, OnDestroy {
       descripcion: '',
       comentarios: '',
     });
+
     this.limpiarMapa();
   }
 
   seleccionarPropuesta(propuesta: PropuestaRuta) {
     this.propuestaSeleccionada.set(propuesta);
-    this.nuevaValidacion.set({ comentario: '' });
     this.nuevaValidacion.set({ tipo: 'comentario', comentario: '' });
 
     if (!propuesta.id) return;
@@ -394,13 +428,12 @@ export class Colaborar implements AfterViewInit, OnDestroy {
       .subscribe((data) => this.validaciones.set(data));
   }
 
-  async enviarValidacion(tipo: TipoValidacionRuta) {
   async enviarValidacion(tipo?: TipoValidacionRuta) {
     const propuesta = this.propuestaSeleccionada();
     const validacion = this.nuevaValidacion();
 
     if (!this.usuarioAuth || !propuesta?.id) {
-      alert('Selecciona una propuesta e inicia sesion.');
+      alert('Selecciona una propuesta e inicia sesión.');
       return;
     }
 
@@ -409,11 +442,10 @@ export class Colaborar implements AfterViewInit, OnDestroy {
       return;
     }
 
-    if (tipo === 'comentario' && !validacion.comentario.trim()) {
     const tipoFinal = tipo || validacion.tipo;
 
     if (tipoFinal === 'comentario' && !validacion.comentario.trim()) {
-      alert('Escribe un comentario para aportar una correccion.');
+      alert('Escribe un comentario para aportar una corrección.');
       return;
     }
 
@@ -421,31 +453,26 @@ export class Colaborar implements AfterViewInit, OnDestroy {
       await this.rutaService.createValidacionRuta({
         propuestaId: propuesta.id,
         usuarioId: this.usuarioAuth.uid,
-        usuarioNombre: this.usuarioPerfil?.nombre || this.usuarioAuth.email || 'Ciudadano',
-        tipo,
+        usuarioNombre:
+          this.usuarioPerfil?.nombre || this.usuarioAuth.email || 'Ciudadano',
+        tipo: tipoFinal,
         comentario: validacion.comentario,
         creadoEn: Timestamp.now(),
       });
 
-      this.nuevaValidacion.set({ comentario: '' });
+      this.nuevaValidacion.set({ tipo: 'comentario', comentario: '' });
     } catch (err: any) {
-      alert(err.message || 'No se pudo registrar la validacion.');
+      alert(err.message || 'No se pudo registrar la validación.');
     }
   }
 
   async publicarManual(propuesta: PropuestaRuta) {
     if (!this.esAdmin()) {
       alert('Solo un administrador puede publicar manualmente.');
-    await this.rutaService.createValidacionRuta({
-      propuestaId: propuesta.id,
-      usuarioId: this.usuarioAuth.uid,
-      usuarioNombre: this.usuarioPerfil?.nombre || this.usuarioAuth.email || 'Ciudadano',
-      tipo: tipoFinal,
-      comentario: validacion.comentario,
-      creadoEn: Timestamp.now(),
-    });
+      return;
+    }
 
-    this.nuevaValidacion.set({ tipo: 'comentario', comentario: '' });
+    await this.rutaService.aprobarPropuestaComoRuta(propuesta);
   }
 
   async aprobarComoRuta(propuesta: PropuestaRuta) {
@@ -464,32 +491,29 @@ export class Colaborar implements AfterViewInit, OnDestroy {
 
   async eliminarPropuesta(propuesta: PropuestaRuta) {
     if (!this.esAdmin() || !propuesta.id) return;
-    if (!confirm('Eliminar esta propuesta de la revision comunitaria?')) return;
-    await this.rutaService.deletePropuestaRuta(propuesta.id);
+    if (!confirm('¿Eliminar esta propuesta de la revisión comunitaria?')) return;
 
-    await this.rutaService.updatePropuestaRuta(propuesta.id, {
-      estado: 'rechazada',
-      actualizadoEn: Timestamp.now(),
-    });
+    await this.rutaService.deletePropuestaRuta(propuesta.id);
   }
 
   async crearNota() {
     const nota = this.nuevaNota();
 
     if (!this.usuarioAuth) {
-      alert('Debes iniciar sesion para agregar notas.');
+      alert('Debes iniciar sesión para agregar notas.');
       return;
     }
 
     if (!nota.rutaId || !nota.comentario.trim()) {
-      alert('Selecciona una ruta y escribe la observacion.');
+      alert('Selecciona una ruta y escribe la observación.');
       return;
     }
 
     await this.rutaService.createNotaComunitaria({
       rutaId: nota.rutaId,
       usuarioId: this.usuarioAuth.uid,
-      usuarioNombre: this.usuarioPerfil?.nombre || this.usuarioAuth.email || 'Ciudadano',
+      usuarioNombre:
+        this.usuarioPerfil?.nombre || this.usuarioAuth.email || 'Ciudadano',
       comentario: nota.comentario,
       campoMarcado: nota.campoMarcado,
       estado: 'activa',
@@ -541,13 +565,17 @@ export class Colaborar implements AfterViewInit, OnDestroy {
 
       return texto.includes(filtro);
     });
+  }
+
   notasPorRuta(rutaId?: string) {
     if (!rutaId) return [];
     return this.notas().filter((nota) => nota.rutaId === rutaId);
   }
 
   nombreRuta(rutaId: string) {
-    return this.rutas().find((ruta) => ruta.id === rutaId)?.nombre || 'Ruta aprobada';
+    return (
+      this.rutas().find((ruta) => ruta.id === rutaId)?.nombre || 'Ruta aprobada'
+    );
   }
 
   votosDelUsuario(propuesta?: PropuestaRuta | null) {
@@ -559,8 +587,11 @@ export class Colaborar implements AfterViewInit, OnDestroy {
         validacion.usuarioId === this.usuarioAuth?.uid &&
         (validacion.tipo === 'aprobacion' || validacion.tipo === 'rechazo')
     );
+  }
+
   formatearFecha(timestamp?: Timestamp) {
     if (!timestamp) return '';
+
     return timestamp.toDate().toLocaleDateString('es-HN', {
       day: '2-digit',
       month: 'short',

@@ -14,44 +14,46 @@ export class Sidebar implements OnInit {
   private router = inject(Router);
 
   rol: UserRole = 'usuario';
+  sesionActiva = false;
 
-  ngOnInit() {
-    const rolGuardado = localStorage.getItem('rol') as UserRole | null;
-
-    if (
-      rolGuardado === 'admin' ||
-      rolGuardado === 'conductor' ||
-      rolGuardado === 'usuario'
-    ) {
-      this.rol = rolGuardado;
-    }
-
-    this.actualizarRolDesdeFirebase();
+  async ngOnInit() {
+    await this.cargarSesion();
   }
 
-  async actualizarRolDesdeFirebase() {
-    try {
-      const rolActual = await this.authService.getCurrentUserRole();
+  async cargarSesion() {
+    const usuario = await this.authService.obtenerUsuarioActual();
+    this.sesionActiva = !!usuario;
 
-      if (rolActual) {
-        this.rol = rolActual;
-        localStorage.setItem('rol', rolActual);
-      }
-    } catch (error) {
-      console.error('Error cargando rol:', error);
+    if (!usuario) {
+      this.rol = 'usuario';
+      localStorage.removeItem('rol');
+      return;
     }
+
+    const rolActual = await this.authService.getCurrentUserRole();
+    this.rol = rolActual ?? 'usuario';
+    localStorage.setItem('rol', this.rol);
   }
 
   get badgeRol() {
+    if (!this.sesionActiva) return 'Visitante';
     if (this.rol === 'admin') return 'Administrador';
-    if (this.rol === 'conductor') return 'Conductor';
     return 'Ciudadano';
+  }
+
+  irLogin() {
+    this.router.navigate(['/login']);
+  }
+
+  irRegistro() {
+    this.router.navigate(['/registro']);
   }
 
   async cerrarSesion() {
     try {
-      localStorage.removeItem('rol');
       await this.authService.cerrarSesion();
+      this.sesionActiva = false;
+      this.rol = 'usuario';
       this.router.navigate(['/inicio']);
     } catch (error) {
       console.error('Error al cerrar sesión:', error);

@@ -8,74 +8,131 @@ export const routes: Routes = [
     redirectTo: 'inicio',
     pathMatch: 'full',
   },
+
+  // LANDING
+
   {
     path: 'inicio',
-    loadComponent: () => import('./pages/publico/landing/landing').then((m) => m.Landing),
+    loadComponent: () =>
+      import('./pages/publico/landing/landing').then((m) => m.Landing),
   },
+
+  // AUTH
+
   {
     path: 'login',
-    loadComponent: () => import('./pages/publico/login/login').then((m) => m.Login),
+    loadComponent: () =>
+      import('./pages/publico/login/login').then((m) => m.Login),
   },
+
   {
     path: 'registro',
-    loadComponent: () => import('./pages/publico/registro/registro').then((m) => m.Registro),
+    loadComponent: () =>
+      import('./pages/publico/registro/registro').then((m) => m.Registro),
   },
+
+  // PUBLICO
+
   {
     path: 'dashboard',
-    canActivate: [authGuard],
-    loadComponent: () => import('./pages/usuario/dashboard/dashboard').then((m) => m.Dashboard),
+    loadComponent: () =>
+      import('./pages/usuario/dashboard/dashboard').then((m) => m.Dashboard),
   },
+
+  {
+    path: 'rutas',
+    loadComponent: () =>
+      import('./pages/usuario/rutas-publicas/rutas-publicas').then(
+        (m) => m.RutasPublicas
+      ),
+  },
+
+  {
+    path: 'proponer-ruta',
+    loadComponent: () =>
+      import('./pages/usuario/proponer-ruta/proponer-ruta').then(
+        (m) => m.ProponerRuta
+      ),
+  },
+
+  {
+    path: 'comunidad',
+    loadComponent: () =>
+      import('./pages/usuario/comunidad/comunidad').then(
+        (m) => m.Comunidad
+      ),
+  },
+
+  {
+    path: 'notas-comunitarias',
+    loadComponent: () =>
+      import(
+        './pages/usuario/notas-comunitarias/notas-comunitarias'
+      ).then((m) => m.NotasComunitarias),
+  },
+
+  {
+    path: 'reportar',
+    loadComponent: () =>
+      import('./pages/usuario/reportar/reportar').then((m) => m.Reportar),
+  },
+
+  // PRIVADAS
+
   {
     path: 'favoritos',
     canActivate: [authGuard],
-    loadComponent: () => import('./pages/usuario/favoritos/favoritos').then((m) => m.Favoritos),
+    loadComponent: () =>
+      import('./pages/usuario/favoritos/favoritos').then((m) => m.Favoritos),
   },
-  {
-    path: 'reportar',
-    canActivate: [authGuard],
-    loadComponent: () => import('./pages/usuario/reportar/reportar').then((m) => m.Reportar),
-  },
-  {
-    path: 'colaborar',
-    canActivate: [authGuard],
-    loadComponent: () => import('./pages/usuario/colaborar/colaborar').then((m) => m.Colaborar),
-  },
+
   {
     path: 'perfil',
     canActivate: [authGuard],
-    loadComponent: () => import('./pages/usuario/perfil/perfil').then((m) => m.Perfil),
+    loadComponent: () =>
+      import('./pages/usuario/perfil/perfil').then((m) => m.Perfil),
   },
+
+  // ADMIN
+
   {
     path: 'admin/dashboard-admin',
     canActivate: [roleGuard],
     data: { roles: ['admin'] },
     loadComponent: () =>
-      import('./pages/admin/dashboard-admin/dashboard-admin').then((m) => m.DashboardAdmin),
+      import('./pages/admin/dashboard-admin/dashboard-admin').then(
+        (m) => m.DashboardAdmin
+      ),
   },
+
   {
     path: 'admin/rutas',
     canActivate: [roleGuard],
     data: { roles: ['admin'] },
-    loadComponent: () => import('./pages/admin/rutas/rutas').then((m) => m.Rutas),
+    loadComponent: () =>
+      import('./pages/admin/rutas/rutas').then((m) => m.Rutas),
   },
-  {
-    path: 'admin/conductores',
-    canActivate: [roleGuard],
-    data: { roles: ['admin'] },
-    loadComponent: () => import('./pages/admin/conductores/conductores').then((m) => m.Conductores),
-  },
+
   {
     path: 'admin/reportes',
     canActivate: [roleGuard],
     data: { roles: ['admin'] },
-    loadComponent: () => import('./pages/admin/reportes-admin/reportes-admin').then((m) => m.ReportesAdmin),
+    loadComponent: () =>
+      import('./pages/admin/reportes-admin/reportes-admin').then(
+        (m) => m.ReportesAdmin
+      ),
   },
+
   {
     path: 'admin/usuarios',
     canActivate: [roleGuard],
     data: { roles: ['admin'] },
-    loadComponent: () => import('./pages/admin/usuarios-admin/usuarios-admin').then((m) => m.UsuariosAdmin),
+    loadComponent: () =>
+      import('./pages/admin/usuarios-admin/usuarios-admin').then(
+        (m) => m.UsuariosAdmin
+      ),
   },
+
   {
     path: '**',
     redirectTo: 'inicio',

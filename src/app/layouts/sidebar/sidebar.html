@@ -9,52 +9,35 @@
   </div>
 
   <nav class="sidebar-nav">
-    @if (rol === 'usuario') {
-      <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
-        <i class="material-icons">dashboard</i>
-        <span>Dashboard</span>
-      </a>
-
-      <a class="nav-item" routerLink="/favoritos" routerLinkActive="active">
-        <i class="material-icons">favorite</i>
-        <span>Favoritos</span>
-      </a>
-
-      <a class="nav-item" routerLink="/reportar" routerLinkActive="active">
-        <i class="material-icons">warning</i>
-        <span>Reportes</span>
-      </a>
-
-      <a class="nav-item" routerLink="/colaborar" routerLinkActive="active">
-        <i class="material-icons">diversity_3</i>
-        <span>Colaborar</span>
-      </a>
-
-      <a class="nav-item" routerLink="/perfil" routerLinkActive="active">
-        <i class="material-icons">person</i>
-        <span>Perfil</span>
-      </a>
-    }
-
-    @if (rol === 'admin') {
+    @if (rol === 'admin' && sesionActiva) {
       <a class="nav-item" routerLink="/admin/dashboard-admin" routerLinkActive="active">
         <i class="material-icons">dashboard</i>
         <span>Dashboard</span>
       </a>
 
-      <a class="nav-item" routerLink="/admin/rutas" routerLinkActive="active">
+      <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
+        <i class="material-icons">map</i>
+        <span>Explorar</span>
+      </a>
+
+      <a class="nav-item" routerLink="/rutas" routerLinkActive="active">
         <i class="material-icons">route</i>
         <span>Rutas</span>
       </a>
 
-      <a class="nav-item" routerLink="/colaborar" routerLinkActive="active">
-        <i class="material-icons">diversity_3</i>
-        <span>Colaborar</span>
+      <a class="nav-item" routerLink="/proponer-ruta" routerLinkActive="active">
+        <i class="material-icons">add_road</i>
+        <span>Proponer</span>
       </a>
 
-      <a class="nav-item" routerLink="/admin/conductores" routerLinkActive="active">
-        <i class="material-icons">directions_bus</i>
-        <span>Conductores</span>
+      <a class="nav-item" routerLink="/comunidad" routerLinkActive="active">
+        <i class="material-icons">how_to_vote</i>
+        <span>Validar</span>
+      </a>
+
+      <a class="nav-item" routerLink="/notas-comunitarias" routerLinkActive="active">
+        <i class="material-icons">rate_review</i>
+        <span>Notas</span>
       </a>
 
       <a class="nav-item" routerLink="/admin/reportes" routerLinkActive="active">
@@ -73,23 +56,67 @@
       </a>
     }
 
-    @if (rol === 'conductor') {
-      <a class="nav-item" routerLink="/conductor/dashboard" routerLinkActive="active">
-        <i class="material-icons">dashboard</i>
-        <span>Dashboard</span>
+    @if (rol === 'usuario') {
+      <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
+        <i class="material-icons">map</i>
+        <span>Explorar</span>
       </a>
 
-      <a class="nav-item" routerLink="/perfil" routerLinkActive="active">
-        <i class="material-icons">person</i>
-        <span>Perfil</span>
+      <a class="nav-item" routerLink="/rutas" routerLinkActive="active">
+        <i class="material-icons">route</i>
+        <span>Rutas</span>
       </a>
+
+      <a class="nav-item" routerLink="/proponer-ruta" routerLinkActive="active">
+        <i class="material-icons">add_road</i>
+        <span>Proponer</span>
+      </a>
+
+      <a class="nav-item" routerLink="/comunidad" routerLinkActive="active">
+        <i class="material-icons">how_to_vote</i>
+        <span>Validar</span>
+      </a>
+
+      <a class="nav-item" routerLink="/notas-comunitarias" routerLinkActive="active">
+        <i class="material-icons">rate_review</i>
+        <span>Notas</span>
+      </a>
+
+      <a class="nav-item" routerLink="/reportar" routerLinkActive="active">
+        <i class="material-icons">warning</i>
+        <span>Reportes</span>
+      </a>
+
+      @if (sesionActiva) {
+        <a class="nav-item" routerLink="/favoritos" routerLinkActive="active">
+          <i class="material-icons">favorite</i>
+          <span>Favoritos</span>
+        </a>
+
+        <a class="nav-item" routerLink="/perfil" routerLinkActive="active">
+          <i class="material-icons">person</i>
+          <span>Perfil</span>
+        </a>
+      }
     }
   </nav>
 
   <div class="sidebar-footer">
-    <button class="footer-link logout" (click)="cerrarSesion()">
-      <i class="material-icons">logout</i>
-      <span>Cerrar sesión</span>
-    </button>
+    @if (sesionActiva) {
+      <button class="footer-link logout" (click)="cerrarSesion()">
+        <i class="material-icons">logout</i>
+        <span>Cerrar sesión</span>
+      </button>
+    } @else {
+      <button class="footer-link login" (click)="irLogin()">
+        <i class="material-icons">login</i>
+        <span>Iniciar sesión</span>
+      </button>
+
+      <button class="footer-link register" (click)="irRegistro()">
+        <i class="material-icons">person_add</i>
+        <span>Registrarse</span>
+      </button>
+    }
   </div>
 </aside>

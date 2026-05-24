@@ -32,6 +32,7 @@ export class AuthService {
   }
 
   cerrarSesion() {
+    localStorage.removeItem('rol');
     return signOut(this.auth);
   }
 
@@ -94,7 +95,6 @@ export class AuthService {
       return null;
     }
 
-    // Accept new role and previous rol fields for existing profiles.
     return this.usuarioService.normalizarRol(perfil.role ?? perfil.rol);
   }
 

@@ -37,16 +37,16 @@ export interface RutaTransporte {
   numero: string;
   precio: number;
   horario: string;
+  frecuencia?: string;
   color: string;
   estado: 'activa' | 'inactiva';
   descripcion?: string;
-  frecuencia?: string;
-  origenPropuestaId?: string;
-  publicadoDesdePropuesta?: boolean;
   puntosGuia?: Coordenada[];
   recorrido: Coordenada[];
   paradas: Parada[];
   creadoEn: Timestamp;
+  origenPropuestaId?: string;
+  publicadoDesdePropuesta?: boolean;
 }
 
 export type EstadoPropuestaRuta = 'pendiente' | 'aprobada' | 'rechazada';
@@ -58,7 +58,7 @@ export interface PropuestaRuta {
   numero: string;
   precio: number;
   horario: string;
-  frecuencia: string;
+  frecuencia?: string;
   color: string;
   descripcion?: string;
   comentarios?: string;
@@ -81,7 +81,7 @@ export interface ValidacionRuta {
   usuarioId: string;
   usuarioNombre: string;
   tipo: TipoValidacionRuta;
-  comentario: string;
+  comentario?: string;
   creadoEn: Timestamp;
 }
 
@@ -91,56 +91,7 @@ export interface NotaComunitaria {
   usuarioId: string;
   usuarioNombre: string;
   comentario: string;
-  campoMarcado?: 'precio' | 'horario' | 'recorrido' | 'paradas' | 'descripcion' | 'otro';
-  estado: 'activa' | 'resuelta';
-  votosUtiles: number;
-  confirmaciones: number;
-  creadoEn: Timestamp;
-  actualizadoEn?: Timestamp;
-}
-
-export type EstadoPropuestaRuta = 'pendiente' | 'aprobada' | 'rechazada';
-export type TipoValidacionRuta = 'aprobacion' | 'rechazo' | 'comentario';
-
-export interface PropuestaRuta {
-  id?: string;
-  nombre: string;
-  numero: string;
-  precio: number;
-  horario: string;
-  frecuencia: string;
-  color: string;
-  descripcion?: string;
-  comentarios?: string;
-  puntosGuia?: Coordenada[];
-  recorrido: Coordenada[];
-  paradas: Parada[];
-  estado: EstadoPropuestaRuta;
-  creadoPor: string;
-  creadoPorNombre: string;
-  creadoEn: Timestamp;
-  actualizadoEn?: Timestamp;
-  aprobaciones: number;
-  rechazos: number;
-}
-
-export interface ValidacionRuta {
-  id?: string;
-  propuestaId: string;
-  usuarioId: string;
-  usuarioNombre: string;
-  tipo: TipoValidacionRuta;
-  comentario: string;
-  creadoEn: Timestamp;
-}
-
-export interface NotaComunitaria {
-  id?: string;
-  rutaId: string;
-  usuarioId: string;
-  usuarioNombre: string;
-  comentario: string;
-  campoMarcado?: 'precio' | 'horario' | 'recorrido' | 'paradas' | 'descripcion' | 'otro';
+  campoMarcado?: 'precio' | 'horario' | 'frecuencia' | 'recorrido' | 'paradas' | 'otro';
   estado: 'activa' | 'resuelta';
   votosUtiles: number;
   confirmaciones: number;
@@ -152,12 +103,11 @@ export interface NotaComunitaria {
   providedIn: 'root',
 })
 export class RutaService {
-  firestore = inject(Firestore);
+  private firestore = inject(Firestore);
 
   getRutas() {
     const rutasCollection = collection(this.firestore, 'rutas');
     const q = query(rutasCollection, orderBy('creadoEn', 'desc'));
-
     return collectionData(q, { idField: 'id' }) as Observable<RutaTransporte[]>;
   }
 
@@ -179,7 +129,6 @@ export class RutaService {
   getPropuestasRuta() {
     const propuestasCollection = collection(this.firestore, 'propuestas_rutas');
     const q = query(propuestasCollection, orderBy('creadoEn', 'desc'));
-
     return collectionData(q, { idField: 'id' }) as Observable<PropuestaRuta[]>;
   }
 
@@ -200,12 +149,10 @@ export class RutaService {
 
   getValidacionesPorPropuesta(propuestaId: string) {
     const validacionesCollection = collection(this.firestore, 'validaciones_rutas');
-    const q = query(validacionesCollection, where('propuestaId', '==', propuestaId));
-  getValidacionesPorPropuesta(propuestaId: string) {
-    const validacionesCollection = collection(this.firestore, 'validaciones_rutas');
     const q = query(
       validacionesCollection,
-      where('propuestaId', '==', propuestaId)
+      where('propuestaId', '==', propuestaId),
+      orderBy('creadoEn', 'desc')
     );
 
     return collectionData(q, { idField: 'id' }) as Observable<ValidacionRuta[]>;
@@ -217,9 +164,9 @@ export class RutaService {
     }
 
     const validacionesCollection = collection(this.firestore, 'validaciones_rutas');
-    const propuestaDoc = doc(this.firestore, 'propuestas_rutas', validacion.propuestaId);
-
     await addDoc(validacionesCollection, validacion);
+
+    const propuestaDoc = doc(this.firestore, 'propuestas_rutas', validacion.propuestaId);
 
     if (validacion.tipo === 'aprobacion') {
       await updateDoc(propuestaDoc, {
@@ -240,7 +187,7 @@ export class RutaService {
 
   async aprobarPropuestaComoRuta(propuesta: PropuestaRuta) {
     if (!propuesta.id) {
-      throw new Error('La propuesta no tiene identificador.');
+      throw new Error('La propuesta no tiene ID.');
     }
 
     if (propuesta.rutaPublicadaId) {
@@ -248,6 +195,7 @@ export class RutaService {
         estado: 'aprobada',
         actualizadoEn: Timestamp.now(),
       });
+
       return propuesta.rutaPublicadaId;
     }
 
@@ -263,31 +211,25 @@ export class RutaService {
       puntosGuia: propuesta.puntosGuia || [],
       recorrido: propuesta.recorrido || [],
       paradas: propuesta.paradas || [],
+      creadoEn: Timestamp.now(),
       origenPropuestaId: propuesta.id,
       publicadoDesdePropuesta: true,
-      creadoEn: Timestamp.now(),
     };
 
-    const rutaRef = await this.createRuta(rutaPublica);
+    const rutaCreada = await this.createRuta(rutaPublica);
 
     await this.updatePropuestaRuta(propuesta.id, {
       estado: 'aprobada',
-      rutaPublicadaId: rutaRef.id,
+      rutaPublicadaId: rutaCreada.id,
       actualizadoEn: Timestamp.now(),
     });
 
-    return rutaRef.id;
+    return rutaCreada.id;
   }
 
   async rechazarPropuestaRuta(id: string) {
     return this.updatePropuestaRuta(id, {
       estado: 'rechazada',
-      creadoEn: Timestamp.now(),
-    };
-
-    await this.createRuta(rutaPublica);
-    await this.updatePropuestaRuta(propuesta.id, {
-      estado: 'aprobada',
       actualizadoEn: Timestamp.now(),
     });
   }
@@ -297,7 +239,7 @@ export class RutaService {
     const q = query(
       notasCollection,
       where('rutaId', '==', rutaId),
-      where('estado', '==', 'activa')
+      orderBy('creadoEn', 'desc')
     );
 
     return collectionData(q, { idField: 'id' }) as Observable<NotaComunitaria[]>;
@@ -305,10 +247,10 @@ export class RutaService {
 
   getNotasActivas() {
     const notasCollection = collection(this.firestore, 'notas_comunitarias');
-    const q = query(notasCollection, where('estado', '==', 'activa'));
     const q = query(
       notasCollection,
-      where('estado', '==', 'activa')
+      where('estado', '==', 'activa'),
+      orderBy('creadoEn', 'desc')
     );
 
     return collectionData(q, { idField: 'id' }) as Observable<NotaComunitaria[]>;
@@ -353,14 +295,16 @@ export class RutaService {
       where('propuestaId', '==', propuestaId),
       where('usuarioId', '==', usuarioId)
     );
-    const snapshot = await getDocs(q);
-    const yaVoto = snapshot.docs.some((documento) => {
+
+    const resultado = await getDocs(q);
+
+    const yaVoto = resultado.docs.some((documento) => {
       const data = documento.data() as ValidacionRuta;
       return data.tipo === 'aprobacion' || data.tipo === 'rechazo';
     });
 
     if (yaVoto) {
-      throw new Error('Ya validaste esta propuesta.');
+      throw new Error('Ya votaste esta propuesta.');
     }
   }
 
@@ -368,9 +312,7 @@ export class RutaService {
     const propuestaDoc = doc(this.firestore, 'propuestas_rutas', propuestaId);
     const snapshot = await getDoc(propuestaDoc);
 
-    if (!snapshot.exists()) {
-      return;
-    }
+    if (!snapshot.exists()) return;
 
     const propuesta = {
       id: snapshot.id,
@@ -379,7 +321,6 @@ export class RutaService {
 
     if (
       propuesta.estado === 'pendiente' &&
-      !propuesta.rutaPublicadaId &&
       propuesta.aprobaciones >= APPROVAL_THRESHOLD
     ) {
       await this.aprobarPropuestaComoRuta(propuesta);
