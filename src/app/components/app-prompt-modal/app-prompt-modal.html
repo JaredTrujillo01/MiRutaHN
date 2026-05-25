@@ -1,0 +1,34 @@
+@if (visible()) {
+  <div class="modal-backdrop">
+    <div class="modal-card">
+      <button class="modal-close" type="button" (click)="cerrar()">
+        <i class="material-icons">close</i>
+      </button>
+
+      <div class="modal-icon">
+        <i class="material-icons">edit_location_alt</i>
+      </div>
+
+      <h2>{{ titulo() }}</h2>
+
+      <label>{{ label() }}</label>
+
+      <input
+        type="text"
+        [placeholder]="placeholder()"
+        [ngModel]="valor()"
+        (ngModelChange)="valor.set($event)"
+      />
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" (click)="cerrar()">
+          Cancelar
+        </button>
+
+        <button type="button" class="btn-primary" (click)="aceptar()">
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+}

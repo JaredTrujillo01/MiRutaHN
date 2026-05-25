@@ -1,1 +1,35 @@
-<p>auth-required-modal works!</p>
+@if (visible()) {
+  <div class="modal-backdrop">
+    <div class="modal-card">
+      <button class="modal-close" type="button" (click)="cerrarModal()">
+        <i class="material-icons">close</i>
+      </button>
+
+      <div class="modal-icon">
+        <i class="material-icons">lock</i>
+      </div>
+
+      <h2>{{ titulo() }}</h2>
+
+      <p>{{ mensaje() }}</p>
+
+      <div class="modal-actions">
+        <a
+          routerLink="/login"
+          class="btn-primary"
+          (click)="cerrarModal()"
+        >
+          Iniciar sesión
+        </a>
+
+        <a
+          routerLink="/registro"
+          class="btn-secondary"
+          (click)="cerrarModal()"
+        >
+          Registrarse
+        </a>
+      </div>
+    </div>
+  </div>
+}

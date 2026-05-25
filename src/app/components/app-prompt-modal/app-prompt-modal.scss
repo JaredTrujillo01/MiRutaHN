@@ -1,7 +1,11 @@
+* {
+  box-sizing: border-box;
+}
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: 1200;
   background: rgba(15, 23, 42, 0.5);
   backdrop-filter: blur(8px);
   display: grid;
@@ -10,13 +14,14 @@
 }
 
 .modal-card {
-  width: min(100%, 420px);
+  width: min(100%, 440px);
+  max-width: 440px;
   background: #ffffff;
   border-radius: 28px;
   padding: 1.5rem;
   position: relative;
   box-shadow: 0 28px 70px rgba(15, 23, 42, 0.25);
-  text-align: center;
+  overflow: hidden;
 }
 
 .modal-close {
@@ -37,7 +42,7 @@
 .modal-icon {
   width: 64px;
   height: 64px;
-  margin: 0 auto 1rem;
+  margin-bottom: 1rem;
   border-radius: 20px;
   background: #dbeafe;
   color: #2563eb;
@@ -47,30 +52,53 @@
 }
 
 .modal-card h2 {
-  font-size: 1.35rem;
-  margin-bottom: 0.5rem;
   color: #0f172a;
+  font-size: 1.35rem;
+  margin-bottom: 1rem;
 }
 
-.modal-card p {
+.modal-card label {
+  display: block;
   color: #64748b;
-  line-height: 1.5;
-  margin-bottom: 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 0.45rem;
+}
+
+.modal-card input {
+  width: 100%;
+  max-width: 100%;
+  min-height: 48px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #f8fafc;
+  padding: 0 1rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.modal-card input:focus {
+  border-color: #2563eb;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
 .modal-actions {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
+  margin-top: 1.25rem;
 }
 
-.modal-actions a {
+.modal-actions button {
   min-height: 46px;
+  border: none;
   border-radius: 14px;
-  text-decoration: none;
-  display: grid;
-  place-items: center;
   font-weight: 900;
+  cursor: pointer;
 }
 
 .btn-primary {
@@ -83,8 +111,13 @@
   color: #334155;
 }
 
-@media (min-width: 480px) {
+@media (max-width: 480px) {
+  .modal-card {
+    border-radius: 24px;
+    padding: 1.25rem;
+  }
+
   .modal-actions {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
 }

@@ -1,9 +1,490 @@
-import { Component } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Timestamp } from '@angular/fire/firestore';
+import * as L from 'leaflet';
+
+import { Sidebar } from '../../../layouts/sidebar/sidebar';
+import { AuthService } from '../../../services/auth';
+import { OpenRouteService } from '../../../services/open-route.service';
+import {
+  Coordenada,
+  Parada,
+  PropuestaRuta,
+  RutaService,
+} from '../../../services/ruta.service';
+import { AuthRequiredModal } from '../../../components/auth-required-modal/auth-required-modal';
+import {
+  AppAlertModal,
+  AlertModalType,
+} from '../../../components/app-alert-modal/app-alert-modal';
+import { AppPromptModal } from '../../../components/app-prompt-modal/app-prompt-modal';
 
 @Component({
   selector: 'app-proponer-ruta',
-  imports: [],
+  imports: [
+    FormsModule,
+    Sidebar,
+    AuthRequiredModal,
+    AppAlertModal,
+    AppPromptModal,
+  ],
   templateUrl: './proponer-ruta.html',
   styleUrl: './proponer-ruta.scss',
 })
-export class ProponerRuta {}
+export class ProponerRuta implements AfterViewInit, OnDestroy {
+  @ViewChild('mapaPropuesta') mapaPropuesta!: ElementRef<HTMLDivElement>;
+
+  private rutaService = inject(RutaService);
+  private authService = inject(AuthService);
+  private openRouteService = inject(OpenRouteService);
+
+  usuarioAuth = signal<any | null>(null);
+  usuarioPerfil = signal<any | null>(null);
+
+  guardando = signal(false);
+  calculandoRuta = signal(false);
+
+  mostrarModalAuth = signal(false);
+  mostrarPromptParada = signal(false);
+
+  alertaVisible = signal(false);
+  alertaTitulo = signal('');
+  alertaMensaje = signal('');
+  alertaTipo = signal<AlertModalType>('info');
+
+  private map!: L.Map;
+  private recorridoLayer!: L.Polyline;
+  private guiaLayer!: L.Polyline;
+  private markersLayer = L.layerGroup();
+
+  coloresRuta = [
+    '#2563eb',
+    '#16a34a',
+    '#ea580c',
+    '#dc2626',
+    '#7c3aed',
+    '#0891b2',
+  ];
+
+  horasHorario = Array.from({ length: 12 }, (_, index) =>
+    String(index + 1).padStart(2, '0')
+  );
+  minutosHorario = ['00', '15', '30', '45'];
+  periodosHorario = ['AM', 'PM'];
+
+  nuevaPropuesta = signal({
+    nombre: '',
+    numero: '',
+    precio: 0,
+    horario: '',
+    frecuencia: '',
+    color: '#2563eb',
+    descripcion: '',
+    comentarios: '',
+  });
+
+  puntosGuia = signal<Coordenada[]>([]);
+  recorrido = signal<Coordenada[]>([]);
+  paradas = signal<Parada[]>([]);
+
+  async ngAfterViewInit() {
+    await this.cargarUsuario();
+
+    setTimeout(() => {
+      this.iniciarMapa();
+    }, 350);
+  }
+
+  ngOnDestroy() {
+    if (this.map) {
+      this.map.remove();
+    }
+  }
+
+  async cargarUsuario() {
+    const usuario = await this.authService.obtenerUsuarioActual();
+    this.usuarioAuth.set(usuario);
+
+    if (usuario) {
+      const perfil = await this.authService.obtenerPerfilUsuario(usuario.uid);
+      this.usuarioPerfil.set(perfil);
+    }
+  }
+
+  mostrarAlerta(
+    titulo: string,
+    mensaje: string,
+    tipo: AlertModalType = 'info'
+  ) {
+    this.alertaTitulo.set(titulo);
+    this.alertaMensaje.set(mensaje);
+    this.alertaTipo.set(tipo);
+    this.alertaVisible.set(true);
+  }
+
+  cerrarAlerta() {
+    this.alertaVisible.set(false);
+  }
+
+  requiereSesion(): boolean {
+    if (!this.usuarioAuth()) {
+      this.mostrarModalAuth.set(true);
+      return false;
+    }
+
+    return true;
+  }
+
+  cerrarModalAuth() {
+    this.mostrarModalAuth.set(false);
+  }
+
+  iniciarMapa() {
+    if (this.map) {
+      this.map.remove();
+    }
+
+    this.map = L.map(this.mapaPropuesta.nativeElement).setView(
+      [15.5042, -88.025],
+      13
+    );
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap',
+    }).addTo(this.map);
+
+    this.markersLayer = L.layerGroup().addTo(this.map);
+
+    this.guiaLayer = L.polyline([], {
+      color: '#94a3b8',
+      weight: 3,
+      opacity: 0.75,
+      dashArray: '8, 8',
+    }).addTo(this.map);
+
+    this.recorridoLayer = L.polyline([], {
+      color: this.nuevaPropuesta().color,
+      weight: 5,
+      opacity: 0.9,
+    }).addTo(this.map);
+
+    this.map.on('click', (e: L.LeafletMouseEvent) => {
+      this.agregarPuntoGuia(e.latlng.lat, e.latlng.lng);
+    });
+
+    requestAnimationFrame(() => this.map.invalidateSize());
+
+    setTimeout(() => {
+      this.map.invalidateSize();
+    }, 800);
+  }
+
+  actualizarCampo(campo: string, valor: string | number) {
+    this.nuevaPropuesta.update((propuesta) => ({
+      ...propuesta,
+      [campo]: campo === 'precio' ? Number(valor) : valor,
+    }));
+
+    if (campo === 'color' && this.recorridoLayer) {
+      this.recorridoLayer.setStyle({ color: String(valor) });
+    }
+  }
+
+  obtenerHorarioParte(parte: string) {
+    return this.obtenerHorarioActual()[parte];
+  }
+
+  actualizarHorarioParte(parte: string, valor: string) {
+    const horario = {
+      ...this.obtenerHorarioActual(),
+      [parte]: valor,
+    };
+
+    this.actualizarCampo(
+      'horario',
+      `${horario['inicioHora']}:${horario['inicioMinuto']} ${horario['inicioPeriodo']} - ${horario['finHora']}:${horario['finMinuto']} ${horario['finPeriodo']}`
+    );
+  }
+
+  private obtenerHorarioActual(): Record<string, string> {
+    const horario = this.nuevaPropuesta().horario;
+    const partes = horario.match(
+      /^(\d{2}):(\d{2}) (AM|PM) - (\d{2}):(\d{2}) (AM|PM)$/
+    );
+
+    if (!partes) {
+      return {
+        inicioHora: '06',
+        inicioMinuto: '00',
+        inicioPeriodo: 'AM',
+        finHora: '06',
+        finMinuto: '00',
+        finPeriodo: 'AM',
+      };
+    }
+
+    return {
+      inicioHora: partes[1],
+      inicioMinuto: partes[2],
+      inicioPeriodo: partes[3],
+      finHora: partes[4],
+      finMinuto: partes[5],
+      finPeriodo: partes[6],
+    };
+  }
+
+  seleccionarColor(color: string) {
+    this.actualizarCampo('color', color);
+  }
+
+  agregarPuntoGuia(lat: number, lng: number) {
+    this.puntosGuia.update((actual) => [...actual, { lat, lng }]);
+    this.recorrido.set([]);
+    this.actualizarMapa();
+  }
+
+  calcularRutaPorCalles() {
+    const puntos = this.puntosGuia();
+
+    if (puntos.length < 2) {
+      this.mostrarAlerta(
+        'Puntos insuficientes',
+        'Agrega al menos 2 puntos guía para calcular el recorrido.',
+        'warning'
+      );
+      return;
+    }
+
+    this.calculandoRuta.set(true);
+
+    const coordenadas = puntos.map((p) => [p.lng, p.lat]);
+
+    this.openRouteService.obtenerRuta(coordenadas).subscribe({
+      next: (respuesta) => {
+        const coords = respuesta.features[0].geometry.coordinates;
+
+        const recorridoCalculado: Coordenada[] = coords.map(
+          (coord: number[]) => ({
+            lng: coord[0],
+            lat: coord[1],
+          })
+        );
+
+        this.recorrido.set(recorridoCalculado);
+        this.actualizarMapa();
+        this.calculandoRuta.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.calculandoRuta.set(false);
+        this.mostrarAlerta(
+          'No se pudo calcular',
+          'No fue posible calcular la ruta por calles. Intenta con otros puntos guía.',
+          'error'
+        );
+      },
+    });
+  }
+
+  marcarUltimoComoParada() {
+    const puntos = this.puntosGuia();
+
+    if (puntos.length === 0) {
+      this.mostrarAlerta(
+        'Sin puntos en el mapa',
+        'Primero agrega un punto en el mapa para poder marcarlo como parada.',
+        'warning'
+      );
+      return;
+    }
+
+    this.mostrarPromptParada.set(true);
+  }
+
+  cancelarPromptParada() {
+    this.mostrarPromptParada.set(false);
+  }
+
+  confirmarParada(nombre: string) {
+    const puntos = this.puntosGuia();
+
+    if (puntos.length === 0) {
+      this.mostrarPromptParada.set(false);
+      return;
+    }
+
+    const ultimo = puntos[puntos.length - 1];
+
+    this.paradas.update((actual) => [
+      ...actual,
+      {
+        nombre,
+        lat: ultimo.lat,
+        lng: ultimo.lng,
+        orden: actual.length + 1,
+      },
+    ]);
+
+    this.mostrarPromptParada.set(false);
+    this.actualizarMapa();
+  }
+
+  deshacerPunto() {
+    const puntos = this.puntosGuia();
+
+    if (puntos.length === 0) return;
+
+    const eliminado = puntos[puntos.length - 1];
+
+    this.puntosGuia.set(puntos.slice(0, -1));
+    this.recorrido.set([]);
+
+    this.paradas.update((actual) =>
+      actual
+        .filter((p) => !(p.lat === eliminado.lat && p.lng === eliminado.lng))
+        .map((p, index) => ({ ...p, orden: index + 1 }))
+    );
+
+    this.actualizarMapa();
+  }
+
+  limpiarMapa() {
+    this.puntosGuia.set([]);
+    this.recorrido.set([]);
+    this.paradas.set([]);
+    this.actualizarMapa();
+  }
+
+  actualizarMapa() {
+    if (!this.guiaLayer || !this.recorridoLayer || !this.markersLayer) return;
+
+    const guia = this.puntosGuia().map(
+      (p) => [p.lat, p.lng] as [number, number]
+    );
+
+    const recorrido = this.recorrido().map(
+      (p) => [p.lat, p.lng] as [number, number]
+    );
+
+    this.guiaLayer.setLatLngs(guia);
+    this.recorridoLayer.setLatLngs(recorrido);
+    this.markersLayer.clearLayers();
+
+    this.puntosGuia().forEach((punto, index) => {
+      const parada = this.paradas().find(
+        (p) => p.lat === punto.lat && p.lng === punto.lng
+      );
+
+      L.circleMarker([punto.lat, punto.lng], {
+        radius: parada ? 9 : 6,
+        color: parada ? '#16a34a' : '#2563eb',
+        fillColor: parada ? '#16a34a' : '#2563eb',
+        fillOpacity: 1,
+        weight: 3,
+      })
+        .bindPopup(parada ? parada.nombre : `Punto guía ${index + 1}`)
+        .addTo(this.markersLayer);
+    });
+
+    const boundsSource = recorrido.length > 0 ? recorrido : guia;
+
+    if (boundsSource.length > 0 && this.map) {
+      this.map.fitBounds(L.latLngBounds(boundsSource), { padding: [30, 30] });
+    }
+  }
+
+  async guardarPropuesta() {
+    if (!this.requiereSesion()) return;
+
+    const propuesta = this.nuevaPropuesta();
+    const usuario = this.usuarioAuth();
+
+    if (!propuesta.nombre.trim() || !propuesta.numero.trim()) {
+      this.mostrarAlerta(
+        'Información incompleta',
+        'Completa el nombre y número de la ruta antes de enviarla.',
+        'warning'
+      );
+      return;
+    }
+
+    if (this.puntosGuia().length < 2) {
+      this.mostrarAlerta(
+        'Recorrido incompleto',
+        'Dibuja al menos 2 puntos guía en el mapa.',
+        'warning'
+      );
+      return;
+    }
+
+    this.guardando.set(true);
+
+    const data: Omit<PropuestaRuta, 'id'> = {
+      nombre: propuesta.nombre,
+      numero: propuesta.numero,
+      precio: Number(propuesta.precio),
+      horario: propuesta.horario,
+      frecuencia: propuesta.frecuencia,
+      color: propuesta.color,
+      descripcion: propuesta.descripcion,
+      comentarios: propuesta.comentarios,
+      puntosGuia: this.puntosGuia(),
+      recorrido:
+        this.recorrido().length > 0 ? this.recorrido() : this.puntosGuia(),
+      paradas: this.paradas(),
+      estado: 'pendiente',
+      creadoPor: usuario.uid,
+      creadoPorNombre:
+        this.usuarioPerfil()?.nombre || usuario.email || 'Ciudadano',
+      creadoEn: Timestamp.now(),
+      aprobaciones: 0,
+      rechazos: 0,
+    };
+
+    try {
+      await this.rutaService.createPropuestaRuta(data);
+
+      this.mostrarAlerta(
+        'Propuesta enviada',
+        'Tu propuesta fue enviada correctamente. Ahora la comunidad podrá revisarla.',
+        'success'
+      );
+
+      this.resetFormulario();
+    } catch (err) {
+      console.error(err);
+
+      this.mostrarAlerta(
+        'Error al guardar',
+        'No se pudo guardar la propuesta. Inténtalo nuevamente.',
+        'error'
+      );
+    } finally {
+      this.guardando.set(false);
+    }
+  }
+
+  resetFormulario() {
+    this.nuevaPropuesta.set({
+      nombre: '',
+      numero: '',
+      precio: 0,
+      horario: '',
+      frecuencia: '',
+      color: '#2563eb',
+      descripcion: '',
+      comentarios: '',
+    });
+
+    this.limpiarMapa();
+  }
+}
