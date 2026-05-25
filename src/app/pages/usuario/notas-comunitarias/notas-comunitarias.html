@@ -1,1 +1,156 @@
-<p>notas-comunitarias works!</p>
+<div class="notas-page">
+  <app-sidebar></app-sidebar>
+
+  <main class="notas-main">
+    <header class="page-header">
+      <div>
+        <span class="badge">Comunidad</span>
+        <h1>Notas comunitarias</h1>
+        <p>Comparte observaciones sobre rutas aprobadas y ayuda a confirmar datos útiles para otros pasajeros.</p>
+      </div>
+
+      <div class="header-stats">
+        <span>{{ notas().length }}</span>
+        <small>activas</small>
+      </div>
+    </header>
+
+    <section class="form-card">
+      <div class="section-header">
+        <div>
+          <h2>Nueva nota</h2>
+          <p>Selecciona una ruta y marca el dato que necesita contexto comunitario.</p>
+        </div>
+      </div>
+
+      <div class="nota-form">
+        <div class="campo">
+          <label>Ruta aprobada</label>
+          <select
+            [ngModel]="nuevaNota().rutaId"
+            (ngModelChange)="actualizarNotaCampo('rutaId', $event)"
+          >
+            <option value="">Seleccionar ruta</option>
+
+            @for (ruta of rutas(); track ruta.id) {
+              <option [value]="ruta.id">{{ ruta.nombre }} - Ruta {{ ruta.numero }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="campo">
+          <label>Dato observado</label>
+          <select
+            [ngModel]="nuevaNota().campoMarcado"
+            (ngModelChange)="actualizarNotaCampo('campoMarcado', $event)"
+          >
+            <option value="precio">Precio</option>
+            <option value="horario">Horario</option>
+            <option value="frecuencia">Frecuencia</option>
+            <option value="recorrido">Recorrido</option>
+            <option value="paradas">Paradas</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+
+        <div class="campo full">
+          <label>Nota</label>
+          <textarea
+            rows="3"
+            placeholder="Ej: Actualmente hay desvíos por construcción."
+            [ngModel]="nuevaNota().comentario"
+            (ngModelChange)="actualizarNotaCampo('comentario', $event)"
+          ></textarea>
+        </div>
+
+        <button class="btn-primary" (click)="crearNota()" [disabled]="guardando()">
+          <i class="material-icons">add_comment</i>
+          {{ guardando() ? 'Guardando...' : 'Agregar nota' }}
+        </button>
+      </div>
+    </section>
+
+    <section class="lista-card">
+      <div class="section-header tools">
+        <div>
+          <h2>Notas activas</h2>
+          <p>Marca como útil o confirma las notas que reflejan la situación actual.</p>
+        </div>
+
+        <div class="campo filtro">
+          <label>Buscar</label>
+          <input
+            type="text"
+            placeholder="Ruta, dato o comentario"
+            [ngModel]="filtro()"
+            (ngModelChange)="filtro.set($event)"
+          />
+        </div>
+      </div>
+
+      @if (cargando()) {
+        <div class="state-card">
+          <i class="material-icons">hourglass_empty</i>
+          <p>Cargando notas...</p>
+        </div>
+      }
+
+      @if (!cargando() && notasFiltradas().length === 0) {
+        <div class="state-card">
+          <i class="material-icons">rate_review</i>
+          <p>No hay notas comunitarias activas.</p>
+        </div>
+      }
+
+      <div class="notas-grid">
+        @for (nota of notasFiltradas(); track nota.id) {
+          <article class="nota-card" [class.warning]="nota.confirmaciones >= 3">
+            <div class="nota-top">
+              <span class="campo-chip">{{ nota.campoMarcado || 'otro' }}</span>
+              <strong>{{ nombreRuta(nota.rutaId) }}</strong>
+            </div>
+
+            <p>{{ nota.comentario }}</p>
+
+            <div class="nota-meta">
+              <span>
+                <i class="material-icons">person</i>
+                {{ nota.usuarioNombre }}
+              </span>
+              <span>
+                <i class="material-icons">calendar_today</i>
+                {{ formatearFecha(nota.creadoEn) }}
+              </span>
+            </div>
+
+            @if (nota.confirmaciones >= 3) {
+              <div class="warning-box">
+                <i class="material-icons">warning</i>
+                Nota validada por la comunidad
+              </div>
+            }
+
+            <div class="nota-actions">
+              <button (click)="votarNota(nota.id)">
+                <i class="material-icons">thumb_up</i>
+                Útil ({{ nota.votosUtiles }})
+              </button>
+
+              <button (click)="confirmarNota(nota.id)">
+                <i class="material-icons">verified</i>
+                Confirmar ({{ nota.confirmaciones }})
+              </button>
+
+              @if (esAdmin()) {
+                <button class="danger" (click)="resolverNota(nota.id)">
+                  <i class="material-icons">done</i>
+                  Resolver
+                </button>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  </main>
+</div>
