@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, Injector, inject, runInInjectionContext } from '@angular/core';
 import { doc, Firestore, getDoc, setDoc } from '@angular/fire/firestore';
 
 export type UserRole = 'usuario' | 'admin';
@@ -21,11 +21,13 @@ export interface PerfilUsuario {
   providedIn: 'root',
 })
 export class UsuarioService {
+  private injector = inject(Injector);
   private firestore = inject(Firestore);
 
   async obtenerPerfil(uid: string): Promise<PerfilUsuario | null> {
-    const referencia = doc(this.firestore, 'usuarios', uid);
-    const documento = await getDoc(referencia);
+    const documento = await runInInjectionContext(this.injector, () =>
+      getDoc(doc(this.firestore, 'usuarios', uid))
+    );
 
     if (!documento.exists()) {
       return null;
@@ -37,12 +39,14 @@ export class UsuarioService {
   async crearPerfil(uid: string, perfil: Omit<PerfilUsuario, 'uid'>) {
     const role: UserRole = perfil.role ?? this.normalizarRol(perfil.rol);
 
-    return setDoc(doc(this.firestore, 'usuarios', uid), {
-      uid,
-      ...perfil,
-      role,
-      rol: role,
-    });
+    return runInInjectionContext(this.injector, () =>
+      setDoc(doc(this.firestore, 'usuarios', uid), {
+        uid,
+        ...perfil,
+        role,
+        rol: role,
+      })
+    );
   }
 
   normalizarRol(valor?: string | null): UserRole {

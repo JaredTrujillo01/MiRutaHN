@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, Injector, inject, runInInjectionContext } from '@angular/core';
 import {
   Auth,
   createUserWithEmailAndPassword,
@@ -24,6 +24,7 @@ export interface RegistroUsuario {
   providedIn: 'root',
 })
 export class AuthService {
+  private injector = inject(Injector);
   private auth = inject(Auth);
   private usuarioService = inject(UsuarioService);
 
@@ -38,7 +39,10 @@ export class AuthService {
 
   obtenerUsuarioActual(): Promise<User | null> {
     return new Promise((resolve) => {
-      const usuarioActual = this.auth.currentUser;
+      const usuarioActual = runInInjectionContext(
+        this.injector,
+        () => this.auth.currentUser
+      );
 
       if (usuarioActual) {
         resolve(usuarioActual);
@@ -47,21 +51,25 @@ export class AuthService {
 
       const timeout = setTimeout(() => {
         unsubscribe();
-        resolve(this.auth.currentUser);
+        resolve(
+          runInInjectionContext(this.injector, () => this.auth.currentUser)
+        );
       }, 3000);
 
-      const unsubscribe = onAuthStateChanged(
-        this.auth,
-        (user) => {
-          clearTimeout(timeout);
-          unsubscribe();
-          resolve(user);
-        },
-        () => {
-          clearTimeout(timeout);
-          unsubscribe();
-          resolve(null);
-        }
+      const unsubscribe = runInInjectionContext(this.injector, () =>
+        onAuthStateChanged(
+          this.auth,
+          (user) => {
+            clearTimeout(timeout);
+            unsubscribe();
+            resolve(user);
+          },
+          () => {
+            clearTimeout(timeout);
+            unsubscribe();
+            resolve(null);
+          }
+        )
       );
     });
   }

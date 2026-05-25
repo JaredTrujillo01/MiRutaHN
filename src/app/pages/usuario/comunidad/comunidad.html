@@ -1,1 +1,297 @@
-<p>comunidad works!</p>
+<div class="comunidad-page">
+  <app-sidebar></app-sidebar>
+
+  <main class="comunidad-main">
+    <header class="page-header">
+      <div>
+        <span class="badge">Validación comunitaria</span>
+        <h1>Revisar propuestas de rutas</h1>
+        <p>
+          Observa el recorrido trazado, revisa la información y ayuda a validar si una ruta debe publicarse.
+        </p>
+      </div>
+    </header>
+
+    <section class="comunidad-layout">
+      <section class="lista-card">
+        <div class="lista-header">
+          <div>
+            <h2>Propuestas ciudadanas</h2>
+            <p>
+              Las propuestas necesitan {{ approvalThreshold }} aprobaciones para pasar a rutas oficiales.
+            </p>
+          </div>
+        </div>
+
+        @if (cargando()) {
+          <div class="state-card">
+            <i class="material-icons">hourglass_empty</i>
+            <p>Cargando propuestas...</p>
+          </div>
+        }
+
+        @if (!cargando() && propuestas().length === 0) {
+          <div class="state-card">
+            <i class="material-icons">route</i>
+            <p>Aún no hay propuestas ciudadanas.</p>
+          </div>
+        }
+
+        <div class="propuestas-grid">
+          @for (propuesta of propuestas(); track propuesta.id) {
+            <article
+              class="propuesta-card"
+              [class.selected]="propuestaSeleccionada()?.id === propuesta.id"
+            >
+              <div class="mini-map-shell">
+                <div
+                  #miniMapa
+                  class="mini-map"
+                  [attr.data-propuesta-id]="propuesta.id"
+                ></div>
+              </div>
+
+              <div class="ruta-top">
+                <div class="ruta-color" [style.background]="propuesta.color"></div>
+
+                <div>
+                  <h3>{{ propuesta.nombre }}</h3>
+                  <p>Ruta {{ propuesta.numero }} · L. {{ propuesta.precio }}</p>
+                </div>
+
+                <span
+                  class="estado"
+                  [class.aprobada]="propuesta.estado === 'aprobada'"
+                  [class.rechazada]="propuesta.estado === 'rechazada'"
+                >
+                  {{ propuesta.estado }}
+                </span>
+              </div>
+
+              <p class="descripcion">
+                {{ propuesta.descripcion || 'Sin descripción adicional.' }}
+              </p>
+
+              <div class="ruta-info">
+                <span>
+                  <i class="material-icons">schedule</i>
+                  {{ propuesta.horario || 'Horario no definido' }}
+                </span>
+
+                <span>
+                  <i class="material-icons">sync</i>
+                  {{ propuesta.frecuencia || 'Frecuencia no definida' }}
+                </span>
+
+                <span>
+                  <i class="material-icons">place</i>
+                  {{ propuesta.paradas.length }} paradas
+                </span>
+              </div>
+
+              <div class="paradas-preview">
+                @if (propuesta.paradas.length === 0) {
+                  <span>Sin paradas marcadas</span>
+                }
+
+                @for (parada of propuesta.paradas.slice(0, 4); track parada.orden) {
+                  <span>{{ parada.nombre }}</span>
+                }
+
+                @if (propuesta.paradas.length > 4) {
+                  <span>+{{ propuesta.paradas.length - 4 }} más</span>
+                }
+              </div>
+
+              <div class="progress-box">
+                <div class="progress-text">
+                  <span>Aprobaciones</span>
+                  <strong>{{ propuesta.aprobaciones }} / {{ approvalThreshold }}</strong>
+                </div>
+
+                <div class="progress-track">
+                  <div
+                    class="progress-fill"
+                    [style.width]="porcentajeAprobacion(propuesta)"
+                  ></div>
+                </div>
+              </div>
+
+              <div class="validacion-resumen">
+                <span>
+                  <i class="material-icons">thumb_up</i>
+                  {{ propuesta.aprobaciones }} apoyos
+                </span>
+
+                <span>
+                  <i class="material-icons">thumb_down</i>
+                  {{ propuesta.rechazos }} rechazos
+                </span>
+
+                @if (propuesta.rutaPublicadaId) {
+                  <span>
+                    <i class="material-icons">published_with_changes</i>
+                    Publicada
+                  </span>
+                }
+              </div>
+
+              <div class="ruta-actions">
+                <button type="button" (click)="seleccionarPropuesta(propuesta)">
+                  <i class="material-icons">rate_review</i>
+                  Revisar
+                </button>
+
+                @if (esAdmin() && propuesta.estado === 'pendiente') {
+                  <button
+                    type="button"
+                    class="success"
+                    (click)="aprobarManual(propuesta)"
+                  >
+                    <i class="material-icons">publish</i>
+                    Publicar
+                  </button>
+
+                  <button
+                    type="button"
+                    class="danger"
+                    (click)="rechazarManual(propuesta)"
+                  >
+                    <i class="material-icons">block</i>
+                    Rechazar
+                  </button>
+                }
+
+                @if (esAdmin()) {
+                  <button
+                    type="button"
+                    class="danger soft"
+                    (click)="eliminarPropuesta(propuesta)"
+                  >
+                    <i class="material-icons">delete</i>
+                    Eliminar
+                  </button>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+
+      <aside class="validation-panel">
+        <div class="lista-card sticky-card">
+          <div class="lista-header">
+            <h2>Tu validación</h2>
+            <p>Selecciona una propuesta para aprobar, rechazar o comentar.</p>
+          </div>
+
+          @if (!propuestaSeleccionada()) {
+            <div class="state-card compact">
+              <i class="material-icons">touch_app</i>
+              <p>Selecciona una propuesta de la lista.</p>
+            </div>
+          }
+
+          @if (propuestaSeleccionada()) {
+            <div class="selected-summary">
+              <span class="badge">{{ propuestaSeleccionada()?.estado }}</span>
+
+              <h3>{{ propuestaSeleccionada()?.nombre }}</h3>
+
+              <p>
+                {{ propuestaSeleccionada()?.comentarios || 'Sin comentario de contexto.' }}
+              </p>
+            </div>
+
+            @if (propuestaSeleccionada()?.estado === 'pendiente') {
+              <div class="quick-actions">
+                <button
+                  type="button"
+                  class="success"
+                  (click)="enviarValidacion('aprobacion')"
+                  [disabled]="enviando() || votosDelUsuario(propuestaSeleccionada())"
+                >
+                  <i class="material-icons">thumb_up</i>
+                  Aprobar
+                </button>
+
+                <button
+                  type="button"
+                  class="danger"
+                  (click)="enviarValidacion('rechazo')"
+                  [disabled]="enviando() || votosDelUsuario(propuestaSeleccionada())"
+                >
+                  <i class="material-icons">thumb_down</i>
+                  Rechazar
+                </button>
+              </div>
+
+              @if (votosDelUsuario(propuestaSeleccionada())) {
+                <div class="notice">
+                  <i class="material-icons">info</i>
+                  Ya votaste esta propuesta. Todavía puedes comentar.
+                </div>
+              }
+            }
+
+            <div class="campo">
+              <label>Comentario o corrección</label>
+              <textarea
+                rows="4"
+                placeholder="Ej: La tarifa correcta es L.13 o esta ruta no pasa por esa calle."
+                [ngModel]="nuevaValidacion().comentario"
+                (ngModelChange)="actualizarComentario($event)"
+              ></textarea>
+            </div>
+
+            <button
+              type="button"
+              class="btn-primary full-button"
+              (click)="enviarValidacion('comentario')"
+              [disabled]="enviando()"
+            >
+              <i class="material-icons">chat</i>
+              Comentar
+            </button>
+
+            <div class="comentarios-list">
+              @if (validaciones().length === 0) {
+                <p class="empty-comments">Aún no hay comentarios.</p>
+              }
+
+              @for (validacion of validaciones(); track validacion.id) {
+                <article class="comentario-card">
+                  <div>
+                    <strong>{{ validacion.usuarioNombre }}</strong>
+                    <span>{{ formatearFecha(validacion.creadoEn) }}</span>
+                  </div>
+
+                  <p>{{ validacion.comentario || validacion.tipo }}</p>
+
+                  <small [class.aprobacion]="validacion.tipo === 'aprobacion'" [class.rechazo]="validacion.tipo === 'rechazo'">
+                    {{ validacion.tipo }}
+                  </small>
+                </article>
+              }
+            </div>
+          }
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <app-auth-required-modal
+    [visible]="mostrarModalAuth()"
+    titulo="Inicia sesión para validar rutas"
+    mensaje="Puedes revisar propuestas sin cuenta, pero para votar o comentar debes iniciar sesión o registrarte."
+    (cerrar)="cerrarModalAuth()"
+  ></app-auth-required-modal>
+
+  <app-alert-modal
+    [visible]="alertaVisible()"
+    [titulo]="alertaTitulo()"
+    [mensaje]="alertaMensaje()"
+    [tipo]="alertaTipo()"
+    (cerrar)="cerrarAlerta()"
+  ></app-alert-modal>
+</div>
