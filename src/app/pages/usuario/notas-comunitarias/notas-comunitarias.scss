@@ -1,0 +1,364 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.notas-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 34%),
+    linear-gradient(135deg, #e0f2fe, #f8fafc);
+  color: #0f172a;
+  font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
+  overflow-x: hidden;
+}
+
+.notas-main {
+  width: 100%;
+  min-height: 100vh;
+  padding: 1rem;
+  padding-bottom: 6.5rem;
+  overflow-x: hidden;
+}
+
+.page-header,
+.form-card,
+.lista-card {
+  width: 100%;
+  max-width: 1180px;
+  min-width: 0;
+  margin: 0 auto 1rem;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 26px;
+  padding: 1rem;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.1);
+}
+
+.page-header {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.page-header > *,
+.section-header > *,
+.nota-form > *,
+.nota-card > * {
+  min-width: 0;
+}
+
+.badge {
+  display: inline-flex;
+  width: fit-content;
+  background: #dbeafe;
+  color: #2563eb;
+  border-radius: 999px;
+  padding: 0.32rem 0.75rem;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.page-header h1 {
+  font-size: 1.55rem;
+  margin-bottom: 0.35rem;
+}
+
+.page-header p,
+.section-header p,
+.nota-card p {
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.header-stats {
+  justify-self: start;
+  color: #2563eb;
+  font-weight: 900;
+}
+
+.header-stats span {
+  font-size: 1.7rem;
+}
+
+.header-stats small {
+  display: block;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.section-header {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  min-width: 0;
+}
+
+.section-header h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.25rem;
+}
+
+.nota-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.85rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 1rem;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.campo {
+  min-width: 0;
+}
+
+.campo label {
+  display: block;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+  width: 100%;
+  max-width: 100%;
+  min-height: 48px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #f8fafc;
+  padding: 0 1rem;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.campo textarea {
+  display: block;
+  min-height: 96px;
+  padding-top: 0.9rem;
+  resize: vertical;
+  overflow-x: hidden;
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+  border-color: #2563eb;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.btn-primary,
+.nota-actions button {
+  max-width: 100%;
+  min-height: 42px;
+  border: none;
+  border-radius: 14px;
+  padding: 0 0.85rem;
+  font-family: inherit;
+  font-weight: 900;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.2);
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.tools {
+  align-items: start;
+}
+
+.filtro {
+  width: 100%;
+  min-width: 0;
+}
+
+.state-card {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #64748b;
+}
+
+.state-card i {
+  color: #2563eb;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.notas-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  min-width: 0;
+}
+
+.nota-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 1rem;
+  display: grid;
+  gap: 0.85rem;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.nota-card.warning {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+
+.nota-top {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.nota-card strong {
+  font-size: 0.88rem;
+  color: #0f172a;
+}
+
+.campo-chip {
+  display: inline-flex;
+  width: fit-content;
+  background: #dbeafe;
+  color: #2563eb;
+  border-radius: 999px;
+  padding: 0.28rem 0.62rem;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.nota-meta,
+.nota-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.nota-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  padding: 0.38rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 900;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.warning-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #92400e;
+  background: #fef3c7;
+  border-radius: 14px;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.nota-actions button {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.nota-actions .danger {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+@media (max-width: 639px) {
+  .notas-main {
+    padding: 0.75rem;
+    padding-bottom: 6.5rem;
+  }
+
+  .page-header,
+  .form-card,
+  .lista-card {
+    border-radius: 22px;
+    padding: 0.85rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.28rem;
+  }
+
+  .nota-actions {
+    overflow-x: visible;
+  }
+
+  .nota-actions button {
+    min-width: 0;
+    min-height: 38px;
+    font-size: 0.82rem;
+  }
+}
+
+@media (min-width: 640px) {
+  .page-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .nota-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .campo.full {
+    grid-column: 1 / -1;
+  }
+
+  .notas-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .notas-main {
+    width: calc(100% - 280px);
+    margin-left: 280px;
+    padding: 2.5rem;
+  }
+
+  .tools {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
+  }
+
+  .notas-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+}
