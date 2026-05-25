@@ -121,12 +121,73 @@
 
           <div class="campo full">
             <label>Horario</label>
-            <input
-              type="text"
-              placeholder="Ej: 06:00 AM - 07:00 PM"
-              [ngModel]="nuevaPropuesta().horario"
-              (ngModelChange)="actualizarCampo('horario', $event)"
-            />
+            <div class="horario-grid">
+              <div class="horario-box">
+                <span>Inicio</span>
+
+                <div class="horario-selects">
+                  <select
+                    [ngModel]="obtenerHorarioParte('inicioHora')"
+                    (ngModelChange)="actualizarHorarioParte('inicioHora', $event)"
+                  >
+                    @for (hora of horasHorario; track hora) {
+                      <option [value]="hora">{{ hora }}</option>
+                    }
+                  </select>
+
+                  <select
+                    [ngModel]="obtenerHorarioParte('inicioMinuto')"
+                    (ngModelChange)="actualizarHorarioParte('inicioMinuto', $event)"
+                  >
+                    @for (minuto of minutosHorario; track minuto) {
+                      <option [value]="minuto">{{ minuto }}</option>
+                    }
+                  </select>
+
+                  <select
+                    [ngModel]="obtenerHorarioParte('inicioPeriodo')"
+                    (ngModelChange)="actualizarHorarioParte('inicioPeriodo', $event)"
+                  >
+                    @for (periodo of periodosHorario; track periodo) {
+                      <option [value]="periodo">{{ periodo }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+
+              <div class="horario-box">
+                <span>Fin</span>
+
+                <div class="horario-selects">
+                  <select
+                    [ngModel]="obtenerHorarioParte('finHora')"
+                    (ngModelChange)="actualizarHorarioParte('finHora', $event)"
+                  >
+                    @for (hora of horasHorario; track hora) {
+                      <option [value]="hora">{{ hora }}</option>
+                    }
+                  </select>
+
+                  <select
+                    [ngModel]="obtenerHorarioParte('finMinuto')"
+                    (ngModelChange)="actualizarHorarioParte('finMinuto', $event)"
+                  >
+                    @for (minuto of minutosHorario; track minuto) {
+                      <option [value]="minuto">{{ minuto }}</option>
+                    }
+                  </select>
+
+                  <select
+                    [ngModel]="obtenerHorarioParte('finPeriodo')"
+                    (ngModelChange)="actualizarHorarioParte('finPeriodo', $event)"
+                  >
+                    @for (periodo of periodosHorario; track periodo) {
+                      <option [value]="periodo">{{ periodo }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="campo full">

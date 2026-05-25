@@ -212,6 +212,54 @@ button:disabled {
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
+.horario-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.horario-box {
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  background: #f8fafc;
+  padding: 0.8rem;
+}
+
+.horario-box span {
+  display: block;
+  color: #64748b;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 0.55rem;
+}
+
+.horario-selects {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.horario-selects select {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 900;
+  text-align: center;
+  outline: none;
+  cursor: pointer;
+}
+
+.horario-selects select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
 .color-grid {
   display: flex;
   flex-wrap: wrap;
@@ -349,6 +397,10 @@ button:disabled {
 
   .campo.full {
     grid-column: 1 / -1;
+  }
+
+  .horario-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

@@ -74,6 +74,12 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
     '#0891b2',
   ];
 
+  horasHorario = Array.from({ length: 12 }, (_, index) =>
+    String(index + 1).padStart(2, '0')
+  );
+  minutosHorario = ['00', '15', '30', '45'];
+  periodosHorario = ['AM', 'PM'];
+
   nuevaPropuesta = signal({
     nombre: '',
     numero: '',
@@ -191,6 +197,49 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
     if (campo === 'color' && this.recorridoLayer) {
       this.recorridoLayer.setStyle({ color: String(valor) });
     }
+  }
+
+  obtenerHorarioParte(parte: string) {
+    return this.obtenerHorarioActual()[parte];
+  }
+
+  actualizarHorarioParte(parte: string, valor: string) {
+    const horario = {
+      ...this.obtenerHorarioActual(),
+      [parte]: valor,
+    };
+
+    this.actualizarCampo(
+      'horario',
+      `${horario['inicioHora']}:${horario['inicioMinuto']} ${horario['inicioPeriodo']} - ${horario['finHora']}:${horario['finMinuto']} ${horario['finPeriodo']}`
+    );
+  }
+
+  private obtenerHorarioActual(): Record<string, string> {
+    const horario = this.nuevaPropuesta().horario;
+    const partes = horario.match(
+      /^(\d{2}):(\d{2}) (AM|PM) - (\d{2}):(\d{2}) (AM|PM)$/
+    );
+
+    if (!partes) {
+      return {
+        inicioHora: '06',
+        inicioMinuto: '00',
+        inicioPeriodo: 'AM',
+        finHora: '06',
+        finMinuto: '00',
+        finPeriodo: 'AM',
+      };
+    }
+
+    return {
+      inicioHora: partes[1],
+      inicioMinuto: partes[2],
+      inicioPeriodo: partes[3],
+      finHora: partes[4],
+      finMinuto: partes[5],
+      finPeriodo: partes[6],
+    };
   }
 
   seleccionarColor(color: string) {
