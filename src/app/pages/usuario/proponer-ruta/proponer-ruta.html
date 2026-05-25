@@ -1,1 +1,234 @@
-<p>proponer-ruta works!</p>
+<div class="proponer-page">
+  <app-sidebar></app-sidebar>
+
+  <main class="proponer-main">
+    <header class="page-header">
+      <div>
+        <span class="badge">Colaboración ciudadana</span>
+        <h1>Proponer una ruta</h1>
+        <p>
+          Dibuja el recorrido, marca paradas y envía una propuesta para que la comunidad la valide.
+        </p>
+      </div>
+    </header>
+
+    <section class="propuesta-layout">
+      <div class="map-card">
+        <div class="map-toolbar">
+          <div>
+            <h2>Dibujar recorrido</h2>
+            <p>
+              Haz clic en el mapa para marcar puntos guía. Luego calcula el recorrido por calles.
+            </p>
+          </div>
+
+          <div class="map-actions">
+            <button
+              class="primary"
+              type="button"
+              (click)="calcularRutaPorCalles()"
+              [disabled]="calculandoRuta()"
+            >
+              <i class="material-icons">alt_route</i>
+              {{ calculandoRuta() ? 'Calculando...' : 'Calcular ruta' }}
+            </button>
+
+            <button type="button" (click)="marcarUltimoComoParada()">
+              <i class="material-icons">add_location_alt</i>
+              Parada
+            </button>
+
+            <button type="button" (click)="deshacerPunto()">
+              <i class="material-icons">undo</i>
+              Deshacer
+            </button>
+
+            <button class="danger" type="button" (click)="limpiarMapa()">
+              <i class="material-icons">delete_sweep</i>
+              Limpiar
+            </button>
+          </div>
+        </div>
+
+        <div #mapaPropuesta class="mapa-propuesta"></div>
+
+        <div class="map-summary">
+          <span>
+            <i class="material-icons">timeline</i>
+            {{ puntosGuia().length }} puntos
+          </span>
+
+          <span>
+            <i class="material-icons">route</i>
+            {{ recorrido().length }} recorrido
+          </span>
+
+          <span>
+            <i class="material-icons">place</i>
+            {{ paradas().length }} paradas
+          </span>
+        </div>
+      </div>
+
+      <aside class="form-card">
+        <div class="form-header">
+          <h2>Nueva propuesta</h2>
+          <p>
+            La propuesta quedará pendiente hasta recibir validación comunitaria.
+          </p>
+        </div>
+
+        <div class="form-grid">
+          <div class="campo">
+            <label>Nombre</label>
+            <input
+              type="text"
+              placeholder="Ej: City Mall - Megamall"
+              [ngModel]="nuevaPropuesta().nombre"
+              (ngModelChange)="actualizarCampo('nombre', $event)"
+            />
+          </div>
+
+          <div class="campo">
+            <label>Número</label>
+            <input
+              type="text"
+              placeholder="Ej: 01"
+              [ngModel]="nuevaPropuesta().numero"
+              (ngModelChange)="actualizarCampo('numero', $event)"
+            />
+          </div>
+
+          <div class="campo">
+            <label>Precio aproximado</label>
+            <input
+              type="number"
+              placeholder="13"
+              [ngModel]="nuevaPropuesta().precio"
+              (ngModelChange)="actualizarCampo('precio', $event)"
+            />
+          </div>
+
+          <div class="campo">
+            <label>Frecuencia</label>
+            <input
+              type="text"
+              placeholder="Ej: Cada 10 min"
+              [ngModel]="nuevaPropuesta().frecuencia"
+              (ngModelChange)="actualizarCampo('frecuencia', $event)"
+            />
+          </div>
+
+          <div class="campo full">
+            <label>Horario</label>
+            <input
+              type="text"
+              placeholder="Ej: 06:00 AM - 07:00 PM"
+              [ngModel]="nuevaPropuesta().horario"
+              (ngModelChange)="actualizarCampo('horario', $event)"
+            />
+          </div>
+
+          <div class="campo full">
+            <label>Color</label>
+
+            <div class="color-grid">
+              @for (color of coloresRuta; track color) {
+                <button
+                  type="button"
+                  class="color-option"
+                  [class.active]="nuevaPropuesta().color === color"
+                  [style.background]="color"
+                  (click)="seleccionarColor(color)"
+                >
+                  @if (nuevaPropuesta().color === color) {
+                    <i class="material-icons">check</i>
+                  }
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="campo full">
+            <label>Descripción</label>
+            <textarea
+              rows="3"
+              placeholder="Describe hacia dónde va, referencias o datos útiles."
+              [ngModel]="nuevaPropuesta().descripcion"
+              (ngModelChange)="actualizarCampo('descripcion', $event)"
+            ></textarea>
+          </div>
+
+          <div class="campo full">
+            <label>Comentario para revisores</label>
+            <textarea
+              rows="2"
+              placeholder="Ej: Esta ruta entra por el mercado los sábados."
+              [ngModel]="nuevaPropuesta().comentarios"
+              (ngModelChange)="actualizarCampo('comentarios', $event)"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="paradas-box">
+          <div class="paradas-title">
+            <h3>Paradas marcadas</h3>
+            <span>{{ paradas().length }}</span>
+          </div>
+
+          @if (paradas().length === 0) {
+            <p>No hay paradas marcadas todavía.</p>
+          }
+
+          @for (parada of paradas(); track parada.orden) {
+            <div class="parada-item">
+              <span>{{ parada.orden }}</span>
+              <strong>{{ parada.nombre }}</strong>
+            </div>
+          }
+        </div>
+
+        <div class="form-actions">
+          <button
+            class="btn-primary"
+            type="button"
+            (click)="guardarPropuesta()"
+            [disabled]="guardando()"
+          >
+            <i class="material-icons">send</i>
+            {{ guardando() ? 'Guardando...' : 'Enviar propuesta' }}
+          </button>
+
+          <button class="btn-secondary" type="button" (click)="resetFormulario()">
+            Cancelar
+          </button>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+    <app-auth-required-modal
+    [visible]="mostrarModalAuth()"
+    titulo="Inicia sesión para proponer rutas"
+    mensaje="Puedes explorar rutas sin cuenta, pero para enviar propuestas debes iniciar sesión o registrarte."
+    (cerrar)="cerrarModalAuth()"
+  ></app-auth-required-modal>
+
+  <app-alert-modal
+    [visible]="alertaVisible()"
+    [titulo]="alertaTitulo()"
+    [mensaje]="alertaMensaje()"
+    [tipo]="alertaTipo()"
+    (cerrar)="cerrarAlerta()"
+  ></app-alert-modal>
+
+  <app-prompt-modal
+    [visible]="mostrarPromptParada()"
+    titulo="Nombre de la parada"
+    label="Parada"
+    placeholder="Ej: City Mall"
+    [valorInicial]="'Parada ' + (paradas().length + 1)"
+    (cancelar)="cancelarPromptParada()"
+    (confirmar)="confirmarParada($event)"
+  ></app-prompt-modal>
+</div>

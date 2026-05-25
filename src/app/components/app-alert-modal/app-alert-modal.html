@@ -1,0 +1,16 @@
+@if (visible()) {
+  <div class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-icon" [class]="tipo()">
+        <i class="material-icons">{{ icono() }}</i>
+      </div>
+
+      <h2>{{ titulo() }}</h2>
+      <p>{{ mensaje() }}</p>
+
+      <button type="button" class="btn-primary" (click)="cerrarModal()">
+        Aceptar
+      </button>
+    </div>
+  </div>
+}
