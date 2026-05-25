@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, Injector, runInInjectionContext } from '@angular/core';
 import {
   addDoc,
   collection,
@@ -16,6 +16,7 @@ import {
   where,
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 export const APPROVAL_THRESHOLD = 10;
 
@@ -103,6 +104,7 @@ export interface NotaComunitaria {
   providedIn: 'root',
 })
 export class RutaService {
+  private injector = inject(Injector);
   private firestore = inject(Firestore);
 
   getRutas() {
@@ -112,50 +114,53 @@ export class RutaService {
   }
 
   createRuta(ruta: Omit<RutaTransporte, 'id'>) {
-    const rutasCollection = collection(this.firestore, 'rutas');
-    return addDoc(rutasCollection, ruta);
+    return addDoc(collection(this.firestore, 'rutas'), ruta);
   }
 
   updateRuta(id: string, ruta: Partial<RutaTransporte>) {
-    const rutaDoc = doc(this.firestore, 'rutas', id);
-    return updateDoc(rutaDoc, ruta);
+    return updateDoc(doc(this.firestore, 'rutas', id), ruta);
   }
 
   deleteRuta(id: string) {
-    const rutaDoc = doc(this.firestore, 'rutas', id);
-    return deleteDoc(rutaDoc);
+    return deleteDoc(doc(this.firestore, 'rutas', id));
   }
 
   getPropuestasRuta() {
-    const propuestasCollection = collection(this.firestore, 'propuestas_rutas');
-    const q = query(propuestasCollection, orderBy('creadoEn', 'desc'));
-    return collectionData(q, { idField: 'id' }) as Observable<PropuestaRuta[]>;
+    return runInInjectionContext(this.injector, () => {
+      const propuestasCollection = collection(this.firestore, 'propuestas_rutas');
+      const q = query(propuestasCollection, orderBy('creadoEn', 'desc'));
+      return collectionData(q, { idField: 'id' }) as Observable<PropuestaRuta[]>;
+    });
   }
 
   createPropuestaRuta(propuesta: Omit<PropuestaRuta, 'id'>) {
-    const propuestasCollection = collection(this.firestore, 'propuestas_rutas');
-    return addDoc(propuestasCollection, propuesta);
+    return addDoc(collection(this.firestore, 'propuestas_rutas'), propuesta);
   }
 
   updatePropuestaRuta(id: string, propuesta: Partial<PropuestaRuta>) {
-    const propuestaDoc = doc(this.firestore, 'propuestas_rutas', id);
-    return updateDoc(propuestaDoc, propuesta);
+    return updateDoc(doc(this.firestore, 'propuestas_rutas', id), propuesta);
   }
 
   deletePropuestaRuta(id: string) {
-    const propuestaDoc = doc(this.firestore, 'propuestas_rutas', id);
-    return deleteDoc(propuestaDoc);
+    return deleteDoc(doc(this.firestore, 'propuestas_rutas', id));
   }
 
   getValidacionesPorPropuesta(propuestaId: string) {
-    const validacionesCollection = collection(this.firestore, 'validaciones_rutas');
-    const q = query(
-      validacionesCollection,
-      where('propuestaId', '==', propuestaId),
-      orderBy('creadoEn', 'desc')
-    );
+    return runInInjectionContext(this.injector, () => {
+      const validacionesCollection = collection(this.firestore, 'validaciones_rutas');
+      const q = query(
+        validacionesCollection,
+        where('propuestaId', '==', propuestaId)
+      );
 
-    return collectionData(q, { idField: 'id' }) as Observable<ValidacionRuta[]>;
+      return (collectionData(q, { idField: 'id' }) as Observable<ValidacionRuta[]>).pipe(
+        map((validaciones) =>
+          validaciones.sort(
+            (a, b) => b.creadoEn.toMillis() - a.creadoEn.toMillis()
+          )
+        )
+      );
+    });
   }
 
   async createValidacionRuta(validacion: Omit<ValidacionRuta, 'id'>) {
@@ -163,8 +168,7 @@ export class RutaService {
       await this.validarVotoUnico(validacion.propuestaId, validacion.usuarioId);
     }
 
-    const validacionesCollection = collection(this.firestore, 'validaciones_rutas');
-    await addDoc(validacionesCollection, validacion);
+    await addDoc(collection(this.firestore, 'validaciones_rutas'), validacion);
 
     const propuestaDoc = doc(this.firestore, 'propuestas_rutas', validacion.propuestaId);
 
@@ -187,7 +191,7 @@ export class RutaService {
 
   async aprobarPropuestaComoRuta(propuesta: PropuestaRuta) {
     if (!propuesta.id) {
-      throw new Error('La propuesta no tiene ID.');
+      throw new Error('La propuesta no tiene identificador.');
     }
 
     if (propuesta.rutaPublicadaId) {
@@ -211,20 +215,20 @@ export class RutaService {
       puntosGuia: propuesta.puntosGuia || [],
       recorrido: propuesta.recorrido || [],
       paradas: propuesta.paradas || [],
-      creadoEn: Timestamp.now(),
       origenPropuestaId: propuesta.id,
       publicadoDesdePropuesta: true,
+      creadoEn: Timestamp.now(),
     };
 
-    const rutaCreada = await this.createRuta(rutaPublica);
+    const rutaRef = await this.createRuta(rutaPublica);
 
     await this.updatePropuestaRuta(propuesta.id, {
       estado: 'aprobada',
-      rutaPublicadaId: rutaCreada.id,
+      rutaPublicadaId: rutaRef.id,
       actualizadoEn: Timestamp.now(),
     });
 
-    return rutaCreada.id;
+    return rutaRef.id;
   }
 
   async rechazarPropuestaRuta(id: string) {
@@ -239,6 +243,7 @@ export class RutaService {
     const q = query(
       notasCollection,
       where('rutaId', '==', rutaId),
+      where('estado', '==', 'activa'),
       orderBy('creadoEn', 'desc')
     );
 
@@ -257,32 +262,25 @@ export class RutaService {
   }
 
   createNotaComunitaria(nota: Omit<NotaComunitaria, 'id'>) {
-    const notasCollection = collection(this.firestore, 'notas_comunitarias');
-    return addDoc(notasCollection, nota);
+    return addDoc(collection(this.firestore, 'notas_comunitarias'), nota);
   }
 
   votarNotaUtil(id: string) {
-    const notaDoc = doc(this.firestore, 'notas_comunitarias', id);
-
-    return updateDoc(notaDoc, {
+    return updateDoc(doc(this.firestore, 'notas_comunitarias', id), {
       votosUtiles: increment(1),
       actualizadoEn: Timestamp.now(),
     });
   }
 
   confirmarNota(id: string) {
-    const notaDoc = doc(this.firestore, 'notas_comunitarias', id);
-
-    return updateDoc(notaDoc, {
+    return updateDoc(doc(this.firestore, 'notas_comunitarias', id), {
       confirmaciones: increment(1),
       actualizadoEn: Timestamp.now(),
     });
   }
 
   resolverNotaComunitaria(id: string) {
-    const notaDoc = doc(this.firestore, 'notas_comunitarias', id);
-
-    return updateDoc(notaDoc, {
+    return updateDoc(doc(this.firestore, 'notas_comunitarias', id), {
       estado: 'resuelta',
       actualizadoEn: Timestamp.now(),
     });
@@ -296,15 +294,15 @@ export class RutaService {
       where('usuarioId', '==', usuarioId)
     );
 
-    const resultado = await getDocs(q);
+    const snapshot = await getDocs(q);
 
-    const yaVoto = resultado.docs.some((documento) => {
+    const yaVoto = snapshot.docs.some((documento) => {
       const data = documento.data() as ValidacionRuta;
       return data.tipo === 'aprobacion' || data.tipo === 'rechazo';
     });
 
     if (yaVoto) {
-      throw new Error('Ya votaste esta propuesta.');
+      throw new Error('Ya validaste esta propuesta.');
     }
   }
 
@@ -321,6 +319,7 @@ export class RutaService {
 
     if (
       propuesta.estado === 'pendiente' &&
+      !propuesta.rutaPublicadaId &&
       propuesta.aprobaciones >= APPROVAL_THRESHOLD
     ) {
       await this.aprobarPropuestaComoRuta(propuesta);
