@@ -239,26 +239,29 @@ export class RutaService {
   }
 
   getNotasPorRuta(rutaId: string) {
-    const notasCollection = collection(this.firestore, 'notas_comunitarias');
-    const q = query(
-      notasCollection,
-      where('rutaId', '==', rutaId),
-      where('estado', '==', 'activa'),
-      orderBy('creadoEn', 'desc')
-    );
+    return runInInjectionContext(this.injector, () => {
+      const notasCollection = collection(this.firestore, 'notas_comunitarias');
+      const q = query(notasCollection, where('rutaId', '==', rutaId));
 
-    return collectionData(q, { idField: 'id' }) as Observable<NotaComunitaria[]>;
+      return (collectionData(q, { idField: 'id' }) as Observable<NotaComunitaria[]>).pipe(
+        map((notas) =>
+          this.ordenarNotasPorFecha(
+            notas.filter((nota) => nota.estado === 'activa')
+          )
+        )
+      );
+    });
   }
 
   getNotasActivas() {
-    const notasCollection = collection(this.firestore, 'notas_comunitarias');
-    const q = query(
-      notasCollection,
-      where('estado', '==', 'activa'),
-      orderBy('creadoEn', 'desc')
-    );
+    return runInInjectionContext(this.injector, () => {
+      const notasCollection = collection(this.firestore, 'notas_comunitarias');
+      const q = query(notasCollection, where('estado', '==', 'activa'));
 
-    return collectionData(q, { idField: 'id' }) as Observable<NotaComunitaria[]>;
+      return (collectionData(q, { idField: 'id' }) as Observable<NotaComunitaria[]>).pipe(
+        map((notas) => this.ordenarNotasPorFecha(notas))
+      );
+    });
   }
 
   createNotaComunitaria(nota: Omit<NotaComunitaria, 'id'>) {
@@ -284,6 +287,12 @@ export class RutaService {
       estado: 'resuelta',
       actualizadoEn: Timestamp.now(),
     });
+  }
+
+  private ordenarNotasPorFecha(notas: NotaComunitaria[]) {
+    return [...notas].sort(
+      (a, b) => b.creadoEn.toMillis() - a.creadoEn.toMillis()
+    );
   }
 
   private async validarVotoUnico(propuestaId: string, usuarioId: string) {
