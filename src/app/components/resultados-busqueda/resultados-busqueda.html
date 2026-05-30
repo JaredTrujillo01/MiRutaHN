@@ -1,72 +1,85 @@
-<div class="resultados">
-  <div class="resultados-header">
-    <button class="btn-volver" (click)="volver.emit()">
-      <i class="material-icons">arrow_back</i>
+<section class="resultados" aria-labelledby="resultados-title">
+  <header class="resultados-header">
+    <button class="btn-volver" type="button" (click)="volver.emit()">
+      <i class="material-icons" aria-hidden="true">arrow_back</i>
       Volver
     </button>
 
-    <div class="header-info">
-      <h2>Rutas recomendadas</h2>
-      <p class="contador">{{ cargando() ? 'Buscando rutas...' : rutas().length + ' resultados encontrados' }}</p>
-    </div>
-  </div>
+    <section class="header-info">
+      <h2 id="resultados-title">Rutas recomendadas</h2>
+
+      <p class="contador">
+        @if (cargando()) {
+          Buscando rutas...
+        } @else {
+          {{ rutas().length }} resultados encontrados
+        }
+      </p>
+    </section>
+  </header>
 
   @if (!cargando() && rutas().length === 0) {
-    <div class="estado-vacio">
-      <i class="material-icons">route</i>
-      <p>No hay rutas oficiales activas todavia.</p>
-    </div>
+    <article class="estado-vacio">
+      <i class="material-icons" aria-hidden="true">route</i>
+
+      <h3>Sin resultados</h3>
+
+      <p>
+        No encontramos rutas para
+        <strong>{{ termino() || 'tu búsqueda' }}</strong>.
+      </p>
+    </article>
   }
 
-  <div class="lista-rutas">
+  <section class="lista-rutas">
     @for (ruta of rutas(); track ruta.id; let index = $index) {
       <article class="ruta" [class.active]="index === 0">
-        <div class="ruta-top">
-          <div class="ruta-icon">
-            <i class="material-icons">directions_bus</i>
-          </div>
+        <header class="ruta-top">
+          <section class="ruta-icon">
+            <i class="material-icons" aria-hidden="true">directions_bus</i>
+          </section>
 
-          <div class="ruta-info">
-            <h4>{{ ruta.nombre }} - Ruta {{ ruta.numero }}</h4>
+          <section class="ruta-info">
+            <h3>{{ ruta.nombre }} - Ruta {{ ruta.numero }}</h3>
 
-            <div class="estado-ruta">
-              <span class="badge" [class.verde]="index === 0">
-                <i class="material-icons">timer</i>
+            <section class="estado-ruta">
+              <p class="badge" [class.verde]="index === 0">
+                <i class="material-icons" aria-hidden="true">timer</i>
                 Llega en {{ llegadaEstimada(index) }}
-              </span>
+              </p>
 
               @if (ruta.publicadoDesdePropuesta) {
-                <span class="badge comunidad">
-                  <i class="material-icons">diversity_3</i>
+                <p class="badge comunidad">
+                  <i class="material-icons" aria-hidden="true">diversity_3</i>
                   Comunidad
-                </span>
+                </p>
               }
-            </div>
-          </div>
-        </div>
+            </section>
+          </section>
+        </header>
 
-        <div class="detalles">
-          <span>
-            <i class="material-icons">payments</i>
+        <section class="detalles">
+          <p>
+            <i class="material-icons" aria-hidden="true">payments</i>
             L.{{ ruta.precio }}
-          </span>
+          </p>
 
-          <span>
-            <i class="material-icons">schedule</i>
+          <p>
+            <i class="material-icons" aria-hidden="true">schedule</i>
             {{ tiempoEstimado(ruta) }} min
-          </span>
+          </p>
 
-          <span>
-            <i class="material-icons">sync</i>
+          <p>
+            <i class="material-icons" aria-hidden="true">sync</i>
             {{ ruta.frecuencia || 'Frecuencia no definida' }}
-          </span>
-        </div>
+          </p>
+        </section>
 
-        <button class="btn-ver" (click)="seleccionarRuta(ruta)">
+        <button class="btn-ver" type="button" (click)="seleccionarRuta(ruta)">
           Ver ruta
-          <i class="material-icons">arrow_forward</i>
+          <i class="material-icons" aria-hidden="true">arrow_forward</i>
         </button>
       </article>
     }
-  </div>
-</div>
+  </section>
+</section>

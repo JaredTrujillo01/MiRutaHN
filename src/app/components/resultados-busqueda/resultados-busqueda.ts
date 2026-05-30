@@ -1,5 +1,5 @@
-import { Component, inject, output, signal } from '@angular/core';
-import { RutaService, RutaTransporte } from '../../services/ruta.service';
+import { Component, input, output } from '@angular/core';
+import { RutaTransporte } from '../../services/ruta.service';
 
 @Component({
   selector: 'app-resultados-busqueda',
@@ -8,26 +8,12 @@ import { RutaService, RutaTransporte } from '../../services/ruta.service';
   styleUrl: './resultados-busqueda.scss',
 })
 export class ResultadosBusqueda {
-  private rutaService = inject(RutaService);
+  rutas = input<RutaTransporte[]>([]);
+  cargando = input(false);
+  termino = input('');
 
-  verDetalle = output<any>();
+  verDetalle = output<RutaTransporte>();
   volver = output<void>();
-
-  rutas = signal<RutaTransporte[]>([]);
-  cargando = signal(true);
-
-  constructor() {
-    this.rutaService.getRutas().subscribe({
-      next: (rutas) => {
-        this.rutas.set(rutas.filter((ruta) => ruta.estado === 'activa'));
-        this.cargando.set(false);
-      },
-      error: (err) => {
-        console.error(err);
-        this.cargando.set(false);
-      },
-    });
-  }
 
   seleccionarRuta(ruta: RutaTransporte) {
     this.verDetalle.emit(ruta);

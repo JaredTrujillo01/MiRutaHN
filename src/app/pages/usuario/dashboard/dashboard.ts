@@ -1,110 +1,300 @@
-import { Component, signal, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
+import * as L from 'leaflet';
+
 import { Sidebar } from '../../../layouts/sidebar/sidebar';
-import { ParadasCercanas } from '../../../components/paradas-cercanas/paradas-cercanas';
 import { Buscar } from '../../../components/buscar/buscar';
 import { ResultadosBusqueda } from '../../../components/resultados-busqueda/resultados-busqueda';
 import { DetalleRuta } from '../../../components/detalle-ruta/detalle-ruta';
-import { AuthService } from '../../../services/auth';
+import { RutaService, RutaTransporte } from '../../../services/ruta.service';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [Sidebar, ParadasCercanas, Buscar, ResultadosBusqueda, DetalleRuta],
+  imports: [Sidebar, Buscar, ResultadosBusqueda, DetalleRuta],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
-export class Dashboard implements OnInit {
-  paso = signal<number>(1);
-  rutaSeleccionada = signal<any>(null);
-  navegacionActiva = signal<boolean>(false);
+export class Dashboard implements AfterViewInit, OnDestroy {
+  @ViewChild('mapaExplorar') mapaExplorar!: ElementRef<HTMLDivElement>;
+  @ViewChild('mapaDetalle') mapaDetalle?: ElementRef<HTMLDivElement>;
 
-  usuario: any = null;
-  cargandoUsuario = true;
+  private rutaService = inject(RutaService);
 
-  rutasDemo = [
-    {
-      id: 1,
-      nombre: 'Casa → Trabajo',
-      ruta: 'Colonia Palmira a Centro Corporativo',
-      precio: 'L. 15.00',
-      tiempo: '25 min',
-    },
-    {
-      id: 2,
-      nombre: 'Casa → Universidad',
-      ruta: 'Colonia Palmira a UNAH',
-      precio: 'L. 13.00',
-      tiempo: '45 min',
-    },
-    {
-      id: 3,
-      nombre: 'Mall → Casa',
-      ruta: 'Multiplaza a Colonia Palmira',
-      precio: 'L. 15.00',
-      tiempo: '15 min',
-    },
-  ];
+  paso = signal(1);
+  rutas = signal<RutaTransporte[]>([]);
+  rutasFiltradas = signal<RutaTransporte[]>([]);
+  rutaSeleccionada = signal<RutaTransporte | null>(null);
+  terminoBusqueda = signal('');
+  cargandoRutas = signal(true);
 
-  constructor(
-    private authService: AuthService,
-    private route: ActivatedRoute
-  ) {}
+  private map?: L.Map;
+  private detailMap?: L.Map;
 
-  async ngOnInit() {
-    await this.cargarUsuario();
+  private rutasLayer = L.layerGroup();
+  private paradasLayer = L.layerGroup();
+  private detalleRutaLayer = L.layerGroup();
+  private detalleParadasLayer = L.layerGroup();
 
-    this.route.queryParams.subscribe((params) => {
-      const pasoParam = Number(params['paso']);
-      const rutaId = Number(params['rutaId']);
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.iniciarMapa();
+      this.cargarRutas();
+    }, 300);
+  }
 
-      if (pasoParam === 4) {
-        const ruta = this.rutasDemo.find((r) => r.id === rutaId);
+  ngOnDestroy() {
+    this.map?.remove();
+    this.detailMap?.remove();
+  }
 
-        this.rutaSeleccionada.set(
-          ruta || {
-            id: rutaId || 0,
-            nombre: 'Ruta seleccionada',
-            ruta: 'Ruta guardada desde favoritos',
-            precio: 'L. 15.00',
-            tiempo: '25 min',
-          }
-        );
+  iniciarMapa() {
+    if (!this.mapaExplorar) return;
 
-        this.paso.set(4);
-        this.navegacionActiva.set(false);
-      }
+    if (this.map) {
+      this.map.remove();
+      this.map = undefined;
+    }
+
+    this.map = L.map(this.mapaExplorar.nativeElement).setView(
+      [15.5042, -88.025],
+      13
+    );
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap',
+    }).addTo(this.map);
+
+    this.rutasLayer = L.layerGroup().addTo(this.map);
+    this.paradasLayer = L.layerGroup().addTo(this.map);
+
+    setTimeout(() => this.map?.invalidateSize(), 400);
+  }
+
+  cargarRutas() {
+    this.cargandoRutas.set(true);
+
+    this.rutaService.getRutas().subscribe({
+      next: (rutas) => {
+        const activas = rutas.filter((ruta) => ruta.estado === 'activa');
+
+        this.rutas.set(activas);
+        this.rutasFiltradas.set(activas);
+        this.cargandoRutas.set(false);
+
+        setTimeout(() => this.dibujarRutas(activas), 300);
+      },
+      error: (err) => {
+        console.error(err);
+        this.cargandoRutas.set(false);
+      },
     });
   }
 
-  async cargarUsuario() {
-    const usuarioAuth = await this.authService.obtenerUsuarioActual();
-
-    if (usuarioAuth) {
-      this.usuario = await this.authService.obtenerPerfilUsuario(usuarioAuth.uid);
-    }
-
-    this.cargandoUsuario = false;
+  abrirBusqueda() {
+    this.paso.set(2);
   }
 
-  irAPaso(paso: number, ruta?: any) {
-    this.paso.set(paso);
+  cancelarBusqueda() {
+    this.paso.set(1);
+    this.terminoBusqueda.set('');
+    this.rutasFiltradas.set(this.rutas());
+    this.rutaSeleccionada.set(null);
 
-    if (ruta) {
-      this.rutaSeleccionada.set(ruta);
-    }
-
-    if (paso !== 4) {
-      this.navegacionActiva.set(false);
-    }
+    setTimeout(() => {
+      this.map?.invalidateSize();
+      this.dibujarRutas(this.rutas());
+    }, 250);
   }
 
-  onIniciarNavegacion() {
-    this.navegacionActiva.set(true);
+  buscarRutas(termino: string) {
+    const texto = termino.trim().toLowerCase();
+    this.terminoBusqueda.set(texto);
+
+    if (!texto) {
+      this.rutasFiltradas.set(this.rutas());
+      this.dibujarRutas(this.rutas());
+      this.paso.set(3);
+      return;
+    }
+
+    const filtradas = this.rutas().filter((ruta) => {
+      const contenido = [
+        ruta.nombre,
+        ruta.numero,
+        ruta.descripcion,
+        ruta.horario,
+        ruta.frecuencia,
+        ruta.precio,
+        ...(ruta.paradas || []).map((parada) => parada.nombre),
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      return contenido.includes(texto);
+    });
+
+    this.rutasFiltradas.set(filtradas);
+    this.dibujarRutas(filtradas);
+    this.paso.set(3);
   }
 
-  salirNavegacion() {
-    this.navegacionActiva.set(false);
+  verDetalle(ruta: RutaTransporte) {
+    this.rutaSeleccionada.set(ruta);
+    this.paso.set(4);
+
+    this.map?.remove();
+    this.map = undefined;
+
+    setTimeout(() => {
+      this.iniciarMapaDetalle();
+      this.dibujarRutaEnMapaDetalle(ruta);
+    }, 300);
+  }
+
+  volverAResultados() {
     this.paso.set(1);
     this.rutaSeleccionada.set(null);
+    this.terminoBusqueda.set('');
+    this.rutasFiltradas.set(this.rutas());
+
+    if (this.detailMap) {
+      this.detailMap.remove();
+      this.detailMap = undefined;
+    }
+
+    setTimeout(() => {
+      this.iniciarMapa();
+
+      setTimeout(() => {
+        this.dibujarRutas(this.rutas());
+      }, 300);
+    }, 300);
+  }
+
+  iniciarMapaDetalle() {
+    if (!this.mapaDetalle) return;
+
+    if (this.detailMap) {
+      this.detailMap.remove();
+      this.detailMap = undefined;
+    }
+
+    this.detailMap = L.map(this.mapaDetalle.nativeElement).setView(
+      [15.5042, -88.025],
+      13
+    );
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap',
+    }).addTo(this.detailMap);
+
+    this.detalleRutaLayer = L.layerGroup().addTo(this.detailMap);
+    this.detalleParadasLayer = L.layerGroup().addTo(this.detailMap);
+
+    setTimeout(() => this.detailMap?.invalidateSize(), 300);
+  }
+
+  dibujarRutas(rutas: RutaTransporte[]) {
+    if (!this.map) return;
+
+    this.rutasLayer.clearLayers();
+    this.paradasLayer.clearLayers();
+
+    const bounds: [number, number][] = [];
+
+    rutas.forEach((ruta) => {
+      const recorrido = this.obtenerRecorrido(ruta);
+
+      if (recorrido.length > 0) {
+        L.polyline(recorrido, {
+          color: ruta.color || '#1d4ed8',
+          weight: 5,
+          opacity: 0.75,
+        })
+          .bindTooltip(`${ruta.nombre} - Ruta ${ruta.numero}`, {
+            sticky: true,
+            direction: 'top',
+          })
+          .on('mouseover', (e) => {
+            e.target.setStyle({ weight: 8, opacity: 1 });
+          })
+          .on('mouseout', (e) => {
+            e.target.setStyle({ weight: 5, opacity: 0.75 });
+          })
+          .on('click', () => this.verDetalle(ruta))
+          .addTo(this.rutasLayer);
+
+        bounds.push(...recorrido);
+      }
+
+      ruta.paradas?.forEach((parada) => {
+        L.circleMarker([parada.lat, parada.lng], {
+          radius: 5,
+          color: ruta.color || '#1d4ed8',
+          fillColor: ruta.color || '#1d4ed8',
+          fillOpacity: 1,
+          weight: 2,
+        })
+          .bindTooltip(`${parada.nombre} · ${ruta.nombre}`)
+          .addTo(this.paradasLayer);
+      });
+    });
+
+    if (bounds.length > 0) {
+      this.map.fitBounds(L.latLngBounds(bounds), { padding: [40, 40] });
+    }
+  }
+
+  dibujarRutaEnMapaDetalle(ruta: RutaTransporte) {
+    if (!this.detailMap) return;
+
+    this.detalleRutaLayer.clearLayers();
+    this.detalleParadasLayer.clearLayers();
+
+    const recorrido = this.obtenerRecorrido(ruta);
+
+    if (recorrido.length > 0) {
+      L.polyline(recorrido, {
+        color: ruta.color || '#1d4ed8',
+        weight: 7,
+        opacity: 0.95,
+      })
+        .bindTooltip(`${ruta.nombre} - Ruta ${ruta.numero}`, { sticky: true })
+        .addTo(this.detalleRutaLayer);
+
+      this.detailMap.fitBounds(L.latLngBounds(recorrido), {
+        padding: [40, 40],
+      });
+    }
+
+    ruta.paradas?.forEach((parada) => {
+      L.circleMarker([parada.lat, parada.lng], {
+        radius: 8,
+        color: '#15803d',
+        fillColor: '#15803d',
+        fillOpacity: 1,
+        weight: 3,
+      })
+        .bindTooltip(parada.nombre)
+        .addTo(this.detalleParadasLayer);
+    });
+  }
+
+  obtenerRecorrido(ruta: RutaTransporte): [number, number][] {
+    const puntos =
+      ruta.recorrido && ruta.recorrido.length > 0
+        ? ruta.recorrido
+        : ruta.puntosGuia || [];
+
+    return puntos.map((punto) => [punto.lat, punto.lng] as [number, number]);
   }
 }

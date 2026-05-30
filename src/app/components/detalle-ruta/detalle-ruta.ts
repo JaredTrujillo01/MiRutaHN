@@ -4,10 +4,11 @@ import { Timestamp } from '@angular/fire/firestore';
 
 import { AuthService } from '../../services/auth';
 import { NotaComunitaria, RutaService } from '../../services/ruta.service';
+import { AuthRequiredModal } from '../auth-required-modal/auth-required-modal';
 
 @Component({
   selector: 'app-detalle-ruta',
-  imports: [FormsModule],
+  imports: [FormsModule, AuthRequiredModal],
   templateUrl: './detalle-ruta.html',
   styleUrl: './detalle-ruta.scss',
 })
@@ -15,11 +16,12 @@ export class DetalleRuta {
   private rutaService = inject(RutaService);
   private authService = inject(AuthService);
 
-  ruta = input<any>();
+  ruta = input<any | null>(null);
   volver = output<void>();
-  iniciarNavegacion = output<void>();
 
   notas = signal<NotaComunitaria[]>([]);
+  mostrarModalAuth = signal(false);
+
   nuevaNota = signal({
     campoMarcado: 'otro' as NonNullable<NotaComunitaria['campoMarcado']>,
     comentario: '',
@@ -27,27 +29,41 @@ export class DetalleRuta {
 
   constructor() {
     effect(() => {
-      const ruta = this.ruta();
+      const rutaActual = this.ruta();
 
-      if (!ruta?.id) {
+      if (!rutaActual?.id) {
         this.notas.set([]);
         return;
       }
 
-      this.rutaService
-        .getNotasPorRuta(String(ruta.id))
-        .subscribe((notas) => this.notas.set(notas));
+      this.rutaService.getNotasPorRuta(String(rutaActual.id)).subscribe((notas) => {
+        this.notas.set(notas.filter((nota) => this.esNotaDeHoy(nota.creadoEn)));
+      });
     });
   }
 
+  esNotaDeHoy(fecha: any) {
+    if (!fecha) return false;
+
+    const fechaNota =
+      typeof fecha.toDate === 'function' ? fecha.toDate() : new Date(fecha);
+
+    const hoy = new Date();
+
+    return (
+      fechaNota.getFullYear() === hoy.getFullYear() &&
+      fechaNota.getMonth() === hoy.getMonth() &&
+      fechaNota.getDate() === hoy.getDate()
+    );
+  }
+
   tituloRuta() {
-    const ruta = this.ruta();
+    const rutaActual = this.ruta();
+    if (!rutaActual) return 'Ruta seleccionada';
 
-    if (!ruta) {
-      return 'Ruta seleccionada';
-    }
-
-    return ruta.numero ? `${ruta.nombre} - Ruta ${ruta.numero}` : ruta.nombre;
+    return rutaActual.numero
+      ? `Ruta ${rutaActual.numero}: ${rutaActual.nombre}`
+      : rutaActual.nombre;
   }
 
   precioRuta() {
@@ -57,6 +73,10 @@ export class DetalleRuta {
 
   frecuenciaRuta() {
     return this.ruta()?.frecuencia || 'No definida';
+  }
+
+  horarioRuta() {
+    return this.ruta()?.horario || 'No definido';
   }
 
   paradasRuta() {
@@ -70,25 +90,36 @@ export class DetalleRuta {
     }));
   }
 
-  async crearNota() {
-    const ruta = this.ruta();
-    const nota = this.nuevaNota();
-    const usuarioAuth = await this.authService.obtenerUsuarioActual();
+  async requiereSesion() {
+    const usuario = await this.authService.obtenerUsuarioActual();
 
-    if (!ruta?.id || !usuarioAuth) {
-      alert('Debes iniciar sesion para agregar notas.');
-      return;
+    if (!usuario) {
+      this.mostrarModalAuth.set(true);
+      return null;
     }
 
+    return usuario;
+  }
+
+  cerrarModalAuth() {
+    this.mostrarModalAuth.set(false);
+  }
+
+  async crearNota() {
+    const rutaActual = this.ruta();
+    const nota = this.nuevaNota();
+    const usuarioAuth = await this.requiereSesion();
+
+    if (!usuarioAuth || !rutaActual?.id) return;
+
     if (!nota.comentario.trim()) {
-      alert('Escribe una observacion.');
       return;
     }
 
     const perfil = await this.authService.obtenerPerfilUsuario(usuarioAuth.uid);
 
     await this.rutaService.createNotaComunitaria({
-      rutaId: String(ruta.id),
+      rutaId: String(rutaActual.id),
       usuarioId: usuarioAuth.uid,
       usuarioNombre: perfil?.nombre || usuarioAuth.email || 'Ciudadano',
       comentario: nota.comentario,
@@ -105,13 +136,21 @@ export class DetalleRuta {
     });
   }
 
-  votarNota(id?: string) {
+  async votarNota(id?: string) {
     if (!id) return;
+
+    const usuario = await this.requiereSesion();
+    if (!usuario) return;
+
     this.rutaService.votarNotaUtil(id);
   }
 
-  confirmarNota(id?: string) {
+  async confirmarNota(id?: string) {
     if (!id) return;
+
+    const usuario = await this.requiereSesion();
+    if (!usuario) return;
+
     this.rutaService.confirmarNota(id);
   }
 }

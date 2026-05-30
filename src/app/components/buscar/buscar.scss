@@ -1,55 +1,78 @@
-* {
-  box-sizing: border-box;
-}
-
 .formulario-busqueda {
   width: 100%;
-  max-width: 720px;
+  max-width: 820px;
   margin: 0 auto;
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(203, 213, 225, 0.8);
   border-radius: 18px;
-  padding: 0.9rem;
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.2);
-  font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
-}
-
-.form-header {
-  display: none;
-}
-
-.form-grid {
+  padding: 0.8rem;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.18);
   display: grid;
-  grid-template-columns: 1fr;
   gap: 0.65rem;
 }
 
-.campo {
+.form-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: -0.25rem;
+}
+
+.form-header section {
+  display: none;
+}
+
+.btn-cancelar {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 12px;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
   display: grid;
-  gap: 0.3rem;
+  place-items: center;
+  cursor: pointer;
+}
+
+.btn-cancelar:hover {
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.form-grid {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.6rem;
 }
 
 .campo label {
-  color: #475569;
+  display: block;
+  color: var(--color-muted);
   font-size: 0.62rem;
   font-weight: 900;
-  letter-spacing: 0.08em;
   text-transform: uppercase;
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.04em;
 }
 
 .campo-input {
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  background: #f8fafc;
+  min-height: 42px;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
   padding: 0 0.75rem;
 }
 
 .campo-input i {
-  color: #2563eb;
-  font-size: 1.1rem;
+  color: var(--color-primary);
+  font-size: 1.05rem;
 }
 
 .campo-input input,
@@ -58,52 +81,46 @@
   border: none;
   outline: none;
   background: transparent;
-  color: #0f172a;
-  font-size: 0.82rem;
+  color: var(--color-text);
   font-family: inherit;
+  font-size: 0.86rem;
+}
+
+.campo-input:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring);
+  background: #ffffff;
 }
 
 .btn-buscar {
-  width: 100%;
-  min-height: 44px;
-  margin-top: 0.75rem;
+  min-height: 42px;
   border: none;
   border-radius: 12px;
-  background: #2563eb;
+  background: var(--color-primary);
   color: #ffffff;
   font-weight: 900;
-  font-family: inherit;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  cursor: pointer;
+  font-size: 0.86rem;
 }
 
-.btn-cancelar {
-  display: none;
+.btn-buscar:hover {
+  background: var(--color-primary-hover);
 }
 
 @media (min-width: 768px) {
   .formulario-busqueda {
-    padding: 0.85rem;
+    padding: 0.8rem 1rem;
   }
 
   .form-grid {
-    grid-template-columns: 1fr 1fr 150px;
+    grid-template-columns: 1fr 1fr 170px;
     align-items: end;
-    gap: 0.75rem;
   }
 
-  .btn-buscar {
-    width: 150px;
-    margin-top: 0;
-    align-self: end;
-  }
-}
-
-@media (min-width: 1024px) {
-  .btn-buscar:hover {
-    background: #1d4ed8;
+  .campo-horario {
+    grid-column: auto;
   }
 }
