@@ -1,166 +1,177 @@
-<div class="detalle">
-  <div class="detalle-header">
-    <button class="btn-volver" (click)="volver.emit()">
-      <i class="material-icons">arrow_back</i>
+<article class="detalle" aria-labelledby="detalle-title">
+  <header class="detalle-header">
+    <button class="btn-volver" type="button" (click)="volver.emit()">
+      <i class="material-icons" aria-hidden="true">arrow_back</i>
       Volver
     </button>
 
-    <button class="btn-favorito" aria-label="Guardar favorito">
-      <i class="material-icons">star_border</i>
+    <button class="btn-favorito" type="button" aria-label="Guardar ruta favorita">
+      <i class="material-icons" aria-hidden="true">star</i>
     </button>
-  </div>
+  </header>
 
   <section class="info-ruta">
-    <span class="estado">
-      <i class="material-icons">check_circle</i>
+    <p class="estado">
+      <i class="material-icons" aria-hidden="true">check_circle</i>
       Ruta oficial
-    </span>
+    </p>
 
-    <h2>{{ tituloRuta() }}</h2>
-    <p>{{ ruta()?.descripcion || 'Ruta oficial disponible para la comunidad.' }}</p>
+    <h2 id="detalle-title">{{ tituloRuta() }}</h2>
+
+    <p>{{ ruta()?.descripcion || 'Ruta oficial validada por la comunidad.' }}</p>
   </section>
 
-  <section class="precio-frecuencia">
-    <div class="item">
-      <span>Precio</span>
-      <strong>{{ precioRuta() }}</strong>
-    </div>
+  <section class="resumen-ruta" aria-label="Información principal">
+    <article>
+      <h3>Precio del pasaje</h3>
+      <p>{{ precioRuta() }}</p>
+    </article>
 
-    <div class="item">
-      <span>Frecuencia</span>
-      <strong>{{ frecuenciaRuta() }}</strong>
-    </div>
+    <article>
+      <h3>Frecuencia</h3>
+      <p>{{ frecuenciaRuta() }}</p>
+    </article>
+
+    <article>
+      <h3>Horario</h3>
+      <p>{{ horarioRuta() }}</p>
+    </article>
   </section>
 
-  <section class="itinerario">
-    <h3>Itinerario de paradas</h3>
+  <section class="itinerario" aria-labelledby="itinerario-title">
+    <h3 id="itinerario-title">Itinerario de paradas</h3>
 
-    <div class="paradas-timeline">
+    <section class="paradas-timeline">
       @if (paradasRuta().length === 0) {
-        <div class="parada-contenido solo">
-          <strong>Paradas no registradas</strong>
-          <p>Esta ruta aun no tiene paradas detalladas.</p>
-        </div>
+        <article class="parada-vacia">
+          <h4>Paradas no registradas</h4>
+          <p>Esta ruta aún no tiene paradas detalladas.</p>
+        </article>
       }
 
       @for (parada of paradasRuta(); track parada.orden; let index = $index) {
-        <div class="parada-item" [class.active]="index === 0">
-          <div class="circulo" [class.verde]="index === 0" [class.azul]="index > 0"></div>
+        <article class="parada-item">
+          <p class="circulo" [class.inicio]="index === 0">
+            {{ parada.orden }}
+          </p>
 
-          <div class="parada-contenido">
-            <strong>{{ parada.nombre }}</strong>
-            <p>{{ index === 0 ? 'Punto de referencia inicial' : 'Parada registrada por la comunidad' }}</p>
-            <span class="hora">
-              <i class="material-icons">schedule</i>
-              {{ ruta()?.horario || 'Horario no definido' }}
-            </span>
-          </div>
-        </div>
+          <section class="parada-contenido">
+            <header>
+              <h4>{{ parada.nombre }}</h4>
+
+              @if (index === 0) {
+                <p class="hora">Inicio</p>
+              } @else {
+                <p class="hora">Parada {{ parada.orden }}</p>
+              }
+            </header>
+
+            <p>
+              {{ index === 0 ? 'Punto de referencia inicial' : 'Parada registrada por la comunidad' }}
+            </p>
+          </section>
+        </article>
       }
-    </div>
+    </section>
   </section>
 
-  <section class="reportes">
-    <div class="reportes-header">
-      <h3>Reportes en tiempo real</h3>
-      <button class="ver-todos">Ver todos</button>
-    </div>
+  <section class="notas-comunitarias" aria-labelledby="notas-title">
+    <header class="notas-header">
+      <section>
+        <h3 id="notas-title">Notas comunitarias de hoy</h3>
+        <p>Reportes recientes de la comunidad para esta ruta.</p>
+      </section>
 
-    <div class="reporte-card">
-      <div class="avatar">
-        <i class="material-icons">person</i>
-      </div>
+      <p class="nota-count">
+        <i class="material-icons" aria-hidden="true">rate_review</i>
+        {{ notas().length }}
+      </p>
+    </header>
 
-      <div class="reporte-contenido">
-        <div class="reporte-nombre">
-          <strong>Comunidad MiRutaHN</strong>
-          <span>En vivo</span>
-        </div>
-
-        <p>Los reportes ciudadanos siguen disponibles para complementar esta ruta.</p>
-
-        <div class="acciones">
-          <button>
-            <i class="material-icons">thumb_up</i>
-            0
-          </button>
-
-          <button>
-            <i class="material-icons">comment</i>
-            0
-          </button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="notas-comunitarias">
-    <div class="reportes-header">
-      <h3>Notas comunitarias</h3>
-      <span class="nota-count">{{ notas().length }}</span>
-    </div>
+    @if (notas().length === 0) {
+      <article class="nota-vacia">
+        <i class="material-icons" aria-hidden="true">info</i>
+        <p>No hay notas comunitarias registradas hoy.</p>
+      </article>
+    }
 
     @if (notas().length > 0) {
-      <div class="notas-list">
+      <section class="notas-list" aria-label="Notas del día">
         @for (nota of notas(); track nota.id) {
           <article class="nota-card" [class.warning]="nota.confirmaciones >= 3">
-            <div class="nota-top">
-              <span>{{ nota.campoMarcado || 'otro' }}</span>
+            <header class="nota-top">
+              <p class="nota-campo">
+                <i class="material-icons" aria-hidden="true">label</i>
+                {{ nota.campoMarcado || 'otro' }}
+              </p>
+
               @if (nota.confirmaciones >= 3) {
-                <strong>
-                  <i class="material-icons">warning</i>
-                  Validada
-                </strong>
+                <p class="nota-validada">
+                  <i class="material-icons" aria-hidden="true">verified</i>
+                  Confirmada
+                </p>
               }
-            </div>
+            </header>
 
             <p>{{ nota.comentario }}</p>
 
-            <div class="acciones">
-              <button (click)="votarNota(nota.id)">
-                <i class="material-icons">thumb_up</i>
-                {{ nota.votosUtiles }}
+            <section class="acciones" aria-label="Acciones de nota">
+              <button type="button" (click)="votarNota(nota.id)">
+                <i class="material-icons" aria-hidden="true">thumb_up</i>
+                Útil {{ nota.votosUtiles }}
               </button>
 
-              <button (click)="confirmarNota(nota.id)">
-                <i class="material-icons">verified</i>
-                {{ nota.confirmaciones }}
+              <button type="button" (click)="confirmarNota(nota.id)">
+                <i class="material-icons" aria-hidden="true">verified</i>
+                Confirmar {{ nota.confirmaciones }}
               </button>
-            </div>
+            </section>
           </article>
         }
-      </div>
+      </section>
     }
 
-    <div class="nota-form">
-      <select
-        [ngModel]="nuevaNota().campoMarcado"
-        (ngModelChange)="actualizarNotaCampo('campoMarcado', $event)"
-      >
-        <option value="precio">Precio</option>
-        <option value="horario">Horario</option>
-        <option value="recorrido">Recorrido</option>
-        <option value="paradas">Paradas</option>
-        <option value="descripcion">Descripcion</option>
-        <option value="otro">Otro</option>
-      </select>
+    <form class="nota-form" aria-label="Agregar nota comunitaria">
+      <fieldset>
+        <legend>Agregar reporte comunitario</legend>
 
-      <textarea
-        rows="3"
-        placeholder="Agregar una observacion sobre esta ruta..."
-        [ngModel]="nuevaNota().comentario"
-        (ngModelChange)="actualizarNotaCampo('comentario', $event)"
-      ></textarea>
+        <label for="campoMarcado">Tipo de reporte</label>
+        <select
+          id="campoMarcado"
+          name="campoMarcado"
+          [ngModel]="nuevaNota().campoMarcado"
+          (ngModelChange)="actualizarNotaCampo('campoMarcado', $event)"
+        >
+          <option value="precio">Precio</option>
+          <option value="horario">Horario</option>
+          <option value="recorrido">Recorrido</option>
+          <option value="paradas">Paradas</option>
+          <option value="descripcion">Descripción</option>
+          <option value="otro">Otro</option>
+        </select>
 
-      <button (click)="crearNota()">
-        <i class="material-icons">add_comment</i>
+        <label for="comentarioNota">Comentario</label>
+        <textarea
+          id="comentarioNota"
+          name="comentarioNota"
+          rows="3"
+          placeholder="Ej: Hoy esta ruta está tardando más de lo normal."
+          [ngModel]="nuevaNota().comentario"
+          (ngModelChange)="actualizarNotaCampo('comentario', $event)"
+        ></textarea>
+      </fieldset>
+
+      <button type="button" (click)="crearNota()">
+        <i class="material-icons" aria-hidden="true">add_comment</i>
         Agregar nota
       </button>
-    </div>
+    </form>
   </section>
 
-  <button class="btn-navegar" (click)="iniciarNavegacion.emit()">
-    <i class="material-icons">navigation</i>
-    Iniciar navegacion
-  </button>
-</div>
+  <app-auth-required-modal
+    [visible]="mostrarModalAuth()"
+    titulo="Inicia sesión para colaborar"
+    mensaje="Puedes consultar esta ruta sin cuenta, pero para agregar notas o votar debes iniciar sesión o registrarte."
+    (cerrar)="cerrarModalAuth()"
+  ></app-auth-required-modal>
+</article>
