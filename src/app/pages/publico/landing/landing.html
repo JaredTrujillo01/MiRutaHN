@@ -1,267 +1,300 @@
 <app-navbar></app-navbar>
 
 <main class="landing">
-  <section id="hero" class="hero">
-    <div class="hero-overlay"></div>
-
-    <div class="hero-content">
-      <div class="hero-text">
-        <span class="hero-badge">
-          <span class="material-icons">directions_bus</span>
+  <section id="hero" class="hero" aria-labelledby="hero-title">
+    <section class="hero-content">
+      <article class="hero-text">
+        <p class="hero-badge">
+          <i class="material-icons" aria-hidden="true">directions_bus</i>
           Transporte público colaborativo
-        </span>
+        </p>
 
-        <h1 class="hero-title">
+        <h1 id="hero-title" class="hero-title">
           Muévete por Honduras con más confianza
         </h1>
 
         <p class="hero-subtitle">
-          MiRutaHN te ayuda a conocer rutas, horarios aproximados, paradas y reportes ciudadanos
-          para mejorar tus viajes diarios en transporte público.
+          MiRutaHN te ayuda a conocer rutas, horarios aproximados, paradas y
+          reportes ciudadanos para mejorar tus viajes diarios en transporte público.
         </p>
 
-        <div class="hero-buttons">
-          <button class="btn-primary" routerLink="/dashboard">
+        <nav class="hero-buttons" aria-label="Acciones principales">
+          <button class="btn-primary" type="button" routerLink="/dashboard">
             Entrar a MiRutaHN
-            <span class="material-icons">arrow_forward</span>
+            <i class="material-icons" aria-hidden="true">arrow_forward</i>
           </button>
 
-          <button class="btn-secondary" (click)="scrollTo('beneficios')">
+          <button class="btn-secondary" type="button" (click)="scrollTo('beneficios')">
             Conocer beneficios
           </button>
-        </div>
+        </nav>
 
-        <div class="hero-stats">
-          <div class="stat">
-            <span class="stat-number">30+</span>
-            <span class="stat-label">Rutas proyectadas</span>
-          </div>
+        <section class="hero-stats" aria-label="Datos destacados del proyecto">
+          <article class="stat">
+            <strong class="stat-number">30+</strong>
+            <p class="stat-label">Rutas proyectadas</p>
+          </article>
 
-          <div class="stat">
-            <span class="stat-number">24/7</span>
-            <span class="stat-label">Reportes ciudadanos</span>
-          </div>
+          <article class="stat">
+            <strong class="stat-number">24/7</strong>
+            <p class="stat-label">Reportes ciudadanos</p>
+          </article>
 
-          <div class="stat">
-            <span class="stat-number">100%</span>
-            <span class="stat-label">Pensado para Honduras</span>
-          </div>
-        </div>
-      </div>
+          <article class="stat">
+            <strong class="stat-number">100%</strong>
+            <p class="stat-label">Pensado para Honduras</p>
+          </article>
+        </section>
+      </article>
 
-      <div class="hero-card">
-        <div class="phone-preview">
-          <div class="phone-header">
-            <span class="material-icons">location_on</span>
-            <div>
-              <strong>MiRutaHN</strong>
+      <aside class="hero-card" aria-label="Vista previa de MiRutaHN">
+        <article class="phone-preview">
+          <header class="phone-header">
+            <i class="material-icons" aria-hidden="true">location_on</i>
+
+            <section>
+              <h2>MiRutaHN</h2>
               <p>Ruta recomendada</p>
-            </div>
-          </div>
+            </section>
+          </header>
 
-          <div class="map-preview">
-            <span class="material-icons map-icon bus">directions_bus</span>
-            <span class="material-icons map-icon pin-one">place</span>
-            <span class="material-icons map-icon pin-two">school</span>
-            <div class="route-line"></div>
-          </div>
+          <section class="map-preview" aria-label="Vista simulada de mapa">
+            <i class="material-icons map-icon bus" aria-hidden="true">directions_bus</i>
+            <i class="material-icons map-icon pin-one" aria-hidden="true">place</i>
+            <i class="material-icons map-icon pin-two" aria-hidden="true">school</i>
+            <span class="route-line" aria-hidden="true"></span>
+          </section>
 
-          <div class="route-card">
-            <div>
-              <strong>Centro → UNAH</strong>
+          <article class="route-card">
+            <section>
+              <h3>Centro → UNAH</h3>
               <p>Tiempo estimado: 25 min</p>
-            </div>
-            <span class="status">Activa</span>
-          </div>
+            </section>
 
-          <div class="alert-card">
-            <span class="material-icons">campaign</span>
+            <p class="status">
+              <i class="material-icons" aria-hidden="true">check_circle</i>
+              Activa
+            </p>
+          </article>
+
+          <aside class="alert-card" aria-label="Reporte ciudadano">
+            <i class="material-icons" aria-hidden="true">campaign</i>
             <p>Usuarios reportan tráfico moderado en la zona.</p>
-          </div>
-        </div>
-      </div>
-    </div>
+          </aside>
+        </article>
+      </aside>
+    </section>
   </section>
 
-  <section class="problema">
-    <div class="container">
-      <div class="section-header">
-        <span class="badge">El problema</span>
-        <h2>La información del transporte público no siempre es clara</h2>
+  <section class="problema" aria-labelledby="problema-title">
+    <section class="container">
+      <header class="section-header">
+        <p class="badge">El problema</p>
+        <h2 id="problema-title">La información del transporte público no siempre es clara</h2>
         <p>
           Muchos usuarios esperan buses sin saber horarios, rutas exactas o cambios en el recorrido.
         </p>
-      </div>
+      </header>
 
-      <div class="problema-grid">
+      <section class="problema-grid">
         <article class="info-card">
-          <span class="material-icons card-icon">schedule</span>
+          <i class="material-icons card-icon" aria-hidden="true">schedule</i>
           <h3>Esperas innecesarias</h3>
           <p>No saber si la unidad ya pasó hace perder tiempo todos los días.</p>
         </article>
 
         <article class="info-card">
-          <span class="material-icons card-icon">map</span>
+          <i class="material-icons card-icon" aria-hidden="true">map</i>
           <h3>Rutas poco claras</h3>
           <p>Muchas personas no conocen qué ruta tomar para llegar a su destino.</p>
         </article>
 
         <article class="info-card">
-          <span class="material-icons card-icon">warning</span>
+          <i class="material-icons card-icon" aria-hidden="true">warning</i>
           <h3>Falta de reportes</h3>
           <p>Los usuarios no tienen una forma sencilla de comunicar atrasos o incidentes.</p>
         </article>
-      </div>
-    </div>
+      </section>
+    </section>
   </section>
 
-  <section id="beneficios" class="beneficios">
-    <div class="container">
-      <div class="section-header">
-        <span class="badge">La solución</span>
-        <h2>Una plataforma hecha para moverte mejor</h2>
+  <section id="beneficios" class="beneficios" aria-labelledby="beneficios-title">
+    <section class="container">
+      <header class="section-header">
+        <p class="badge">La solución</p>
+        <h2 id="beneficios-title">Una plataforma hecha para moverte mejor</h2>
         <p>
           MiRutaHN combina mapas, reportes ciudadanos y rutas colaborativas en una experiencia simple.
         </p>
-      </div>
+      </header>
 
-      <div class="beneficios-grid">
+      <section class="beneficios-grid">
         <article class="beneficio-card">
-          <span class="material-icons beneficio-icon blue">route</span>
+          <i class="material-icons beneficio-icon blue" aria-hidden="true">route</i>
           <h3>Rutas en mapa</h3>
           <p>Visualiza recorridos y paradas principales desde tu dispositivo.</p>
         </article>
 
         <article class="beneficio-card">
-          <span class="material-icons beneficio-icon green">access_time</span>
+          <i class="material-icons beneficio-icon green" aria-hidden="true">access_time</i>
           <h3>Horarios aproximados</h3>
           <p>Consulta tiempos estimados para planificar mejor tus salidas.</p>
         </article>
 
         <article class="beneficio-card">
-          <span class="material-icons beneficio-icon red">report_problem</span>
+          <i class="material-icons beneficio-icon red" aria-hidden="true">report_problem</i>
           <h3>Reportes ciudadanos</h3>
           <p>Informa retrasos, tráfico, accidentes o unidades llenas.</p>
         </article>
 
         <article class="beneficio-card">
-          <span class="material-icons beneficio-icon orange">diversity_3</span>
+          <i class="material-icons beneficio-icon orange" aria-hidden="true">diversity_3</i>
           <h3>Comunidad</h3>
           <p>Los ciudadanos pueden proponer, validar y mejorar rutas.</p>
         </article>
-      </div>
-    </div>
+      </section>
+    </section>
   </section>
 
-  <section id="como-funciona" class="como-funciona">
-    <div class="container">
-      <div class="section-header light">
-        <span class="badge">Cómo funciona</span>
-        <h2>3 pasos para moverte mejor</h2>
+  <section id="como-funciona" class="como-funciona" aria-labelledby="funciona-title">
+    <section class="container">
+      <header class="section-header light">
+        <p class="badge">Cómo funciona</p>
+        <h2 id="funciona-title">3 pasos para moverte mejor</h2>
         <p>Una experiencia sencilla para consultar rutas y colaborar con la comunidad.</p>
-      </div>
+      </header>
 
-      <div class="pasos-grid">
+      <section class="pasos-grid">
         <article class="paso">
-          <div class="paso-number">1</div>
-          <span class="material-icons paso-icon">travel_explore</span>
+          <p class="paso-number">1</p>
+          <i class="material-icons paso-icon" aria-hidden="true">travel_explore</i>
           <h3>Explora rutas</h3>
           <p>Consulta rutas y paradas sin necesidad de crear una cuenta.</p>
         </article>
 
         <article class="paso">
-          <div class="paso-number">2</div>
-          <span class="material-icons paso-icon">map</span>
+          <p class="paso-number">2</p>
+          <i class="material-icons paso-icon" aria-hidden="true">map</i>
           <h3>Consulta información</h3>
           <p>Revisa recorridos, paradas, horarios aproximados y estado actual.</p>
         </article>
 
         <article class="paso">
-          <div class="paso-number">3</div>
-          <span class="material-icons paso-icon">campaign</span>
+          <p class="paso-number">3</p>
+          <i class="material-icons paso-icon" aria-hidden="true">campaign</i>
           <h3>Colabora</h3>
           <p>Inicia sesión solo si deseas proponer rutas, votar, comentar o reportar.</p>
         </article>
-      </div>
-    </div>
+      </section>
+    </section>
   </section>
 
-  <section id="contacto" class="contacto">
-    <div class="container">
-      <div class="section-header">
-        <span class="badge">Contáctanos</span>
-        <h2>¿Tienes preguntas o sugerencias?</h2>
+  <section id="contacto" class="contacto" aria-labelledby="contacto-title">
+    <section class="container">
+      <header class="section-header">
+        <p class="badge">Contáctanos</p>
+        <h2 id="contacto-title">¿Tienes preguntas o sugerencias?</h2>
         <p>Tu opinión ayuda a mejorar MiRutaHN para más ciudades de Honduras.</p>
-      </div>
+      </header>
 
-      <div class="contacto-grid">
-        <div class="contacto-formulario">
+      <section class="contacto-grid">
+        <article class="contacto-formulario">
           <h3>Envíanos un mensaje</h3>
 
-          <form>
-            <input type="text" placeholder="Tu nombre" class="form-input" />
-            <input type="email" placeholder="Tu correo electrónico" class="form-input" />
-            <textarea placeholder="Escribe tu mensaje aquí..." rows="4" class="form-textarea"></textarea>
+          <form aria-label="Formulario de contacto">
+            <fieldset>
+              <legend>Datos del mensaje</legend>
+
+              <label for="contactoNombre">Nombre</label>
+              <input
+                id="contactoNombre"
+                name="contactoNombre"
+                type="text"
+                class="form-input"
+                placeholder="Ej: Eduardo Trujillo"
+                required
+              />
+
+              <label for="contactoEmail">Correo electrónico</label>
+              <input
+                id="contactoEmail"
+                name="contactoEmail"
+                type="email"
+                class="form-input"
+                placeholder="ejemplo@correo.com"
+                required
+              />
+
+              <label for="contactoMensaje">Mensaje</label>
+              <textarea
+                id="contactoMensaje"
+                name="contactoMensaje"
+                class="form-textarea"
+                rows="4"
+                placeholder="Escribe tu mensaje aquí..."
+                required
+              ></textarea>
+            </fieldset>
 
             <button type="submit" class="btn-enviar">
               Enviar mensaje
-              <span class="material-icons">send</span>
+              <i class="material-icons" aria-hidden="true">send</i>
             </button>
           </form>
-        </div>
+        </article>
 
-        <div class="contacto-info">
+        <aside class="contacto-info" aria-label="Información de contacto">
           <h3>Información de contacto</h3>
 
-          <div class="info-item">
-            <span class="material-icons info-icon">mail</span>
-            <div>
-              <strong>Email</strong>
+          <article class="info-item">
+            <i class="material-icons info-icon" aria-hidden="true">mail</i>
+            <section>
+              <h4>Email</h4>
               <p>info&#64;mirutahn.com</p>
-            </div>
-          </div>
+            </section>
+          </article>
 
-          <div class="info-item">
-            <span class="material-icons info-icon">call</span>
-            <div>
-              <strong>Teléfono</strong>
+          <article class="info-item">
+            <i class="material-icons info-icon" aria-hidden="true">call</i>
+            <section>
+              <h4>Teléfono</h4>
               <p>+504 1234-5678</p>
-            </div>
-          </div>
+            </section>
+          </article>
 
-          <div class="info-item">
-            <span class="material-icons info-icon">location_city</span>
-            <div>
-              <strong>Ubicación</strong>
+          <article class="info-item">
+            <i class="material-icons info-icon" aria-hidden="true">location_city</i>
+            <section>
+              <h4>Ubicación</h4>
               <p>San Pedro Sula, Honduras</p>
-            </div>
-          </div>
+            </section>
+          </article>
 
-          <div class="info-item">
-            <span class="material-icons info-icon">schedule</span>
-            <div>
-              <strong>Horario</strong>
+          <article class="info-item">
+            <i class="material-icons info-icon" aria-hidden="true">schedule</i>
+            <section>
+              <h4>Horario</h4>
               <p>Lunes a Viernes: 8:00 a.m. - 5:00 p.m.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+            </section>
+          </article>
+        </aside>
+      </section>
+    </section>
   </section>
 
-  <section class="cta-final">
-    <div class="cta-container">
-      <span class="material-icons cta-icon">directions_bus_filled</span>
-      <h2>Empieza a moverte con más seguridad</h2>
+  <section class="cta-final" aria-labelledby="cta-title">
+    <article class="cta-container">
+      <i class="material-icons cta-icon" aria-hidden="true">directions_bus_filled</i>
+      <h2 id="cta-title">Empieza a moverte con más seguridad</h2>
       <p>
         Explora rutas públicas, consulta información del transporte y colabora cuando quieras iniciar sesión.
       </p>
 
-      <button class="cta-button" routerLink="/dashboard">
+      <button class="cta-button" type="button" routerLink="/dashboard">
         Entrar a MiRutaHN
-        <span class="material-icons">arrow_forward</span>
+        <i class="material-icons" aria-hidden="true">arrow_forward</i>
       </button>
-    </div>
+    </article>
   </section>
 </main>
 
