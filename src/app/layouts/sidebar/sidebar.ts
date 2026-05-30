@@ -1,5 +1,6 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+
 import { AuthService } from '../../services/auth';
 import { UserRole } from '../../services/usuario.service';
 
@@ -13,8 +14,14 @@ export class Sidebar implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  rol: UserRole = 'usuario';
-  sesionActiva = false;
+  rol = signal<UserRole>('usuario');
+  sesionActiva = signal(false);
+
+  badgeRol = computed(() => {
+    if (!this.sesionActiva()) return 'Visitante';
+    if (this.rol() === 'admin') return 'Administrador';
+    return 'Ciudadano';
+  });
 
   async ngOnInit() {
     await this.cargarSesion();
@@ -22,23 +29,25 @@ export class Sidebar implements OnInit {
 
   async cargarSesion() {
     const usuario = await this.authService.obtenerUsuarioActual();
-    this.sesionActiva = !!usuario;
+
+    this.sesionActiva.set(!!usuario);
 
     if (!usuario) {
-      this.rol = 'usuario';
+      this.rol.set('usuario');
       localStorage.removeItem('rol');
       return;
     }
 
     const rolActual = await this.authService.getCurrentUserRole();
-    this.rol = rolActual ?? 'usuario';
-    localStorage.setItem('rol', this.rol);
-  }
 
-  get badgeRol() {
-    if (!this.sesionActiva) return 'Visitante';
-    if (this.rol === 'admin') return 'Administrador';
-    return 'Ciudadano';
+    if (rolActual === 'admin') {
+      this.rol.set('admin');
+      localStorage.setItem('rol', 'admin');
+      return;
+    }
+
+    this.rol.set('usuario');
+    localStorage.setItem('rol', 'usuario');
   }
 
   irLogin() {
@@ -51,10 +60,13 @@ export class Sidebar implements OnInit {
 
   async cerrarSesion() {
     try {
+      localStorage.removeItem('rol');
       await this.authService.cerrarSesion();
-      this.sesionActiva = false;
-      this.rol = 'usuario';
-      this.router.navigate(['/inicio']);
+
+      this.sesionActiva.set(false);
+      this.rol.set('usuario');
+
+      this.router.navigate(['/dashboard']);
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     }
