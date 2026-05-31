@@ -1,1 +1,123 @@
-<p>rutas-publicas works!</p>
+<section class="rutas-page">
+  <app-sidebar></app-sidebar>
+
+  <main class="rutas-main" aria-labelledby="rutas-title">
+    <header class="page-header">
+      <section>
+        <p class="eyebrow">Rutas oficiales</p>
+        <h1 id="rutas-title">Rutas publicas disponibles</h1>
+        <p>Consulta horarios, precios, paradas y guarda accesos rapidos para tus viajes frecuentes.</p>
+      </section>
+
+      <aside class="summary-card" aria-label="Resumen de rutas">
+        <strong>{{ rutasFiltradas().length }}</strong>
+        <span>rutas activas</span>
+      </aside>
+    </header>
+
+    <section class="filters" aria-labelledby="filtros-title">
+      <h2 id="filtros-title">Buscar ruta</h2>
+
+      <form class="filter-form" role="search">
+        <label for="buscarRuta">Nombre, numero, parada o zona</label>
+        <input
+          id="buscarRuta"
+          type="search"
+          [ngModel]="filtro()"
+          (ngModelChange)="actualizarFiltro($event)"
+          name="buscarRuta"
+          autocomplete="off"
+          aria-describedby="buscarRutaAyuda"
+        />
+        <p id="buscarRutaAyuda">Escribe una referencia para filtrar las rutas oficiales activas.</p>
+      </form>
+    </section>
+
+    @if (cargando()) {
+      <section class="state-card" role="status" aria-live="polite">
+        <i class="material-icons" aria-hidden="true">hourglass_empty</i>
+        <h2>Cargando rutas</h2>
+        <p>Estamos preparando la informacion disponible.</p>
+      </section>
+    }
+
+    @if (!cargando() && error()) {
+      <section class="state-card error" role="alert">
+        <i class="material-icons" aria-hidden="true">error</i>
+        <h2>No se pudieron cargar las rutas</h2>
+        <p>{{ error() }}</p>
+      </section>
+    }
+
+    @if (!cargando() && !error() && rutasFiltradas().length === 0) {
+      <section class="state-card">
+        <i class="material-icons" aria-hidden="true">route</i>
+        <h2>Sin resultados</h2>
+        <p>No encontramos rutas activas con ese criterio.</p>
+      </section>
+    }
+
+    <section class="rutas-grid" aria-label="Listado de rutas">
+      @for (ruta of rutasFiltradas(); track ruta.id) {
+        <article class="ruta-card">
+          <header class="ruta-card-header">
+            <section class="route-mark" [style.background]="ruta.color || '#1d4ed8'" aria-hidden="true">
+              <i class="material-icons">directions_bus</i>
+            </section>
+
+            <section>
+              <p>Ruta {{ ruta.numero }}</p>
+              <h2>{{ ruta.nombre }}</h2>
+            </section>
+          </header>
+
+          <p class="description">{{ ruta.descripcion || 'Ruta oficial disponible para consulta ciudadana.' }}</p>
+
+          <dl class="route-facts">
+            <div>
+              <dt>Precio</dt>
+              <dd>L. {{ ruta.precio }}</dd>
+            </div>
+
+            <div>
+              <dt>Horario</dt>
+              <dd>{{ ruta.horario || 'No definido' }}</dd>
+            </div>
+
+            <div>
+              <dt>Frecuencia</dt>
+              <dd>{{ ruta.frecuencia || 'No definida' }}</dd>
+            </div>
+
+            <div>
+              <dt>Paradas</dt>
+              <dd>{{ paradasResumen(ruta) }}</dd>
+            </div>
+          </dl>
+
+          <footer class="ruta-actions">
+            @if (usuarioId()) {
+              <button
+                type="button"
+                class="favorite-btn"
+                [class.saved]="esFavorita(ruta.id)"
+                [disabled]="guardandoFavorito() === ruta.id"
+                (click)="alternarFavorito(ruta)"
+              >
+                <i class="material-icons" aria-hidden="true">
+                  {{ esFavorita(ruta.id) ? 'bookmark_added' : 'bookmark_add' }}
+                </i>
+                {{ esFavorita(ruta.id) ? 'Guardada' : 'Guardar' }}
+              </button>
+            } @else {
+              <p class="auth-note">
+                <i class="material-icons" aria-hidden="true">lock</i>
+                Inicia sesion para guardar esta ruta.
+              </p>
+            }
+          </footer>
+        </article>
+      }
+    </section>
+  </main>
+</section>

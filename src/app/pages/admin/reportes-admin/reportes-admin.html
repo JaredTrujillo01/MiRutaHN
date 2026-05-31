@@ -1,2 +1,169 @@
-<app-sidebar></app-sidebar>
-<p>reportes-admin works!</p>
+<section class="admin-reportes-page">
+  <app-sidebar></app-sidebar>
+
+  <main class="admin-main" aria-labelledby="reportes-admin-title">
+    <header class="page-header">
+      <section>
+        <p class="eyebrow">Administracion</p>
+        <h1 id="reportes-admin-title">Gestion de reportes</h1>
+        <p>Revisa reportes ciudadanos, confirma incidentes y cierra los casos atendidos.</p>
+      </section>
+
+      <aside class="summary-card" aria-label="Total de reportes filtrados">
+        <strong>{{ reportesFiltrados().length }}</strong>
+        <span>reportes visibles</span>
+      </aside>
+    </header>
+
+    <section class="filters" aria-labelledby="filtros-reportes-title">
+      <h2 id="filtros-reportes-title">Filtros</h2>
+
+      <form class="filter-form">
+        <section>
+          <label for="estadoReporte">Estado del reporte</label>
+          <select
+            id="estadoReporte"
+            name="estadoReporte"
+            [ngModel]="filtroEstado()"
+            (ngModelChange)="actualizarFiltroEstado($event)"
+          >
+            @for (estado of estados; track estado.valor) {
+              <option [value]="estado.valor">{{ estado.label }}</option>
+            }
+          </select>
+        </section>
+
+        <section>
+          <label for="buscarReporte">Buscar por ruta, usuario o comentario</label>
+          <input
+            id="buscarReporte"
+            name="buscarReporte"
+            type="search"
+            [ngModel]="filtroTexto()"
+            (ngModelChange)="actualizarFiltroTexto($event)"
+            autocomplete="off"
+          />
+        </section>
+      </form>
+    </section>
+
+    @if (cargando()) {
+      <section class="state-card" role="status" aria-live="polite">
+        <i class="material-icons" aria-hidden="true">hourglass_empty</i>
+        <h2>Cargando reportes</h2>
+        <p>Estamos consultando la informacion ciudadana.</p>
+      </section>
+    }
+
+    @if (!cargando() && error()) {
+      <section class="state-card error" role="alert">
+        <i class="material-icons" aria-hidden="true">error</i>
+        <h2>Error al cargar</h2>
+        <p>{{ error() }}</p>
+      </section>
+    }
+
+    @if (!cargando() && !error() && reportesFiltrados().length === 0) {
+      <section class="state-card">
+        <i class="material-icons" aria-hidden="true">report_off</i>
+        <h2>Sin reportes</h2>
+        <p>No hay reportes que coincidan con los filtros actuales.</p>
+      </section>
+    }
+
+    <section class="reportes-list" aria-label="Listado administrativo de reportes">
+      @for (reporte of reportesFiltrados(); track reporte.id) {
+        <article
+          class="reporte-card"
+          [class.estado-confirmado]="reporte.estado === 'confirmado'"
+          [class.estado-resuelto]="reporte.estado === 'resuelto'"
+          [class.estado-falso]="reporte.estado === 'falso'"
+        >
+          <header class="reporte-header">
+            <section>
+              <p>{{ tipoLabel(reporte.tipo) }}</p>
+              <h2>{{ reporte.rutaNombre }}</h2>
+            </section>
+
+            <span class="status-badge">
+              <i class="material-icons" aria-hidden="true">flag</i>
+              {{ estadoLabel(reporte.estado) }}
+            </span>
+          </header>
+
+          <p class="comentario">{{ reporte.comentario }}</p>
+
+          <dl class="meta-grid">
+            <div>
+              <dt>Usuario</dt>
+              <dd>{{ reporte.usuarioNombre }}</dd>
+            </div>
+
+            <div>
+              <dt>Fecha</dt>
+              <dd>{{ formatearFecha(reporte) }}</dd>
+            </div>
+
+            <div>
+              <dt>Votos utiles</dt>
+              <dd>{{ reporte.votosUtiles }}</dd>
+            </div>
+
+            <div>
+              <dt>Votos falso</dt>
+              <dd>{{ reporte.votosFalso }}</dd>
+            </div>
+          </dl>
+
+          @if (reporte.fotoUrl) {
+            <figure class="photo-preview">
+              <img [src]="reporte.fotoUrl" alt="Foto adjunta al reporte" />
+              <figcaption>Evidencia enviada por el usuario</figcaption>
+            </figure>
+          }
+
+          <footer class="actions" aria-label="Acciones del reporte">
+            <button
+              type="button"
+              class="success"
+              [disabled]="actualizando() === reporte.id || reporte.estado === 'confirmado'"
+              (click)="cambiarEstado(reporte, 'confirmado')"
+            >
+              <i class="material-icons" aria-hidden="true">verified</i>
+              Confirmar
+            </button>
+
+            <button
+              type="button"
+              [disabled]="actualizando() === reporte.id || reporte.estado === 'resuelto'"
+              (click)="cambiarEstado(reporte, 'resuelto')"
+            >
+              <i class="material-icons" aria-hidden="true">task_alt</i>
+              Resolver
+            </button>
+
+            <button
+              type="button"
+              class="warning"
+              [disabled]="actualizando() === reporte.id || reporte.estado === 'falso'"
+              (click)="cambiarEstado(reporte, 'falso')"
+            >
+              <i class="material-icons" aria-hidden="true">block</i>
+              Marcar falso
+            </button>
+
+            <button
+              type="button"
+              class="danger"
+              [disabled]="actualizando() === reporte.id"
+              (click)="eliminarReporte(reporte)"
+            >
+              <i class="material-icons" aria-hidden="true">delete</i>
+              Eliminar
+            </button>
+          </footer>
+        </article>
+      }
+    </section>
+  </main>
+</section>

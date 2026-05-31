@@ -9,6 +9,7 @@ import {
   orderBy,
   query,
   Timestamp,
+  updateDoc,
   where,
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
@@ -45,9 +46,26 @@ export class ReporteService {
     return collectionData(q, { idField: 'id' }) as Observable<Reporte[]>;
   }
 
+  getReportes() {
+    const reportesCollection = collection(this.firestore, 'reportes');
+    const q = query(reportesCollection, orderBy('timestamp', 'desc'));
+
+    return collectionData(q, { idField: 'id' }) as Observable<Reporte[]>;
+  }
+
   createReporte(reporte: Omit<Reporte, 'id'>) {
     const reportesCollection = collection(this.firestore, 'reportes');
     return addDoc(reportesCollection, reporte);
+  }
+
+  async updateEstadoReporte(id: string, estado: Reporte['estado']) {
+    if (!(await this.authService.isAdmin())) {
+      throw new Error('No tienes permisos para actualizar reportes.');
+    }
+
+    return updateDoc(doc(this.firestore, 'reportes', id), {
+      estado,
+    });
   }
 
   async deleteReporte(id: string) {

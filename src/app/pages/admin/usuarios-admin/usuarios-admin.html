@@ -1,2 +1,147 @@
-<app-sidebar></app-sidebar>
-<p>usuarios-admin works!</p>
+<section class="usuarios-admin-page">
+  <app-sidebar></app-sidebar>
+
+  <main class="admin-main" aria-labelledby="usuarios-admin-title">
+    <header class="page-header">
+      <section>
+        <p class="eyebrow">Administracion</p>
+        <h1 id="usuarios-admin-title">Gestion de usuarios</h1>
+        <p>Consulta perfiles registrados y administra los roles necesarios para operar la plataforma.</p>
+      </section>
+
+      <aside class="summary-grid" aria-label="Resumen de usuarios">
+        <article>
+          <strong>{{ usuarios().length }}</strong>
+          <span>Total</span>
+        </article>
+
+        <article>
+          <strong>{{ totalPorRol('admin') }}</strong>
+          <span>Admins</span>
+        </article>
+
+        <article>
+          <strong>{{ totalPorRol('usuario') }}</strong>
+          <span>Usuarios</span>
+        </article>
+      </aside>
+    </header>
+
+    <section class="filters" aria-labelledby="usuarios-filtros-title">
+      <h2 id="usuarios-filtros-title">Filtros</h2>
+
+      <form class="filter-form">
+        <section>
+          <label for="rolUsuarioFiltro">Rol</label>
+          <select
+            id="rolUsuarioFiltro"
+            name="rolUsuarioFiltro"
+            [ngModel]="rolFiltro()"
+            (ngModelChange)="actualizarRolFiltro($event)"
+          >
+            <option value="todos">Todos</option>
+            <option value="admin">Administradores</option>
+            <option value="usuario">Usuarios</option>
+          </select>
+        </section>
+
+        <section>
+          <label for="buscarUsuario">Buscar por nombre, correo, telefono o ciudad</label>
+          <input
+            id="buscarUsuario"
+            name="buscarUsuario"
+            type="search"
+            [ngModel]="filtro()"
+            (ngModelChange)="actualizarFiltro($event)"
+            autocomplete="off"
+          />
+        </section>
+      </form>
+    </section>
+
+    @if (cargando()) {
+      <section class="state-card" role="status" aria-live="polite">
+        <i class="material-icons" aria-hidden="true">hourglass_empty</i>
+        <h2>Cargando usuarios</h2>
+        <p>Estamos consultando los perfiles registrados.</p>
+      </section>
+    }
+
+    @if (!cargando() && error()) {
+      <section class="state-card error" role="alert">
+        <i class="material-icons" aria-hidden="true">error</i>
+        <h2>Error al cargar</h2>
+        <p>{{ error() }}</p>
+      </section>
+    }
+
+    @if (!cargando() && !error() && usuariosFiltrados().length === 0) {
+      <section class="state-card">
+        <i class="material-icons" aria-hidden="true">person_off</i>
+        <h2>Sin usuarios</h2>
+        <p>No hay perfiles que coincidan con los filtros actuales.</p>
+      </section>
+    }
+
+    <section class="users-grid" aria-label="Listado de usuarios">
+      @for (usuario of usuariosFiltrados(); track usuario.uid) {
+        <article class="user-card">
+          <header class="user-header">
+            <img
+              [src]="usuario.avatarUrl || 'assets/avatars/avatar-1.png'"
+              [alt]="'Avatar de ' + usuario.nombre"
+            />
+
+            <section>
+              <p>{{ rolUsuario(usuario) === 'admin' ? 'Administrador' : 'Ciudadano' }}</p>
+              <h2>{{ usuario.nombre || 'Usuario sin nombre' }}</h2>
+            </section>
+          </header>
+
+          <dl class="user-details">
+            <div>
+              <dt>Correo</dt>
+              <dd>{{ usuario.email }}</dd>
+            </div>
+
+            <div>
+              <dt>Telefono</dt>
+              <dd>{{ usuario.telefono || 'No registrado' }}</dd>
+            </div>
+
+            <div>
+              <dt>Ciudad</dt>
+              <dd>{{ usuario.ciudad || 'No registrada' }}</dd>
+            </div>
+
+            <div>
+              <dt>Favoritos</dt>
+              <dd>{{ usuario.rutasFavoritas?.length || 0 }}</dd>
+            </div>
+          </dl>
+
+          <footer class="role-actions" aria-label="Cambiar rol del usuario">
+            <button
+              type="button"
+              [disabled]="actualizando() === usuario.uid || rolUsuario(usuario) === 'usuario'"
+              (click)="cambiarRol(usuario, 'usuario')"
+            >
+              <i class="material-icons" aria-hidden="true">person</i>
+              Usuario
+            </button>
+
+            <button
+              type="button"
+              class="admin"
+              [disabled]="actualizando() === usuario.uid || rolUsuario(usuario) === 'admin'"
+              (click)="cambiarRol(usuario, 'admin')"
+            >
+              <i class="material-icons" aria-hidden="true">admin_panel_settings</i>
+              Admin
+            </button>
+          </footer>
+        </article>
+      }
+    </section>
+  </main>
+</section>
