@@ -1,47 +1,67 @@
-import { Component, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, computed, inject, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { Sidebar } from '../../../layouts/sidebar/sidebar';
+import { AuthService } from '../../../services/auth';
+import { RutaService, RutaTransporte } from '../../../services/ruta.service';
+import { UsuarioService } from '../../../services/usuario.service';
 
 @Component({
   selector: 'app-favoritos',
-  imports: [Sidebar],
+  imports: [RouterLink, Sidebar],
   templateUrl: './favoritos.html',
   styleUrl: './favoritos.scss',
 })
 export class Favoritos {
-  favoritos = signal([
-    {
-      id: 1,
-      nombre: 'Casa → Trabajo',
-      ruta: 'Colonia Palmira a Centro Corporativo',
-      icono: 'home',
-      color: 'blue',
-      tiempo: '25 min',
-      precio: 'L. 15.00',
-    },
-    {
-      id: 2,
-      nombre: 'Casa → Universidad',
-      ruta: 'Colonia Palmira a UNAH',
-      icono: 'school',
-      color: 'orange',
-      tiempo: '45 min',
-      precio: 'L. 13.00',
-    },
-    {
-      id: 3,
-      nombre: 'Mall → Casa',
-      ruta: 'Multiplaza a Colonia Palmira',
-      icono: 'shopping_bag',
-      color: 'green',
-      tiempo: '15 min',
-      precio: 'L. 15.00',
-    },
-  ]);
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private rutaService = inject(RutaService);
+  private usuarioService = inject(UsuarioService);
 
-  constructor(private router: Router) {}
+  rutas = signal<RutaTransporte[]>([]);
+  favoritosIds = signal<string[]>([]);
+  usuarioId = signal<string | null>(null);
+  cargando = signal(true);
+  eliminando = signal<string | null>(null);
+  error = signal('');
 
-  verRuta(ruta: any) {
+  favoritos = computed(() =>
+    this.rutas().filter((ruta) => ruta.id && this.favoritosIds().includes(ruta.id))
+  );
+
+  constructor() {
+    this.cargarUsuario();
+
+    this.rutaService
+      .getRutas()
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: (rutas) => {
+          this.rutas.set(rutas);
+          this.cargando.set(false);
+        },
+        error: () => {
+          this.error.set('No se pudieron cargar tus rutas favoritas.');
+          this.cargando.set(false);
+        },
+      });
+  }
+
+  async cargarUsuario() {
+    const usuario = await this.authService.obtenerUsuarioActual();
+    this.usuarioId.set(usuario?.uid ?? null);
+
+    if (!usuario) {
+      this.favoritosIds.set([]);
+      return;
+    }
+
+    const perfil = await this.authService.obtenerPerfilUsuario(usuario.uid);
+    this.favoritosIds.set(perfil?.rutasFavoritas ?? []);
+  }
+
+  verRuta(ruta: RutaTransporte) {
     this.router.navigate(['/dashboard'], {
       queryParams: {
         paso: 4,
@@ -50,7 +70,25 @@ export class Favoritos {
     });
   }
 
-  eliminarFavorito(id: number) {
-    this.favoritos.update((items) => items.filter((item) => item.id !== id));
+  async eliminarFavorito(id?: string) {
+    if (!id || !this.usuarioId()) return;
+
+    this.eliminando.set(id);
+
+    try {
+      await this.usuarioService.eliminarRutaFavorita(this.usuarioId()!, id);
+      this.favoritosIds.update((items) => items.filter((item) => item !== id));
+    } finally {
+      this.eliminando.set(null);
+    }
+  }
+
+  tiempoEstimado(ruta: RutaTransporte) {
+    const paradas = ruta.paradas?.length || 1;
+    return `${Math.max(12, paradas * 6)} min`;
+  }
+
+  paradasResumen(ruta: RutaTransporte) {
+    return ruta.paradas?.length ? `${ruta.paradas.length} paradas` : 'Sin paradas';
   }
 }

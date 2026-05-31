@@ -1,5 +1,18 @@
 import { Injectable, Injector, inject, runInInjectionContext } from '@angular/core';
-import { doc, Firestore, getDoc, setDoc } from '@angular/fire/firestore';
+import {
+  arrayRemove,
+  arrayUnion,
+  collection,
+  collectionData,
+  doc,
+  Firestore,
+  getDoc,
+  orderBy,
+  query,
+  setDoc,
+  updateDoc,
+} from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
 
 export type UserRole = 'usuario' | 'admin';
 
@@ -36,6 +49,13 @@ export class UsuarioService {
     return documento.data() as PerfilUsuario;
   }
 
+  getUsuarios(): Observable<PerfilUsuario[]> {
+    const usuariosCollection = collection(this.firestore, 'usuarios');
+    const q = query(usuariosCollection, orderBy('nombre', 'asc'));
+
+    return collectionData(q, { idField: 'uid' }) as Observable<PerfilUsuario[]>;
+  }
+
   async crearPerfil(uid: string, perfil: Omit<PerfilUsuario, 'uid'>) {
     const role: UserRole = perfil.role ?? this.normalizarRol(perfil.rol);
 
@@ -47,6 +67,25 @@ export class UsuarioService {
         rol: role,
       })
     );
+  }
+
+  actualizarRol(uid: string, role: UserRole) {
+    return updateDoc(doc(this.firestore, 'usuarios', uid), {
+      role,
+      rol: role,
+    });
+  }
+
+  agregarRutaFavorita(uid: string, rutaId: string) {
+    return updateDoc(doc(this.firestore, 'usuarios', uid), {
+      rutasFavoritas: arrayUnion(rutaId),
+    });
+  }
+
+  eliminarRutaFavorita(uid: string, rutaId: string) {
+    return updateDoc(doc(this.firestore, 'usuarios', uid), {
+      rutasFavoritas: arrayRemove(rutaId),
+    });
   }
 
   normalizarRol(valor?: string | null): UserRole {
