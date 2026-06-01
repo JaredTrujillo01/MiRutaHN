@@ -50,7 +50,9 @@ export class Dashboard implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.map?.off();
     this.map?.remove();
+    this.detailMap?.off();
     this.detailMap?.remove();
   }
 
@@ -58,11 +60,16 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     if (!this.mapaExplorar) return;
 
     if (this.map) {
+      this.map.off();
       this.map.remove();
       this.map = undefined;
     }
 
-    this.map = L.map(this.mapaExplorar.nativeElement).setView(
+    this.map = L.map(this.mapaExplorar.nativeElement, {
+      zoomAnimation: false,
+      fadeAnimation: false,
+      markerZoomAnimation: false,
+    }).setView(
       [15.5042, -88.025],
       13
     );
@@ -75,7 +82,7 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     this.rutasLayer = L.layerGroup().addTo(this.map);
     this.paradasLayer = L.layerGroup().addTo(this.map);
 
-    setTimeout(() => this.map?.invalidateSize(), 400);
+    setTimeout(() => this.map?.invalidateSize({ animate: false }), 400);
   }
 
   cargarRutas() {
@@ -150,6 +157,7 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     this.rutaSeleccionada.set(ruta);
     this.paso.set(4);
 
+    this.map?.off();
     this.map?.remove();
     this.map = undefined;
 
@@ -166,6 +174,7 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     this.rutasFiltradas.set(this.rutas());
 
     if (this.detailMap) {
+      this.detailMap.off();
       this.detailMap.remove();
       this.detailMap = undefined;
     }
@@ -183,11 +192,16 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     if (!this.mapaDetalle) return;
 
     if (this.detailMap) {
+      this.detailMap.off();
       this.detailMap.remove();
       this.detailMap = undefined;
     }
 
-    this.detailMap = L.map(this.mapaDetalle.nativeElement).setView(
+    this.detailMap = L.map(this.mapaDetalle.nativeElement, {
+      zoomAnimation: false,
+      fadeAnimation: false,
+      markerZoomAnimation: false,
+    }).setView(
       [15.5042, -88.025],
       13
     );
@@ -200,7 +214,7 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     this.detalleRutaLayer = L.layerGroup().addTo(this.detailMap);
     this.detalleParadasLayer = L.layerGroup().addTo(this.detailMap);
 
-    setTimeout(() => this.detailMap?.invalidateSize(), 300);
+    setTimeout(() => this.detailMap?.invalidateSize({ animate: false }), 300);
   }
 
   dibujarRutas(rutas: RutaTransporte[]) {
@@ -250,7 +264,10 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     });
 
     if (bounds.length > 0) {
-      this.map.fitBounds(L.latLngBounds(bounds), { padding: [40, 40] });
+      this.map.fitBounds(L.latLngBounds(bounds), {
+        padding: [40, 40],
+        animate: false,
+      });
     }
   }
 
@@ -273,6 +290,7 @@ export class Dashboard implements AfterViewInit, OnDestroy {
 
       this.detailMap.fitBounds(L.latLngBounds(recorrido), {
         padding: [40, 40],
+        animate: false,
       });
     }
 

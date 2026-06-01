@@ -71,6 +71,13 @@
   margin-bottom: 1rem;
 }
 
+.lista-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
 .lista-header h2 {
   font-size: 1.2rem;
   margin-bottom: 0.25rem;
@@ -155,6 +162,36 @@
 .ruta-top p {
   color: #64748b;
   font-size: 0.8rem;
+}
+
+.tipo-propuesta {
+  display: inline-flex;
+  width: fit-content;
+  margin-bottom: 0.25rem;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 0.22rem 0.55rem;
+  font-size: 0.62rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.motivo-cambio {
+  margin: 0;
+  border-left: 4px solid #2563eb;
+  background: #eff6ff;
+  color: #334155;
+  border-radius: 12px;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.badge.tipo {
+  background: #e0f2fe;
+  color: #0369a1;
+  margin-left: 0.35rem;
 }
 
 .estado {
@@ -303,12 +340,52 @@ button:disabled {
 }
 
 .validation-panel {
-  align-self: start;
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  opacity: 0;
+  transform: scale(0.98);
+  pointer-events: none;
+  transition: 0.2s ease;
+}
+
+.validation-panel.open {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.validation-backdrop {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 850;
+  border: 0;
+  background: rgba(15, 23, 42, 0.52);
+  backdrop-filter: blur(5px);
+}
+
+.mobile-close {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 14px;
+  background: #f1f5f9;
+  color: #334155;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
 }
 
 .sticky-card {
   display: grid;
   gap: 1rem;
+  width: min(100%, 560px);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
 }
 
 .selected-summary {
@@ -488,6 +565,34 @@ button:disabled {
     min-height: 38px;
     font-size: 0.82rem;
   }
+
+  .validation-panel {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    display: block;
+    max-height: 88vh;
+    padding: 0.75rem;
+    opacity: 1;
+    transform: translateY(110%);
+    transition: transform 0.22s ease;
+  }
+
+  .validation-panel:not(.open) {
+    transform: translateY(110%);
+  }
+
+  .validation-panel.open {
+    transform: translateY(0);
+  }
+
+  .validation-panel .lista-card {
+    width: 100%;
+    max-height: calc(88vh - 1.5rem);
+    border-radius: 24px 24px 18px 18px;
+    box-shadow: 0 -18px 45px rgba(15, 23, 42, 0.22);
+  }
 }
 
 @media (min-width: 760px) {
@@ -501,16 +606,6 @@ button:disabled {
     width: calc(100% - 280px);
     margin-left: 280px;
     padding: 2.5rem;
-  }
-
-  .comunidad-layout {
-    grid-template-columns: 1.15fr 0.85fr;
-    align-items: start;
-  }
-
-  .sticky-card {
-    position: sticky;
-    top: 2rem;
   }
 
   button:hover,

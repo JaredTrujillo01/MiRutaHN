@@ -107,6 +107,7 @@ export class Colaborar implements AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.map) {
+      this.map.off();
       this.map.remove();
     }
   }
@@ -143,10 +144,15 @@ export class Colaborar implements AfterViewInit, OnDestroy {
 
   iniciarMapa() {
     if (this.map) {
+      this.map.off();
       this.map.remove();
     }
 
-    this.map = L.map(this.mapaPropuesta.nativeElement).setView(
+    this.map = L.map(this.mapaPropuesta.nativeElement, {
+      zoomAnimation: false,
+      fadeAnimation: false,
+      markerZoomAnimation: false,
+    }).setView(
       [15.5042, -88.025],
       13
     );
@@ -175,8 +181,8 @@ export class Colaborar implements AfterViewInit, OnDestroy {
       this.agregarPuntoGuia(e.latlng.lat, e.latlng.lng);
     });
 
-    requestAnimationFrame(() => this.map.invalidateSize());
-    setTimeout(() => this.map.invalidateSize(), 800);
+    requestAnimationFrame(() => this.map.invalidateSize({ animate: false }));
+    setTimeout(() => this.map.invalidateSize({ animate: false }), 800);
   }
 
   actualizarCampo(campo: string, valor: string | number) {
@@ -346,7 +352,10 @@ export class Colaborar implements AfterViewInit, OnDestroy {
     const boundsSource = recorrido.length > 0 ? recorrido : guia;
 
     if (boundsSource.length > 0 && this.map) {
-      this.map.fitBounds(L.latLngBounds(boundsSource), { padding: [30, 30] });
+      this.map.fitBounds(L.latLngBounds(boundsSource), {
+        padding: [30, 30],
+        animate: false,
+      });
     }
   }
 

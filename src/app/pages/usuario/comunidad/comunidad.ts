@@ -9,6 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import * as L from 'leaflet';
 import { Timestamp } from '@angular/fire/firestore';
 
@@ -38,6 +39,7 @@ export class Comunidad implements AfterViewInit, OnDestroy {
 
   private rutaService = inject(RutaService);
   private authService = inject(AuthService);
+  private activatedRoute = inject(ActivatedRoute);
 
   approvalThreshold = APPROVAL_THRESHOLD;
 
@@ -76,7 +78,10 @@ export class Comunidad implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.miniMaps.forEach((mapa) => mapa.remove());
+    this.miniMaps.forEach((mapa) => {
+      mapa.off();
+      mapa.remove();
+    });
     this.miniMaps.clear();
     this.miniMapObservers.forEach((observer) => observer.disconnect());
     this.miniMapObservers.clear();
@@ -102,6 +107,7 @@ export class Comunidad implements AfterViewInit, OnDestroy {
       next: (data) => {
         this.propuestas.set(data);
         this.cargando.set(false);
+        this.seleccionarPropuestaDesdeUrl(data);
 
         requestAnimationFrame(() => this.inicializarMiniMapas());
       },
@@ -171,6 +177,9 @@ export class Comunidad implements AfterViewInit, OnDestroy {
       }
 
       const mapa = L.map(contenedor, {
+        zoomAnimation: false,
+        fadeAnimation: false,
+        markerZoomAnimation: false,
         zoomControl: false,
         attributionControl: false,
         dragging: false,
@@ -257,6 +266,7 @@ export class Comunidad implements AfterViewInit, OnDestroy {
         if (bounds) {
           mapa.fitBounds(bounds, {
             padding: [20, 20],
+            animate: false,
           });
         }
       } catch (err) {
@@ -290,6 +300,39 @@ export class Comunidad implements AfterViewInit, OnDestroy {
       next: (data) => this.validaciones.set(data),
       error: (err) => console.error(err),
     });
+  }
+
+  cerrarValidacionMovil() {
+    this.propuestaSeleccionada.set(null);
+    this.validaciones.set([]);
+    this.nuevaValidacion.set({ comentario: '' });
+  }
+
+  private seleccionarPropuestaDesdeUrl(propuestas: PropuestaRuta[]) {
+    const propuestaId =
+      this.activatedRoute.snapshot.queryParamMap.get('propuestaId');
+
+    if (!propuestaId || this.propuestaSeleccionada()?.id === propuestaId) {
+      return;
+    }
+
+    const propuesta = propuestas.find((item) => item.id === propuestaId);
+
+    if (propuesta) {
+      this.seleccionarPropuesta(propuesta);
+    }
+  }
+
+  tipoPropuestaTexto(propuesta?: PropuestaRuta | null) {
+    if (propuesta?.tipoPropuesta === 'actualizacion') {
+      return 'Solicitud de actualización';
+    }
+
+    if (propuesta?.tipoPropuesta === 'eliminacion') {
+      return 'Reporte de ruta falsa';
+    }
+
+    return 'Nueva ruta';
   }
 
   actualizarComentario(comentario: string) {
