@@ -1,178 +1,392 @@
-<div class="perfil-page">
+<section class="perfil-page">
   <app-sidebar></app-sidebar>
 
-  <main class="perfil-main">
+  <main class="perfil-main" aria-labelledby="perfil-title">
     @if (cargando()) {
-      <div class="loading-card">
-        <i class="material-icons">hourglass_empty</i>
+      <section class="loading-card" role="status" aria-live="polite">
+        <i class="material-icons" aria-hidden="true">hourglass_empty</i>
         <p>Cargando perfil...</p>
-      </div>
+      </section>
     }
 
-    @if (mensaje) {
-      <div class="alerta exito">{{ mensaje }}</div>
+    @if (mensaje()) {
+      <section class="alerta exito" role="status">
+        {{ mensaje() }}
+      </section>
     }
 
-    @if (error) {
-      <div class="alerta error">{{ error }}</div>
+    @if (error()) {
+      <section class="alerta error" role="alert">
+        {{ error() }}
+      </section>
     }
 
     @if (usuario() && !cargando()) {
-      <section class="perfil-hero">
-        <div class="hero-bg"></div>
+      <header class="perfil-hero">
+        <section class="hero-bg" aria-hidden="true"></section>
 
-        <div class="perfil-header">
+        <section class="perfil-header">
           <img
             class="avatar-principal"
             [src]="usuario()?.avatarUrl || 'assets/avatars/avatar-1.png'"
-            alt="Avatar de usuario"
+            alt="Avatar del perfil"
           />
 
-          <div class="perfil-info">
-            <span class="badge">{{ usuario()?.rol || 'Ciudadano' }}</span>
-            <h1>{{ usuario()?.nombre }}</h1>
-            <p>{{ usuario()?.email }}</p>
-          </div>
+          <section class="perfil-info">
+            <p class="badge">
+              {{ esAdmin() ? 'Administrador' : 'Ciudadano' }}
+            </p>
 
-          <button class="btn-editar" (click)="iniciarEdicion()">
-            <i class="material-icons">edit</i>
+            <h1 id="perfil-title">{{ usuario()?.nombre }}</h1>
+            <p>{{ usuario()?.email }}</p>
+          </section>
+
+          <button class="btn-editar" type="button" (click)="iniciarEdicion()">
+            <i class="material-icons" aria-hidden="true">edit</i>
             Editar perfil
           </button>
-        </div>
+        </section>
+      </header>
+
+      <section class="stats-grid" aria-label="Resumen del perfil">
+        @if (!esAdmin()) {
+          <article class="stat-card">
+            <i class="material-icons" aria-hidden="true">add_road</i>
+            <section>
+              <span>Propuestas</span>
+              <strong>{{ propuestasUsuario() }} enviadas</strong>
+            </section>
+          </article>
+
+          <article class="stat-card">
+            <i class="material-icons" aria-hidden="true">how_to_vote</i>
+            <section>
+              <span>Validaciones</span>
+              <strong>{{ validacionesUsuario() }} realizadas</strong>
+            </section>
+          </article>
+
+          <article class="stat-card">
+            <i class="material-icons" aria-hidden="true">rate_review</i>
+            <section>
+              <span>Notas</span>
+              <strong>{{ notasUsuario() }} publicadas</strong>
+            </section>
+          </article>
+
+          <article class="stat-card">
+            <i class="material-icons" aria-hidden="true">location_city</i>
+            <section>
+              <span>Ciudad</span>
+              <strong>{{ usuario()?.ciudad || 'No registrada' }}</strong>
+            </section>
+          </article>
+        }
+
+        @if (esAdmin()) {
+          <article class="stat-card">
+            <i class="material-icons" aria-hidden="true">route</i>
+            <section>
+              <span>Rutas oficiales</span>
+              <strong>{{ rutasActivas() }} activas</strong>
+            </section>
+          </article>
+
+          <article class="stat-card">
+            <i class="material-icons" aria-hidden="true">pending_actions</i>
+            <section>
+              <span>Supervisión</span>
+              <strong>{{ propuestasPendientesAdmin() }} pendientes</strong>
+            </section>
+          </article>
+
+          <article class="stat-card">
+            <i class="material-icons" aria-hidden="true">fact_check</i>
+            <section>
+              <span>Procesadas</span>
+              <strong>{{ propuestasCerradasAdmin() }} cerradas</strong>
+            </section>
+          </article>
+
+          <article class="stat-card">
+            <i class="material-icons" aria-hidden="true">rate_review</i>
+            <section>
+              <span>Notas activas</span>
+              <strong>{{ notasActivas() }} en revisión</strong>
+            </section>
+          </article>
+        }
       </section>
 
       <section class="perfil-grid">
-        <div class="stats-grid">
-          <article class="stat-card">
-            <i class="material-icons">favorite</i>
-            <div>
-              <span>Favoritos</span>
-              <strong>{{ usuario()?.rutasFavoritas?.length ?? 0 }} rutas</strong>
-            </div>
-          </article>
+        <section class="nivel-card" aria-labelledby="nivel-title">
+          <header class="nivel-header">
+            <section>
+              <h2 id="nivel-title">
+                {{ esAdmin() ? 'Rol de supervisión' : 'Nivel ciudadano' }}
+              </h2>
 
-          <article class="stat-card">
-            <i class="material-icons">report_problem</i>
-            <div>
-              <span>Actividad</span>
-              <strong>Reportes activos</strong>
-            </div>
-          </article>
+              <p>
+                {{ esAdmin()
+                  ? 'Resumen de control sobre rutas, propuestas y reportes comunitarios.'
+                  : 'Tu contribución al crecimiento colaborativo de MiRutaHN.' }}
+              </p>
+            </section>
 
-          <article class="stat-card">
-            <i class="material-icons">location_city</i>
-            <div>
-              <span>Ciudad</span>
-              <strong>{{ usuario()?.ciudad || 'No registrada' }}</strong>
-            </div>
-          </article>
-        </div>
+            <p class="nivel-badge">{{ nivelCiudadano() }}</p>
+          </header>
 
-        <section class="info-card">
-          <div class="section-title">
-            <h2>Información personal</h2>
+          <section class="progreso" aria-label="Progreso de participación">
+            <span [style.width.%]="porcentajeParticipacion()"></span>
+          </section>
+        </section>
+
+        <section class="participacion-card" aria-labelledby="participacion-title">
+          <header class="section-title">
+            <h2 id="participacion-title">
+              {{ esAdmin() ? 'Panel de supervisión' : 'Participación ciudadana' }}
+            </h2>
+
+            <p>
+              {{ esAdmin()
+                ? 'Indicadores principales para monitorear el sistema.'
+                : 'Tus aportes ayudan a mantener las rutas actualizadas.' }}
+            </p>
+          </header>
+
+          <section class="participacion-grid">
+            @if (!esAdmin()) {
+              <article>
+                <span>Propuestas enviadas</span>
+                <strong>{{ propuestasUsuario() }}</strong>
+              </article>
+
+              <article>
+                <span>Propuestas aprobadas</span>
+                <strong>{{ propuestasAprobadasUsuario() }}</strong>
+              </article>
+
+              <article>
+                <span>Validaciones realizadas</span>
+                <strong>{{ validacionesUsuario() }}</strong>
+              </article>
+
+              <article>
+                <span>Notas comunitarias</span>
+                <strong>{{ notasUsuario() }}</strong>
+              </article>
+            }
+
+            @if (esAdmin()) {
+              <article>
+                <span>Rutas activas</span>
+                <strong>{{ rutasActivas() }}</strong>
+              </article>
+
+              <article>
+                <span>Propuestas pendientes</span>
+                <strong>{{ propuestasPendientesAdmin() }}</strong>
+              </article>
+
+              <article>
+                <span>Propuestas cerradas</span>
+                <strong>{{ propuestasCerradasAdmin() }}</strong>
+              </article>
+
+              <article>
+                <span>Notas activas</span>
+                <strong>{{ notasActivas() }}</strong>
+              </article>
+            }
+          </section>
+        </section>
+
+        <section class="actividad-card" aria-labelledby="actividad-title">
+          <header class="section-title">
+            <h2 id="actividad-title">Actividad reciente</h2>
+            <p>
+              {{ esAdmin()
+                ? 'Últimos elementos que requieren supervisión o seguimiento.'
+                : 'Tus acciones recientes dentro de la comunidad.' }}
+            </p>
+          </header>
+
+          @if (actividadReciente().length === 0) {
+            <article class="empty-card">
+              <i class="material-icons" aria-hidden="true">history</i>
+              <p>No hay actividad reciente para mostrar.</p>
+            </article>
+          }
+
+          @if (actividadReciente().length > 0) {
+            <section class="timeline">
+              @for (item of actividadReciente(); track $index) {
+                <article class="timeline-item">
+                  <i class="material-icons" aria-hidden="true">{{ item.icono }}</i>
+
+                  <section>
+                    <strong>{{ item.titulo }}</strong>
+                    <p>{{ item.descripcion }}</p>
+                    <small>{{ item.fecha }}</small>
+                  </section>
+                </article>
+              }
+            </section>
+          }
+        </section>
+
+        <section class="accesos-card" aria-labelledby="accesos-title">
+          <header class="section-title">
+            <h2 id="accesos-title">Accesos rápidos</h2>
+            <p>
+              {{ esAdmin()
+                ? 'Herramientas para supervisar el funcionamiento de MiRutaHN.'
+                : 'Continúa colaborando con la comunidad.' }}
+            </p>
+          </header>
+
+          <nav class="quick-actions" aria-label="Accesos del perfil">
+            @if (!esAdmin()) {
+              <a routerLink="/proponer-ruta">
+                <i class="material-icons" aria-hidden="true">add_road</i>
+                Nueva propuesta
+              </a>
+
+              <a routerLink="/comunidad">
+                <i class="material-icons" aria-hidden="true">how_to_vote</i>
+                Validar rutas
+              </a>
+
+              <a routerLink="/notas-comunitarias">
+                <i class="material-icons" aria-hidden="true">rate_review</i>
+                Notas comunitarias
+              </a>
+            }
+
+            @if (esAdmin()) {
+              <a routerLink="/admin/rutas">
+                <i class="material-icons" aria-hidden="true">route</i>
+                Gestionar rutas
+              </a>
+
+              <a routerLink="/comunidad">
+                <i class="material-icons" aria-hidden="true">fact_check</i>
+                Revisar validaciones
+              </a>
+
+              <a routerLink="/admin/usuarios">
+                <i class="material-icons" aria-hidden="true">groups</i>
+                Ver usuarios
+              </a>
+            }
+          </nav>
+        </section>
+
+        <section class="info-card" aria-labelledby="info-title">
+          <header class="section-title">
+            <h2 id="info-title">Información personal</h2>
             <p>Datos principales de tu cuenta.</p>
-          </div>
+          </header>
 
           @if (!editando()) {
-            <div class="info-grid">
-              <div class="info-item">
-                <label>Nombre completo</label>
-                <span>{{ usuario()?.nombre }}</span>
-              </div>
+            <section class="info-grid">
+              <article class="info-item">
+                <span>Nombre completo</span>
+                <strong>{{ usuario()?.nombre }}</strong>
+              </article>
 
-              <div class="info-item">
-                <label>Correo electrónico</label>
-                <span>{{ usuario()?.email }}</span>
-              </div>
+              <article class="info-item">
+                <span>Correo electrónico</span>
+                <strong>{{ usuario()?.email }}</strong>
+              </article>
 
-              <div class="info-item">
-                <label>Teléfono</label>
-                <span>{{ usuario()?.telefono || 'No registrado' }}</span>
-              </div>
+              <article class="info-item">
+                <span>Teléfono</span>
+                <strong>{{ usuario()?.telefono || 'No registrado' }}</strong>
+              </article>
 
-              <div class="info-item">
-                <label>Ciudad</label>
-                <span>{{ usuario()?.ciudad || 'No registrada' }}</span>
-              </div>
-            </div>
+              <article class="info-item">
+                <span>Ciudad</span>
+                <strong>{{ usuario()?.ciudad || 'No registrada' }}</strong>
+              </article>
+            </section>
           }
 
           @if (editando()) {
-            <div class="form-editar">
-              <div class="avatar-selector">
+            <form class="form-editar">
+              <section class="avatar-selector">
                 <label>Elige tu avatar</label>
 
-                <div class="avatar-grid">
+                <section class="avatar-grid">
                   @for (avatar of avatares; track avatar) {
                     <button
                       type="button"
                       class="avatar-option"
-                      [class.active]="avatarEdit === avatar"
+                      [class.active]="avatarEdit() === avatar"
                       (click)="seleccionarAvatar(avatar)"
                     >
                       <img [src]="avatar" alt="Avatar disponible" />
                     </button>
                   }
-                </div>
-              </div>
+                </section>
+              </section>
 
-              <div class="form-grid">
-                <div class="campo">
-                  <label>Nombre completo</label>
-                  <input type="text" [(ngModel)]="nombreEdit" />
-                </div>
+              <section class="form-grid">
+                <label class="campo" for="nombreEdit">
+                  Nombre completo
+                  <input id="nombreEdit" type="text" [ngModel]="nombreEdit()" (ngModelChange)="nombreEdit.set($event)" name="nombreEdit" />
+                </label>
 
-                <div class="campo">
-                  <label>Teléfono</label>
-                  <input type="text" [(ngModel)]="telefonoEdit" />
-                </div>
+                <label class="campo" for="telefonoEdit">
+                  Teléfono
+                  <input id="telefonoEdit" type="text" [ngModel]="telefonoEdit()" (ngModelChange)="telefonoEdit.set($event)" name="telefonoEdit" />
+                </label>
 
-                <div class="campo">
-                  <label>Ciudad</label>
-                  <input type="text" [(ngModel)]="ciudadEdit" />
-                </div>
+                <label class="campo" for="ciudadEdit">
+                  Ciudad
+                  <input id="ciudadEdit" type="text" [ngModel]="ciudadEdit()" (ngModelChange)="ciudadEdit.set($event)" name="ciudadEdit" />
+                </label>
 
-                <div class="campo disabled">
-                  <label>Correo electrónico</label>
-                  <input type="text" [value]="usuario()?.email" disabled />
-                </div>
-              </div>
+                <label class="campo disabled" for="emailPerfil">
+                  Correo electrónico
+                  <input id="emailPerfil" type="text" [value]="usuario()?.email" disabled />
+                </label>
+              </section>
 
-              <div class="acciones">
-                <button class="btn-guardar" (click)="guardarCambios()">
-                  <i class="material-icons">save</i>
+              <footer class="acciones">
+                <button class="btn-guardar" type="button" (click)="guardarCambios()">
+                  <i class="material-icons" aria-hidden="true">save</i>
                   Guardar cambios
                 </button>
 
-                <button class="btn-cancelar" (click)="cancelarEdicion()">
+                <button class="btn-cancelar" type="button" (click)="cancelarEdicion()">
                   Cancelar
                 </button>
-              </div>
-            </div>
+              </footer>
+            </form>
           }
         </section>
 
         <section class="security-card">
-          <div>
+          <section>
             <h2>Seguridad</h2>
             <p>Administra opciones importantes de tu cuenta.</p>
-          </div>
+          </section>
 
-          <button class="btn-secundario" (click)="abrirPasswordForm()">
-            <i class="material-icons">lock</i>
+          <button class="btn-secundario" type="button" (click)="abrirPasswordForm()">
+            <i class="material-icons" aria-hidden="true">lock</i>
             Cambiar contraseña
           </button>
         </section>
 
         <section class="logout-card">
-          <div>
+          <section>
             <h2>Cerrar sesión</h2>
-            <p>Sal de tu cuenta y vuelve a la página principal.</p>
-          </div>
+            <p>Sal de tu cuenta y vuelve a la plataforma pública.</p>
+          </section>
 
-          <button class="btn-logout" (click)="cerrarSesion()">
-            <i class="material-icons">logout</i>
+          <button class="btn-logout" type="button" (click)="cerrarSesion()">
+            <i class="material-icons" aria-hidden="true">logout</i>
             Cerrar sesión
           </button>
         </section>
@@ -180,65 +394,46 @@
     }
 
     @if (mostrarPasswordForm()) {
-      <div class="password-overlay">
-        <section class="password-card">
-          <button class="btn-close-password" (click)="cerrarPasswordForm()">
-            <i class="material-icons">close</i>
+      <section class="password-overlay">
+        <article class="password-card">
+          <button class="btn-close-password" type="button" (click)="cerrarPasswordForm()">
+            <i class="material-icons" aria-hidden="true">close</i>
           </button>
 
-          <div class="section-title">
+          <header class="section-title">
             <h2>Cambiar contraseña</h2>
             <p>Ingresa tu contraseña actual y define una nueva.</p>
-          </div>
+          </header>
 
-          <div class="password-grid">
-            <div class="campo">
-              <label>Contraseña actual</label>
-              <input
-                type="password"
-                [(ngModel)]="passwordActual"
-                placeholder="Ingresa tu contraseña actual"
-              />
-            </div>
+          <form class="password-grid">
+            <label class="campo" for="passwordActual">
+              Contraseña actual
+              <input id="passwordActual" type="password" [ngModel]="passwordActual()" (ngModelChange)="passwordActual.set($event)" name="passwordActual" />
+            </label>
 
-            <div class="campo">
-              <label>Nueva contraseña</label>
-              <input
-                type="password"
-                [(ngModel)]="passwordNueva"
-                placeholder="Mínimo 6 caracteres"
-              />
-            </div>
+            <label class="campo" for="passwordNueva">
+              Nueva contraseña
+              <input id="passwordNueva" type="password" [ngModel]="passwordNueva()" (ngModelChange)="passwordNueva.set($event)" name="passwordNueva" />
+            </label>
 
-            <div class="campo">
-              <label>Confirmar nueva contraseña</label>
-              <input
-                type="password"
-                [(ngModel)]="passwordConfirmar"
-                placeholder="Repite la nueva contraseña"
-              />
-            </div>
-          </div>
+            <label class="campo" for="passwordConfirmar">
+              Confirmar nueva contraseña
+              <input id="passwordConfirmar" type="password" [ngModel]="passwordConfirmar()" (ngModelChange)="passwordConfirmar.set($event)" name="passwordConfirmar" />
+            </label>
+          </form>
 
-          <div class="acciones">
-            <button class="btn-guardar" (click)="cambiarPassword()">
-              <i class="material-icons">lock_reset</i>
+          <footer class="acciones">
+            <button class="btn-guardar" type="button" (click)="cambiarPassword()">
+              <i class="material-icons" aria-hidden="true">lock_reset</i>
               Actualizar contraseña
             </button>
 
-            <button class="btn-cancelar" (click)="cerrarPasswordForm()">
+            <button class="btn-cancelar" type="button" (click)="cerrarPasswordForm()">
               Cancelar
             </button>
-          </div>
-        </section>
-      </div>
-    }
-
-    @if (!usuario() && !cargando() && !error) {
-      <div class="loading-card">
-        <i class="material-icons">person_off</i>
-        <p>No se encontró el perfil.</p>
-      </div>
+          </footer>
+        </article>
+      </section>
     }
   </main>
-</div>
+</section>

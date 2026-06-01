@@ -364,6 +364,25 @@ export class RutaService {
     );
   }
 
+  getValidacionesRuta(): Observable<ValidacionRuta[]> {
+    return this.inInjectionContext(() =>
+      combineLatest([
+        this.collectionDataWithSource<ValidacionRuta>(
+          this.validacionesCollection
+        ),
+        this.collectionDataWithSource<ValidacionRuta>(
+          this.validacionesLegacyCollection
+        ),
+      ]).pipe(
+        map(([principal, legacy]) =>
+          this.mergeById(principal, legacy).sort(
+            (a, b) => this.fechaMillis(b.creadoEn) - this.fechaMillis(a.creadoEn)
+          )
+        )
+      )
+    );
+  }
+
   async createValidacionRuta(validacion: Omit<ValidacionRuta, 'id'>) {
     const propuestaParaAplicar = await this.inInjectionContext(() =>
       runTransaction(this.firestore, async (transaction) => {
