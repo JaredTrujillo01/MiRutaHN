@@ -55,6 +55,9 @@
                 <div class="ruta-color" [style.background]="propuesta.color"></div>
 
                 <div>
+                  <span class="tipo-propuesta">
+                    {{ tipoPropuestaTexto(propuesta) }}
+                  </span>
                   <h3>{{ propuesta.nombre }}</h3>
                   <p>Ruta {{ propuesta.numero }} · L. {{ propuesta.precio }}</p>
                 </div>
@@ -71,6 +74,13 @@
               <p class="descripcion">
                 {{ propuesta.descripcion || 'Sin descripción adicional.' }}
               </p>
+
+              @if (propuesta.tipoPropuesta === 'actualizacion') {
+                <p class="motivo-cambio">
+                  <strong>Motivo:</strong>
+                  {{ propuesta.motivoCambio || propuesta.comentarios || 'Sin motivo indicado.' }}
+                </p>
+              }
 
               <div class="ruta-info">
                 <span>
@@ -178,11 +188,31 @@
         </div>
       </section>
 
-      <aside class="validation-panel">
+      @if (propuestaSeleccionada()) {
+        <button
+          type="button"
+          class="validation-backdrop"
+          aria-label="Cerrar validación"
+          (click)="cerrarValidacionMovil()"
+        ></button>
+      }
+
+      <aside class="validation-panel" [class.open]="propuestaSeleccionada()">
         <div class="lista-card sticky-card">
           <div class="lista-header">
-            <h2>Tu validación</h2>
-            <p>Selecciona una propuesta para aprobar, rechazar o comentar.</p>
+            <div>
+              <h2>Tu validación</h2>
+              <p>Selecciona una propuesta para aprobar, rechazar o comentar.</p>
+            </div>
+
+            <button
+              type="button"
+              class="mobile-close"
+              aria-label="Cerrar validación"
+              (click)="cerrarValidacionMovil()"
+            >
+              <i class="material-icons" aria-hidden="true">close</i>
+            </button>
           </div>
 
           @if (!propuestaSeleccionada()) {
@@ -195,11 +225,12 @@
           @if (propuestaSeleccionada()) {
             <div class="selected-summary">
               <span class="badge">{{ propuestaSeleccionada()?.estado }}</span>
+              <span class="badge tipo">{{ tipoPropuestaTexto(propuestaSeleccionada()) }}</span>
 
               <h3>{{ propuestaSeleccionada()?.nombre }}</h3>
 
               <p>
-                {{ propuestaSeleccionada()?.comentarios || 'Sin comentario de contexto.' }}
+                {{ propuestaSeleccionada()?.motivoCambio || propuestaSeleccionada()?.comentarios || 'Sin comentario de contexto.' }}
               </p>
             </div>
 

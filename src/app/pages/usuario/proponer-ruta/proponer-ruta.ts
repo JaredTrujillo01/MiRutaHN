@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Timestamp } from '@angular/fire/firestore';
+import { ActivatedRoute } from '@angular/router';
 import * as L from 'leaflet';
 
 import { Sidebar } from '../../../layouts/sidebar/sidebar';
@@ -19,6 +20,7 @@ import {
   Parada,
   PropuestaRuta,
   RutaService,
+  RutaTransporte,
 } from '../../../services/ruta.service';
 import { AuthRequiredModal } from '../../../components/auth-required-modal/auth-required-modal';
 import {
@@ -45,9 +47,13 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
   private rutaService = inject(RutaService);
   private authService = inject(AuthService);
   private openRouteService = inject(OpenRouteService);
+  private activatedRoute = inject(ActivatedRoute);
 
   usuarioAuth = signal<any | null>(null);
   usuarioPerfil = signal<any | null>(null);
+  modoActualizacion = signal(false);
+  rutaOrigen = signal<RutaTransporte | null>(null);
+  motivoActualizacion = signal('');
 
   guardando = signal(false);
   calculandoRuta = signal(false);
@@ -97,14 +103,17 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
 
   async ngAfterViewInit() {
     await this.cargarUsuario();
+    this.cargarBorradorActualizacion();
 
     setTimeout(() => {
       this.iniciarMapa();
+      this.actualizarMapa();
     }, 350);
   }
 
   ngOnDestroy() {
     if (this.map) {
+      this.map.off();
       this.map.remove();
     }
   }
@@ -147,12 +156,74 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
     this.mostrarModalAuth.set(false);
   }
 
+  cargarBorradorActualizacion() {
+    if (this.activatedRoute.snapshot.queryParamMap.get('modo') !== 'actualizacion') {
+      return;
+    }
+
+    const borrador = sessionStorage.getItem('mirutahn_actualizacion_ruta');
+
+    if (!borrador) {
+      this.mostrarAlerta(
+        'No se encontró la ruta',
+        'Vuelve a rutas públicas y selecciona una ruta para actualizar.',
+        'warning'
+      );
+      return;
+    }
+
+    try {
+      const data = JSON.parse(borrador) as {
+        ruta?: RutaTransporte;
+        comentario?: string;
+      };
+
+      if (!data.ruta?.id) {
+        throw new Error('Borrador incompleto.');
+      }
+
+      const ruta = data.ruta;
+      const comentario = data.comentario || '';
+
+      this.modoActualizacion.set(true);
+      this.rutaOrigen.set(ruta);
+      this.motivoActualizacion.set(comentario);
+
+      this.nuevaPropuesta.set({
+        nombre: ruta.nombre || '',
+        numero: ruta.numero || '',
+        precio: Number(ruta.precio || 0),
+        horario: ruta.horario || '',
+        frecuencia: ruta.frecuencia || '',
+        color: ruta.color || '#2563eb',
+        descripcion: ruta.descripcion || '',
+        comentarios: comentario,
+      });
+
+      this.puntosGuia.set([...(ruta.puntosGuia || [])]);
+      this.recorrido.set([...(ruta.recorrido || ruta.puntosGuia || [])]);
+      this.paradas.set([...(ruta.paradas || [])]);
+    } catch (error) {
+      console.error(error);
+      this.mostrarAlerta(
+        'No se pudo cargar',
+        'La información temporal de la actualización no es válida.',
+        'error'
+      );
+    }
+  }
+
   iniciarMapa() {
     if (this.map) {
+      this.map.off();
       this.map.remove();
     }
 
-    this.map = L.map(this.mapaPropuesta.nativeElement).setView(
+    this.map = L.map(this.mapaPropuesta.nativeElement, {
+      zoomAnimation: false,
+      fadeAnimation: false,
+      markerZoomAnimation: false,
+    }).setView(
       [15.5042, -88.025],
       13
     );
@@ -181,10 +252,10 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
       this.agregarPuntoGuia(e.latlng.lat, e.latlng.lng);
     });
 
-    requestAnimationFrame(() => this.map.invalidateSize());
+    requestAnimationFrame(() => this.map.invalidateSize({ animate: false }));
 
     setTimeout(() => {
-      this.map.invalidateSize();
+      this.map.invalidateSize({ animate: false });
     }, 800);
   }
 
@@ -338,6 +409,19 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
     this.actualizarMapa();
   }
 
+  eliminarParada(index: number) {
+    this.paradas.update((actual) =>
+      actual
+        .filter((_, itemIndex) => itemIndex !== index)
+        .map((parada, itemIndex) => ({
+          ...parada,
+          orden: itemIndex + 1,
+        }))
+    );
+
+    this.actualizarMapa();
+  }
+
   deshacerPunto() {
     const puntos = this.puntosGuia();
 
@@ -398,7 +482,10 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
     const boundsSource = recorrido.length > 0 ? recorrido : guia;
 
     if (boundsSource.length > 0 && this.map) {
-      this.map.fitBounds(L.latLngBounds(boundsSource), { padding: [30, 30] });
+      this.map.fitBounds(L.latLngBounds(boundsSource), {
+        padding: [30, 30],
+        animate: false,
+      });
     }
   }
 
@@ -451,7 +538,31 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
     };
 
     try {
-      await this.rutaService.createPropuestaRuta(data);
+      if (this.modoActualizacion() && this.rutaOrigen()) {
+        await this.rutaService.crearPropuestaActualizacion(
+          this.rutaOrigen()!,
+          {
+            nombre: data.nombre,
+            numero: data.numero,
+            precio: data.precio,
+            horario: data.horario || 'No definido',
+            frecuencia: data.frecuencia || 'No definida',
+            color: data.color,
+            descripcion: data.descripcion,
+            puntosGuia: data.puntosGuia,
+            recorrido: data.recorrido,
+            paradas: data.paradas,
+          },
+          {
+            uid: usuario.uid,
+            nombre: this.usuarioPerfil()?.nombre || usuario.email || 'Ciudadano',
+          },
+          propuesta.comentarios || this.motivoActualizacion(),
+          Timestamp.now()
+        );
+      } else {
+        await this.rutaService.createPropuestaRuta(data);
+      }
 
       this.mostrarAlerta(
         'Propuesta enviada',
@@ -459,6 +570,7 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
         'success'
       );
 
+      sessionStorage.removeItem('mirutahn_actualizacion_ruta');
       this.resetFormulario();
     } catch (err) {
       console.error(err);
@@ -485,6 +597,10 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
       comentarios: '',
     });
 
+    this.modoActualizacion.set(false);
+    this.rutaOrigen.set(null);
+    this.motivoActualizacion.set('');
+    sessionStorage.removeItem('mirutahn_actualizacion_ruta');
     this.limpiarMapa();
   }
 }

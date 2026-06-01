@@ -5,9 +5,11 @@
     <header class="page-header">
       <div>
         <span class="badge">Colaboración ciudadana</span>
-        <h1>Proponer una ruta</h1>
+        <h1>{{ modoActualizacion() ? 'Actualizar ruta pública' : 'Proponer una ruta' }}</h1>
         <p>
-          Dibuja el recorrido, marca paradas y envía una propuesta para que la comunidad la valide.
+          {{ modoActualizacion()
+            ? 'Ajusta los datos, recorrido o paradas de la ruta y envía la actualización a validación.'
+            : 'Dibuja el recorrido, marca paradas y envía una propuesta para que la comunidad la valide.' }}
         </p>
       </div>
     </header>
@@ -72,9 +74,11 @@
 
       <aside class="form-card">
         <div class="form-header">
-          <h2>Nueva propuesta</h2>
+          <h2>{{ modoActualizacion() ? 'Cambios propuestos' : 'Nueva propuesta' }}</h2>
           <p>
-            La propuesta quedará pendiente hasta recibir validación comunitaria.
+            {{ modoActualizacion()
+              ? 'El motivo indicado en rutas públicas se enviará junto con estos cambios.'
+              : 'La propuesta quedará pendiente hasta recibir validación comunitaria.' }}
           </p>
         </div>
 
@@ -221,7 +225,7 @@
           </div>
 
           <div class="campo full">
-            <label>Comentario para revisores</label>
+            <label>{{ modoActualizacion() ? 'Motivo de actualización' : 'Comentario para revisores' }}</label>
             <textarea
               rows="2"
               placeholder="Ej: Esta ruta entra por el mercado los sábados."
@@ -241,10 +245,18 @@
             <p>No hay paradas marcadas todavía.</p>
           }
 
-          @for (parada of paradas(); track parada.orden) {
+          @for (parada of paradas(); track parada.orden; let index = $index) {
             <div class="parada-item">
               <span>{{ parada.orden }}</span>
               <strong>{{ parada.nombre }}</strong>
+              <button
+                type="button"
+                class="parada-delete"
+                (click)="eliminarParada(index)"
+                aria-label="Eliminar parada"
+              >
+                <i class="material-icons">delete</i>
+              </button>
             </div>
           }
         </div>
@@ -257,7 +269,7 @@
             [disabled]="guardando()"
           >
             <i class="material-icons">send</i>
-            {{ guardando() ? 'Guardando...' : 'Enviar propuesta' }}
+            {{ guardando() ? 'Guardando...' : (modoActualizacion() ? 'Enviar actualización' : 'Enviar propuesta') }}
           </button>
 
           <button class="btn-secondary" type="button" (click)="resetFormulario()">
