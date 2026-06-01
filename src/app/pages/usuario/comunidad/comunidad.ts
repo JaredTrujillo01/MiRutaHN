@@ -105,9 +105,13 @@ export class Comunidad implements AfterViewInit, OnDestroy {
 
     this.rutaService.getPropuestasRuta().subscribe({
       next: (data) => {
-        this.propuestas.set(data);
+        const propuestasPendientes = data.filter(
+          (propuesta) => propuesta.estado === 'pendiente'
+        );
+
+        this.propuestas.set(propuestasPendientes);
         this.cargando.set(false);
-        this.seleccionarPropuestaDesdeUrl(data);
+        this.seleccionarPropuestaDesdeUrl(propuestasPendientes);
 
         requestAnimationFrame(() => this.inicializarMiniMapas());
       },
