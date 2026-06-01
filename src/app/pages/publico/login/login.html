@@ -1,88 +1,100 @@
-<div class="login-page">
-  <section class="login-image">
-    <div class="image-overlay">
-      <h2>MiRutaHN</h2>
+<main class="auth-page" aria-labelledby="login-title">
+  <section class="auth-visual" aria-label="Presentación de MiRutaHN">
+    <article class="visual-content">
+      <a class="brand" routerLink="/inicio" aria-label="Ir al inicio">
+        <i class="material-icons" aria-hidden="true">directions_bus</i>
+        MiRutaHN
+      </a>
 
-      <p>
-        Transformando el transporte público con tecnología y confianza
-        para cada ciudadano.
-      </p>
+      <section class="visual-message">
+        <p class="eyebrow">Movilidad colaborativa</p>
 
-      <div class="verified-card">
+        <h2>Rutas confiables creadas por la comunidad.</h2>
+
+        <p>
+          Consulta rutas públicas sin iniciar sesión y accede a herramientas colaborativas cuando
+          quieras proponer, validar o reportar información.
+        </p>
+      </section>
+
+      <article class="verified-card">
         <strong>
-          <span class="check-icon">✓</span>
-          Rutas Verificadas
+          <i class="material-icons" aria-hidden="true">verified</i>
+          Comunidad verificada
         </strong>
 
-        <span>
-          Accede a información en tiempo real de rutas urbanas conectadas en todo el país.
-        </span>
-      </div>
-    </div>
+        <span> Ayuda a mejorar la información del transporte público en Honduras. </span>
+      </article>
+    </article>
   </section>
 
-  <section class="login-content">
-    <div class="login-card">
+  <section class="auth-content">
+    <article class="auth-card">
+      <header class="auth-header">
+        <p class="eyebrow">Acceso ciudadano</p>
+        <h1 id="login-title">Bienvenido de nuevo</h1>
+        <p>Ingresa tus credenciales para continuar en MiRutaHN.</p>
+      </header>
 
-      <h1>Bienvenido de nuevo</h1>
+      <form class="auth-form" [formGroup]="loginForm" (ngSubmit)="login()">
+        <label class="field" for="email">
+          Correo electrónico
 
-      <p>
-        Ingresa tus credenciales para acceder a tu panel de MiRutaHN.
-      </p>
+          <input
+            id="email"
+            type="email"
+            placeholder="ejemplo@correo.com"
+            formControlName="email"
+            autocomplete="email"
+            required
+          />
+        </label>
 
-      @if (error) {
-        <div class="alerta-error">
-          {{ error }}
-        </div>
-      }
-
-      <form [formGroup]="loginForm" (ngSubmit)="login()">
-
-        <label>Correo electrónico</label>
-
-        <input
-          type="email"
-          placeholder="ejemplo@correo.com"
-          formControlName="email"
-        />
-
-        <div class="password-row">
-          <label>Contraseña</label>
+        <section class="password-label">
+          <label for="password">Contraseña</label>
           <a href="#">Olvidé mi contraseña</a>
-        </div>
+        </section>
 
-        <input
-          type="password"
-          placeholder="********"
-          formControlName="password"
-        />
+        <label class="field sr-label" for="password">
+          Contraseña
 
-        <label class="remember">
-          <input type="checkbox" />
+          <input
+            id="password"
+            type="password"
+            placeholder="Ingresa tu contraseña"
+            formControlName="password"
+            autocomplete="current-password"
+            required
+          />
+        </label>
+
+        <label class="remember" for="recordarSesion">
+          <input id="recordarSesion" type="checkbox" formControlName="recordarSesion" />
           Recordar mi sesión
         </label>
 
-        <button type="submit" [disabled]="cargando">
-          {{ cargando ? 'Ingresando...' : 'Iniciar Sesión' }}
+        <button class="btn-primary" type="submit" [disabled]="cargando()">
+          <i class="material-icons" aria-hidden="true">login</i>
+          {{ cargando() ? 'Ingresando...' : 'Iniciar sesión' }}
         </button>
-
       </form>
 
-      <div class="divider">
-        O continúa con
-      </div>
+      <footer class="auth-footer">
+        <p>
+          ¿No tienes cuenta?
+          <a routerLink="/registro">Crear cuenta</a>
+        </p>
 
-      <div class="social-buttons">
-        <button type="button">
-          Google
-        </button>
-      </div>
-
-      <p class="register-link">
-        ¿No tienes cuenta?
-        <a routerLink="/registro">Crear cuenta</a>
-      </p>
-
-    </div>
+        <a class="portal-link" routerLink="/dashboard"> Entrar sin iniciar sesión </a>
+      </footer>
+    </article>
   </section>
-</div>
+
+  <app-alert-modal
+    [visible]="alertaVisible()"
+    [titulo]="alertaTitulo()"
+    [mensaje]="alertaMensaje()"
+    [tipo]="alertaTipo()"
+    (cerrar)="cerrarAlerta()"
+  ></app-alert-modal>
+</main>

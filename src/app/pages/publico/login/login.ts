@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import {
   ReactiveFormsModule,
@@ -7,10 +7,14 @@ import {
 } from '@angular/forms';
 
 import { AuthService } from '../../../services/auth';
+import {
+  AppAlertModal,
+  AlertModalType,
+} from '../../../components/app-alert-modal/app-alert-modal';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, AppAlertModal],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
@@ -19,27 +23,36 @@ export class Login {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  error = '';
-  cargando = false;
+  cargando = signal(false);
+
+  alertaVisible = signal(false);
+  alertaTitulo = signal('');
+  alertaMensaje = signal('');
+  alertaTipo = signal<AlertModalType>('info');
 
   loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]],
+    recordarSesion: [false],
   });
 
   async login() {
-    this.error = '';
-
     if (this.loginForm.invalid) {
-      this.error = 'Completa los campos correctamente.';
       this.loginForm.markAllAsTouched();
+
+      this.mostrarAlerta(
+        'Campos incompletos',
+        'Ingresa un correo válido y tu contraseña para iniciar sesión.',
+        'warning'
+      );
+
       return;
     }
 
     const { email, password } = this.loginForm.getRawValue();
 
     try {
-      this.cargando = true;
+      this.cargando.set(true);
 
       await this.authService.loginUsuario(email, password);
 
@@ -52,11 +65,31 @@ export class Login {
       }
 
       this.router.navigate(['/dashboard']);
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      this.error = 'Correo o contraseña incorrectos';
+
+      this.mostrarAlerta(
+        'No se pudo iniciar sesión',
+        'El correo o la contraseña son incorrectos. Revisa tus datos e inténtalo nuevamente.',
+        'error'
+      );
     } finally {
-      this.cargando = false;
+      this.cargando.set(false);
     }
+  }
+
+  mostrarAlerta(
+    titulo: string,
+    mensaje: string,
+    tipo: AlertModalType = 'info'
+  ) {
+    this.alertaTitulo.set(titulo);
+    this.alertaMensaje.set(mensaje);
+    this.alertaTipo.set(tipo);
+    this.alertaVisible.set(true);
+  }
+
+  cerrarAlerta() {
+    this.alertaVisible.set(false);
   }
 }

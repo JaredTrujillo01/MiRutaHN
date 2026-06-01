@@ -1,73 +1,152 @@
-<div class="registro-page">
-  <section class="registro-image">
-    <div class="image-overlay">
-      <div class="image-text">
-        <h1>Transformando el transporte en Honduras.</h1>
+<main class="auth-page" aria-labelledby="registro-title">
+  <section class="auth-visual" aria-label="Presentación de MiRutaHN">
+    <article class="visual-content">
+      <a class="brand" routerLink="/inicio" aria-label="Ir al inicio">
+        <i class="material-icons" aria-hidden="true">directions_bus</i>
+        MiRutaHN
+      </a>
+
+      <section class="visual-message">
+        <p class="eyebrow">Movilidad ciudadana</p>
+
+        <h2>Únete a la comunidad que mejora las rutas en Honduras.</h2>
+
         <p>
-          Únete a la red más grande de movilidad inteligente y accede
-          a rutas optimizadas para tu día a día.
+          Crea tu cuenta para proponer rutas, validar información y publicar notas
+          comunitarias útiles para otros pasajeros.
         </p>
-      </div>
-    </div>
+      </section>
+
+      <article class="verified-card">
+        <strong>
+          <i class="material-icons" aria-hidden="true">diversity_3</i>
+          Participación colaborativa
+        </strong>
+
+        <span>
+          Tu aporte ayuda a mantener actualizada la información del transporte público.
+        </span>
+      </article>
+    </article>
   </section>
 
-  <section class="registro-content">
-    <div class="registro-card">
-      <h2>MiRutaHN</h2>
-      <h1>Crea tu cuenta gratuita</h1>
-      <p>Accede a las rutas registradas y reportes en tiempo real.</p>
+  <section class="auth-content">
+    <article class="auth-card">
+      <header class="auth-header">
+        <p class="eyebrow">Registro ciudadano</p>
 
-      @if (error) {
-        <div class="alerta-error">{{ error }}</div>
-      }
+        <h1 id="registro-title">Crea tu cuenta gratuita</h1>
 
-      @if (exito) {
-        <div class="alerta-exito">{{ exito }}</div>
-      }
+        <p>
+          Regístrate para colaborar con propuestas, validaciones y notas comunitarias.
+        </p>
+      </header>
 
-      <form [formGroup]="registroForm" (ngSubmit)="registrar()">
-        <label>Nombre completo</label>
-        <input type="text" placeholder="Ej. Juan Pérez" formControlName="nombre" />
+      <form class="auth-form" [formGroup]="registroForm" (ngSubmit)="registrar()">
+        <label class="field" for="nombre">
+          Nombre completo
 
-        <div class="row">
-          <div class="input-group">
-            <label>Correo electrónico</label>
-            <input type="email" placeholder="email@ejemplo.com" formControlName="email" />
-          </div>
+          <input
+            id="nombre"
+            type="text"
+            placeholder="Ej. Juan Pérez"
+            formControlName="nombre"
+            autocomplete="name"
+            required
+          />
+        </label>
 
-          <div class="input-group">
-            <label>Teléfono</label>
-            <input type="text" placeholder="+504 9999-9999" formControlName="telefono" />
-          </div>
-        </div>
+        <section class="form-row">
+          <label class="field" for="email">
+            Correo electrónico
 
-        <label>Ciudad</label>
-        <select formControlName="ciudad">
-          <option value="">Seleccione tu ciudad</option>
-          <option value="Tegucigalpa">Tegucigalpa</option>
-          <option value="San Pedro Sula">San Pedro Sula</option>
-          <option value="La Ceiba">La Ceiba</option>
-        </select>
+            <input
+              id="email"
+              type="email"
+              placeholder="email@ejemplo.com"
+              formControlName="email"
+              autocomplete="email"
+              required
+            />
+          </label>
 
-        <label>Contraseña</label>
-        <input type="password" placeholder="********" formControlName="password" />
+          <label class="field" for="telefono">
+            Teléfono
 
-        <div class="terms">
-          <input type="checkbox" formControlName="aceptaTerminos" />
+            <input
+              id="telefono"
+              type="tel"
+              placeholder="+504 9999-9999"
+              formControlName="telefono"
+              autocomplete="tel"
+              required
+            />
+          </label>
+        </section>
+
+        <label class="field" for="ciudad">
+          Ciudad
+
+          <select id="ciudad" formControlName="ciudad" required>
+            <option value="">Seleccione tu ciudad</option>
+            <option value="Tegucigalpa">Tegucigalpa</option>
+            <option value="San Pedro Sula">San Pedro Sula</option>
+            <option value="La Ceiba">La Ceiba</option>
+            <option value="Choloma">Choloma</option>
+            <option value="El Progreso">El Progreso</option>
+          </select>
+        </label>
+
+        <label class="field" for="password">
+          Contraseña
+
+          <input
+            id="password"
+            type="password"
+            placeholder="Mínimo 6 caracteres"
+            formControlName="password"
+            autocomplete="new-password"
+            required
+          />
+        </label>
+
+        <label class="terms" for="aceptaTerminos">
+          <input
+            id="aceptaTerminos"
+            type="checkbox"
+            formControlName="aceptaTerminos"
+          />
+
           <span>
-            Acepto los <a href="#">Términos y Condiciones</a>
+            Acepto los
+            <a href="#">Términos y Condiciones</a>
           </span>
-        </div>
+        </label>
 
-        <button type="submit" [disabled]="cargando">
-          {{ cargando ? 'Creando cuenta...' : 'Crear Cuenta →' }}
+        <button class="btn-primary" type="submit" [disabled]="cargando()">
+          <i class="material-icons" aria-hidden="true">person_add</i>
+          {{ cargando() ? 'Creando cuenta...' : 'Crear cuenta' }}
         </button>
       </form>
 
-      <div class="login-link">
-        ¿Ya tienes cuenta?
-        <a routerLink="/login">Iniciar Sesión</a>
-      </div>
-    </div>
+      <footer class="auth-footer">
+        <p>
+          ¿Ya tienes cuenta?
+          <a routerLink="/login">Iniciar sesión</a>
+        </p>
+
+        <a class="portal-link" routerLink="/dashboard">
+          Entrar sin registrarme
+        </a>
+      </footer>
+    </article>
   </section>
-</div>
+
+  <app-alert-modal
+    [visible]="alertaVisible()"
+    [titulo]="alertaTitulo()"
+    [mensaje]="alertaMensaje()"
+    [tipo]="alertaTipo()"
+    (cerrar)="cerrarAlerta()"
+  ></app-alert-modal>
+</main>
