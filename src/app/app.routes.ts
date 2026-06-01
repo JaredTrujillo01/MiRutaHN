@@ -10,7 +10,6 @@ export const routes: Routes = [
   },
 
   // LANDING
-
   {
     path: 'inicio',
     loadComponent: () =>
@@ -18,7 +17,6 @@ export const routes: Routes = [
   },
 
   // AUTH
-
   {
     path: 'login',
     loadComponent: () =>
@@ -30,15 +28,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/publico/registro/registro').then((m) => m.Registro),
   },
-
   // PUBLICO
-
   {
     path: 'dashboard',
     loadComponent: () =>
       import('./pages/usuario/dashboard/dashboard').then((m) => m.Dashboard),
   },
-
   {
     path: 'rutas',
     loadComponent: () =>
@@ -70,22 +65,7 @@ export const routes: Routes = [
         './pages/usuario/notas-comunitarias/notas-comunitarias'
       ).then((m) => m.NotasComunitarias),
   },
-
-  {
-    path: 'reportar',
-    loadComponent: () =>
-      import('./pages/usuario/reportar/reportar').then((m) => m.Reportar),
-  },
-
   // PRIVADAS
-
-  {
-    path: 'favoritos',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./pages/usuario/favoritos/favoritos').then((m) => m.Favoritos),
-  },
-
   {
     path: 'perfil',
     canActivate: [authGuard],
@@ -94,7 +74,6 @@ export const routes: Routes = [
   },
 
   // ADMIN
-
   {
     path: 'admin/dashboard-admin',
     canActivate: [roleGuard],
@@ -104,7 +83,6 @@ export const routes: Routes = [
         (m) => m.DashboardAdmin
       ),
   },
-
   {
     path: 'admin/rutas',
     canActivate: [roleGuard],
@@ -112,17 +90,6 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/admin/rutas/rutas').then((m) => m.Rutas),
   },
-
-  {
-    path: 'admin/reportes',
-    canActivate: [roleGuard],
-    data: { roles: ['admin'] },
-    loadComponent: () =>
-      import('./pages/admin/reportes-admin/reportes-admin').then(
-        (m) => m.ReportesAdmin
-      ),
-  },
-
   {
     path: 'admin/usuarios',
     canActivate: [roleGuard],
@@ -132,7 +99,6 @@ export const routes: Routes = [
         (m) => m.UsuariosAdmin
       ),
   },
-
   {
     path: '**',
     redirectTo: 'inicio',
