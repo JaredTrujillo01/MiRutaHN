@@ -51,6 +51,7 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
 
   usuarioAuth = signal<any | null>(null);
   usuarioPerfil = signal<any | null>(null);
+
   modoActualizacion = signal(false);
   rutaOrigen = signal<RutaTransporte | null>(null);
   motivoActualizacion = signal('');
@@ -66,10 +67,14 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
   alertaMensaje = signal('');
   alertaTipo = signal<AlertModalType>('info');
 
-  private map!: L.Map;
-  private recorridoLayer!: L.Polyline;
-  private guiaLayer!: L.Polyline;
+  private map?: L.Map;
+  private recorridoLayer?: L.Polyline;
+  private guiaLayer?: L.Polyline;
   private markersLayer = L.layerGroup();
+
+  private mapaActivo = false;
+  private iniciarMapaTimeout?: ReturnType<typeof setTimeout>;
+  private invalidateMapaTimeout?: ReturnType<typeof setTimeout>;
 
   coloresRuta = [
     '#2563eb',
@@ -83,6 +88,7 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
   horasHorario = Array.from({ length: 12 }, (_, index) =>
     String(index + 1).padStart(2, '0')
   );
+
   minutosHorario = ['00', '15', '30', '45'];
   periodosHorario = ['AM', 'PM'];
 
@@ -105,16 +111,27 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
     await this.cargarUsuario();
     this.cargarBorradorActualizacion();
 
-    setTimeout(() => {
+    this.iniciarMapaTimeout = setTimeout(() => {
       this.iniciarMapa();
       this.actualizarMapa();
     }, 350);
   }
 
   ngOnDestroy() {
+    this.mapaActivo = false;
+
+    if (this.iniciarMapaTimeout) {
+      clearTimeout(this.iniciarMapaTimeout);
+    }
+
+    if (this.invalidateMapaTimeout) {
+      clearTimeout(this.invalidateMapaTimeout);
+    }
+
     if (this.map) {
       this.map.off();
       this.map.remove();
+      this.map = undefined;
     }
   }
 
@@ -157,7 +174,10 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
   }
 
   cargarBorradorActualizacion() {
-    if (this.activatedRoute.snapshot.queryParamMap.get('modo') !== 'actualizacion') {
+    if (
+      this.activatedRoute.snapshot.queryParamMap.get('modo') !==
+      'actualizacion'
+    ) {
       return;
     }
 
@@ -205,6 +225,7 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
       this.paradas.set([...(ruta.paradas || [])]);
     } catch (error) {
       console.error(error);
+
       this.mostrarAlerta(
         'No se pudo cargar',
         'La información temporal de la actualización no es válida.',
@@ -214,19 +235,21 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
   }
 
   iniciarMapa() {
+    if (!this.mapaPropuesta?.nativeElement) return;
+
     if (this.map) {
       this.map.off();
       this.map.remove();
+      this.map = undefined;
     }
+
+    this.mapaActivo = true;
 
     this.map = L.map(this.mapaPropuesta.nativeElement, {
       zoomAnimation: false,
       fadeAnimation: false,
       markerZoomAnimation: false,
-    }).setView(
-      [15.5042, -88.025],
-      13
-    );
+    }).setView([15.5042, -88.025], 13);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
@@ -252,11 +275,25 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
       this.agregarPuntoGuia(e.latlng.lat, e.latlng.lng);
     });
 
-    requestAnimationFrame(() => this.map.invalidateSize({ animate: false }));
+    requestAnimationFrame(() => this.invalidarMapaSeguro());
 
-    setTimeout(() => {
-      this.map.invalidateSize({ animate: false });
+    this.invalidateMapaTimeout = setTimeout(() => {
+      this.invalidarMapaSeguro();
     }, 800);
+  }
+
+  invalidarMapaSeguro() {
+    if (!this.mapaActivo || !this.map) return;
+
+    const contenedor = this.map.getContainer();
+
+    if (!contenedor || !contenedor.isConnected) return;
+
+    try {
+      this.map.invalidateSize({ animate: false });
+    } catch (error) {
+      console.warn('El mapa de propuesta ya no está disponible.', error);
+    }
   }
 
   actualizarCampo(campo: string, valor: string | number) {
@@ -357,6 +394,7 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
       error: (err) => {
         console.error(err);
         this.calculandoRuta.set(false);
+
         this.mostrarAlerta(
           'No se pudo calcular',
           'No fue posible calcular la ruta por calles. Intenta con otros puntos guía.',
@@ -449,7 +487,19 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
   }
 
   actualizarMapa() {
-    if (!this.guiaLayer || !this.recorridoLayer || !this.markersLayer) return;
+    if (
+      !this.mapaActivo ||
+      !this.map ||
+      !this.guiaLayer ||
+      !this.recorridoLayer ||
+      !this.markersLayer
+    ) {
+      return;
+    }
+
+    const contenedor = this.map.getContainer();
+
+    if (!contenedor || !contenedor.isConnected) return;
 
     const guia = this.puntosGuia().map(
       (p) => [p.lat, p.lng] as [number, number]
@@ -481,11 +531,15 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
 
     const boundsSource = recorrido.length > 0 ? recorrido : guia;
 
-    if (boundsSource.length > 0 && this.map) {
-      this.map.fitBounds(L.latLngBounds(boundsSource), {
-        padding: [30, 30],
-        animate: false,
-      });
+    if (boundsSource.length > 0) {
+      try {
+        this.map.fitBounds(L.latLngBounds(boundsSource), {
+          padding: [30, 30],
+          animate: false,
+        });
+      } catch (error) {
+        console.warn('No se pudo ajustar el mapa de propuesta.', error);
+      }
     }
   }
 
@@ -495,10 +549,24 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
     const propuesta = this.nuevaPropuesta();
     const usuario = this.usuarioAuth();
 
+    if (!usuario) {
+      this.mostrarModalAuth.set(true);
+      return;
+    }
+
     if (!propuesta.nombre.trim() || !propuesta.numero.trim()) {
       this.mostrarAlerta(
         'Información incompleta',
         'Completa el nombre y número de la ruta antes de enviarla.',
+        'warning'
+      );
+      return;
+    }
+
+    if (!propuesta.horario.trim()) {
+      this.mostrarAlerta(
+        'Horario incompleto',
+        'Selecciona el horario aproximado de la ruta.',
         'warning'
       );
       return;
@@ -516,14 +584,18 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
     this.guardando.set(true);
 
     const data: Omit<PropuestaRuta, 'id'> = {
-      nombre: propuesta.nombre,
-      numero: propuesta.numero,
+      tipoPropuesta: this.modoActualizacion() ? 'actualizacion' : 'nueva',
+      rutaOrigenId: this.rutaOrigen()?.id,
+      motivoCambio: propuesta.comentarios || this.motivoActualizacion(),
+
+      nombre: propuesta.nombre.trim(),
+      numero: propuesta.numero.trim(),
       precio: Number(propuesta.precio),
-      horario: propuesta.horario,
-      frecuencia: propuesta.frecuencia,
+      horario: propuesta.horario || 'No definido',
+      frecuencia: propuesta.frecuencia || 'No definida',
       color: propuesta.color,
-      descripcion: propuesta.descripcion,
-      comentarios: propuesta.comentarios,
+      descripcion: propuesta.descripcion.trim(),
+      comentarios: propuesta.comentarios.trim(),
       puntosGuia: this.puntosGuia(),
       recorrido:
         this.recorrido().length > 0 ? this.recorrido() : this.puntosGuia(),
@@ -548,8 +620,8 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
             horario: data.horario || 'No definido',
             frecuencia: data.frecuencia || 'No definida',
             color: data.color,
-            descripcion: data.descripcion,
-            puntosGuia: data.puntosGuia,
+            descripcion: data.descripcion || '',
+            puntosGuia: data.puntosGuia || [],
             recorrido: data.recorrido,
             paradas: data.paradas,
           },
@@ -566,7 +638,9 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
 
       this.mostrarAlerta(
         'Propuesta enviada',
-        'Tu propuesta fue enviada correctamente. Ahora la comunidad podrá revisarla.',
+        this.modoActualizacion()
+          ? 'La actualización fue enviada correctamente. Ahora la comunidad podrá revisarla.'
+          : 'Tu propuesta fue enviada correctamente. Ahora la comunidad podrá revisarla.',
         'success'
       );
 

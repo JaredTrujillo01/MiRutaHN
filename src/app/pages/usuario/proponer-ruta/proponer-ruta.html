@@ -1,136 +1,166 @@
-<div class="proponer-page">
+<section class="proponer-page">
   <app-sidebar></app-sidebar>
 
-  <main class="proponer-main">
+  <main class="proponer-main" aria-labelledby="proponer-title">
     <header class="page-header">
-      <div>
-        <span class="badge">Colaboración ciudadana</span>
-        <h1>{{ modoActualizacion() ? 'Actualizar ruta pública' : 'Proponer una ruta' }}</h1>
+      <section>
+        <p class="badge">Colaboración ciudadana</p>
+
+        <h1 id="proponer-title">
+          {{ modoActualizacion() ? 'Actualizar ruta pública' : 'Proponer una ruta' }}
+        </h1>
+
         <p>
           {{ modoActualizacion()
             ? 'Ajusta los datos, recorrido o paradas de la ruta y envía la actualización a validación.'
             : 'Dibuja el recorrido, marca paradas y envía una propuesta para que la comunidad la valide.' }}
         </p>
-      </div>
+      </section>
     </header>
 
-    <section class="propuesta-layout">
-      <div class="map-card">
-        <div class="map-toolbar">
-          <div>
+    <section class="propuesta-layout" aria-label="Formulario para proponer ruta">
+      <article class="map-card">
+        <header class="map-toolbar">
+          <section>
             <h2>Dibujar recorrido</h2>
             <p>
               Haz clic en el mapa para marcar puntos guía. Luego calcula el recorrido por calles.
             </p>
-          </div>
+          </section>
 
-          <div class="map-actions">
+          <nav class="map-actions" aria-label="Acciones del mapa">
             <button
               class="primary"
               type="button"
               (click)="calcularRutaPorCalles()"
               [disabled]="calculandoRuta()"
             >
-              <i class="material-icons">alt_route</i>
+              <i class="material-icons" aria-hidden="true">alt_route</i>
               {{ calculandoRuta() ? 'Calculando...' : 'Calcular ruta' }}
             </button>
 
             <button type="button" (click)="marcarUltimoComoParada()">
-              <i class="material-icons">add_location_alt</i>
+              <i class="material-icons" aria-hidden="true">add_location_alt</i>
               Parada
             </button>
 
             <button type="button" (click)="deshacerPunto()">
-              <i class="material-icons">undo</i>
+              <i class="material-icons" aria-hidden="true">undo</i>
               Deshacer
             </button>
 
             <button class="danger" type="button" (click)="limpiarMapa()">
-              <i class="material-icons">delete_sweep</i>
+              <i class="material-icons" aria-hidden="true">delete_sweep</i>
               Limpiar
             </button>
-          </div>
-        </div>
+          </nav>
+        </header>
 
-        <div #mapaPropuesta class="mapa-propuesta"></div>
+        <section
+          #mapaPropuesta
+          class="mapa-propuesta"
+          aria-label="Mapa para dibujar la propuesta de ruta"
+        ></section>
 
-        <div class="map-summary">
-          <span>
-            <i class="material-icons">timeline</i>
+        <footer class="map-summary" aria-label="Resumen del dibujo de la ruta">
+          <p>
+            <i class="material-icons" aria-hidden="true">timeline</i>
             {{ puntosGuia().length }} puntos
-          </span>
+          </p>
 
-          <span>
-            <i class="material-icons">route</i>
+          <p>
+            <i class="material-icons" aria-hidden="true">route</i>
             {{ recorrido().length }} recorrido
-          </span>
+          </p>
 
-          <span>
-            <i class="material-icons">place</i>
+          <p>
+            <i class="material-icons" aria-hidden="true">place</i>
             {{ paradas().length }} paradas
-          </span>
-        </div>
-      </div>
+          </p>
+        </footer>
+      </article>
 
-      <aside class="form-card">
-        <div class="form-header">
-          <h2>{{ modoActualizacion() ? 'Cambios propuestos' : 'Nueva propuesta' }}</h2>
+      <aside class="form-card" aria-labelledby="form-propuesta-title">
+        <header class="form-header">
+          <h2 id="form-propuesta-title">
+            {{ modoActualizacion() ? 'Cambios propuestos' : 'Nueva propuesta' }}
+          </h2>
+
           <p>
             {{ modoActualizacion()
               ? 'El motivo indicado en rutas públicas se enviará junto con estos cambios.'
               : 'La propuesta quedará pendiente hasta recibir validación comunitaria.' }}
           </p>
-        </div>
+        </header>
 
-        <div class="form-grid">
-          <div class="campo">
-            <label>Nombre</label>
-            <input
-              type="text"
-              placeholder="Ej: City Mall - Megamall"
-              [ngModel]="nuevaPropuesta().nombre"
-              (ngModelChange)="actualizarCampo('nombre', $event)"
-            />
-          </div>
+        <form class="form-propuesta">
+          <fieldset class="form-grid">
+            <legend>Datos principales de la ruta</legend>
 
-          <div class="campo">
-            <label>Número</label>
-            <input
-              type="text"
-              placeholder="Ej: 01"
-              [ngModel]="nuevaPropuesta().numero"
-              (ngModelChange)="actualizarCampo('numero', $event)"
-            />
-          </div>
+            <label class="campo" for="nombreRuta">
+              Nombre
+              <input
+                id="nombreRuta"
+                name="nombreRuta"
+                type="text"
+                placeholder="Ej: City Mall - Megamall"
+                [ngModel]="nuevaPropuesta().nombre"
+                (ngModelChange)="actualizarCampo('nombre', $event)"
+                required
+              />
+            </label>
 
-          <div class="campo">
-            <label>Precio aproximado</label>
-            <input
-              type="number"
-              placeholder="13"
-              [ngModel]="nuevaPropuesta().precio"
-              (ngModelChange)="actualizarCampo('precio', $event)"
-            />
-          </div>
+            <label class="campo" for="numeroRuta">
+              Número
+              <input
+                id="numeroRuta"
+                name="numeroRuta"
+                type="text"
+                placeholder="Ej: 01"
+                [ngModel]="nuevaPropuesta().numero"
+                (ngModelChange)="actualizarCampo('numero', $event)"
+                required
+              />
+            </label>
 
-          <div class="campo">
-            <label>Frecuencia</label>
-            <input
-              type="text"
-              placeholder="Ej: Cada 10 min"
-              [ngModel]="nuevaPropuesta().frecuencia"
-              (ngModelChange)="actualizarCampo('frecuencia', $event)"
-            />
-          </div>
+            <label class="campo" for="precioRuta">
+              Precio aproximado
+              <input
+                id="precioRuta"
+                name="precioRuta"
+                type="number"
+                min="0"
+                placeholder="13"
+                [ngModel]="nuevaPropuesta().precio"
+                (ngModelChange)="actualizarCampo('precio', $event)"
+              />
+            </label>
 
-          <div class="campo full">
-            <label>Horario</label>
-            <div class="horario-grid">
-              <div class="horario-box">
-                <span>Inicio</span>
+            <label class="campo" for="frecuenciaRuta">
+              Frecuencia
+              <input
+                id="frecuenciaRuta"
+                name="frecuenciaRuta"
+                type="text"
+                placeholder="Ej: Cada 10 min"
+                [ngModel]="nuevaPropuesta().frecuencia"
+                (ngModelChange)="actualizarCampo('frecuencia', $event)"
+              />
+            </label>
+          </fieldset>
 
-                <div class="horario-selects">
+          <fieldset class="campo full">
+            <legend>Horario</legend>
+
+            <section class="horario-grid">
+              <section class="horario-box" aria-labelledby="horario-inicio">
+                <h3 id="horario-inicio">Inicio</h3>
+
+                <section class="horario-selects">
+                  <label for="inicioHora" class="sr-only">Hora de inicio</label>
                   <select
+                    id="inicioHora"
+                    name="inicioHora"
                     [ngModel]="obtenerHorarioParte('inicioHora')"
                     (ngModelChange)="actualizarHorarioParte('inicioHora', $event)"
                   >
@@ -139,7 +169,10 @@
                     }
                   </select>
 
+                  <label for="inicioMinuto" class="sr-only">Minuto de inicio</label>
                   <select
+                    id="inicioMinuto"
+                    name="inicioMinuto"
                     [ngModel]="obtenerHorarioParte('inicioMinuto')"
                     (ngModelChange)="actualizarHorarioParte('inicioMinuto', $event)"
                   >
@@ -148,7 +181,10 @@
                     }
                   </select>
 
+                  <label for="inicioPeriodo" class="sr-only">Periodo de inicio</label>
                   <select
+                    id="inicioPeriodo"
+                    name="inicioPeriodo"
                     [ngModel]="obtenerHorarioParte('inicioPeriodo')"
                     (ngModelChange)="actualizarHorarioParte('inicioPeriodo', $event)"
                   >
@@ -156,14 +192,17 @@
                       <option [value]="periodo">{{ periodo }}</option>
                     }
                   </select>
-                </div>
-              </div>
+                </section>
+              </section>
 
-              <div class="horario-box">
-                <span>Fin</span>
+              <section class="horario-box" aria-labelledby="horario-fin">
+                <h3 id="horario-fin">Fin</h3>
 
-                <div class="horario-selects">
+                <section class="horario-selects">
+                  <label for="finHora" class="sr-only">Hora de finalización</label>
                   <select
+                    id="finHora"
+                    name="finHora"
                     [ngModel]="obtenerHorarioParte('finHora')"
                     (ngModelChange)="actualizarHorarioParte('finHora', $event)"
                   >
@@ -172,7 +211,10 @@
                     }
                   </select>
 
+                  <label for="finMinuto" class="sr-only">Minuto de finalización</label>
                   <select
+                    id="finMinuto"
+                    name="finMinuto"
                     [ngModel]="obtenerHorarioParte('finMinuto')"
                     (ngModelChange)="actualizarHorarioParte('finMinuto', $event)"
                   >
@@ -181,7 +223,10 @@
                     }
                   </select>
 
+                  <label for="finPeriodo" class="sr-only">Periodo de finalización</label>
                   <select
+                    id="finPeriodo"
+                    name="finPeriodo"
                     [ngModel]="obtenerHorarioParte('finPeriodo')"
                     (ngModelChange)="actualizarHorarioParte('finPeriodo', $event)"
                   >
@@ -189,15 +234,15 @@
                       <option [value]="periodo">{{ periodo }}</option>
                     }
                   </select>
-                </div>
-              </div>
-            </div>
-          </div>
+                </section>
+              </section>
+            </section>
+          </fieldset>
 
-          <div class="campo full">
-            <label>Color</label>
+          <fieldset class="campo full">
+            <legend>Color de la ruta</legend>
 
-            <div class="color-grid">
+            <section class="color-grid" aria-label="Seleccionar color de la ruta">
               @for (color of coloresRuta; track color) {
                 <button
                   type="button"
@@ -205,82 +250,92 @@
                   [class.active]="nuevaPropuesta().color === color"
                   [style.background]="color"
                   (click)="seleccionarColor(color)"
+                  [attr.aria-label]="'Seleccionar color ' + color"
                 >
                   @if (nuevaPropuesta().color === color) {
-                    <i class="material-icons">check</i>
+                    <i class="material-icons" aria-hidden="true">check</i>
                   }
                 </button>
               }
-            </div>
-          </div>
+            </section>
+          </fieldset>
 
-          <div class="campo full">
-            <label>Descripción</label>
-            <textarea
-              rows="3"
-              placeholder="Describe hacia dónde va, referencias o datos útiles."
-              [ngModel]="nuevaPropuesta().descripcion"
-              (ngModelChange)="actualizarCampo('descripcion', $event)"
-            ></textarea>
-          </div>
+          <fieldset class="form-grid">
+            <legend>Información adicional</legend>
 
-          <div class="campo full">
-            <label>{{ modoActualizacion() ? 'Motivo de actualización' : 'Comentario para revisores' }}</label>
-            <textarea
-              rows="2"
-              placeholder="Ej: Esta ruta entra por el mercado los sábados."
-              [ngModel]="nuevaPropuesta().comentarios"
-              (ngModelChange)="actualizarCampo('comentarios', $event)"
-            ></textarea>
-          </div>
-        </div>
+            <label class="campo full" for="descripcionRuta">
+              Descripción
+              <textarea
+                id="descripcionRuta"
+                name="descripcionRuta"
+                rows="3"
+                placeholder="Describe hacia dónde va, referencias o datos útiles."
+                [ngModel]="nuevaPropuesta().descripcion"
+                (ngModelChange)="actualizarCampo('descripcion', $event)"
+              ></textarea>
+            </label>
 
-        <div class="paradas-box">
-          <div class="paradas-title">
-            <h3>Paradas marcadas</h3>
-            <span>{{ paradas().length }}</span>
-          </div>
+            <label class="campo full" for="comentarioRuta">
+              {{ modoActualizacion() ? 'Motivo de actualización' : 'Comentario para revisores' }}
+              <textarea
+                id="comentarioRuta"
+                name="comentarioRuta"
+                rows="2"
+                placeholder="Ej: Esta ruta entra por el mercado los sábados."
+                [ngModel]="nuevaPropuesta().comentarios"
+                (ngModelChange)="actualizarCampo('comentarios', $event)"
+              ></textarea>
+            </label>
+          </fieldset>
 
-          @if (paradas().length === 0) {
-            <p>No hay paradas marcadas todavía.</p>
-          }
+          <section class="paradas-box" aria-labelledby="paradas-title">
+            <header class="paradas-title">
+              <h3 id="paradas-title">Paradas marcadas</h3>
+              <p>{{ paradas().length }}</p>
+            </header>
 
-          @for (parada of paradas(); track parada.orden; let index = $index) {
-            <div class="parada-item">
-              <span>{{ parada.orden }}</span>
-              <strong>{{ parada.nombre }}</strong>
-              <button
-                type="button"
-                class="parada-delete"
-                (click)="eliminarParada(index)"
-                aria-label="Eliminar parada"
-              >
-                <i class="material-icons">delete</i>
-              </button>
-            </div>
-          }
-        </div>
+            @if (paradas().length === 0) {
+              <p>No hay paradas marcadas todavía.</p>
+            }
 
-        <div class="form-actions">
-          <button
-            class="btn-primary"
-            type="button"
-            (click)="guardarPropuesta()"
-            [disabled]="guardando()"
-          >
-            <i class="material-icons">send</i>
-            {{ guardando() ? 'Guardando...' : (modoActualizacion() ? 'Enviar actualización' : 'Enviar propuesta') }}
-          </button>
+            @for (parada of paradas(); track parada.orden; let index = $index) {
+              <article class="parada-item">
+                <p>{{ parada.orden }}</p>
+                <strong>{{ parada.nombre }}</strong>
 
-          <button class="btn-secondary" type="button" (click)="resetFormulario()">
-            Cancelar
-          </button>
-        </div>
+                <button
+                  type="button"
+                  class="parada-delete"
+                  (click)="eliminarParada(index)"
+                  aria-label="Eliminar parada"
+                >
+                  <i class="material-icons" aria-hidden="true">delete</i>
+                </button>
+              </article>
+            }
+          </section>
+
+          <footer class="form-actions">
+            <button
+              class="btn-primary"
+              type="button"
+              (click)="guardarPropuesta()"
+              [disabled]="guardando()"
+            >
+              <i class="material-icons" aria-hidden="true">send</i>
+              {{ guardando() ? 'Guardando...' : (modoActualizacion() ? 'Enviar actualización' : 'Enviar propuesta') }}
+            </button>
+
+            <button class="btn-secondary" type="button" (click)="resetFormulario()">
+              Cancelar
+            </button>
+          </footer>
+        </form>
       </aside>
     </section>
   </main>
 
-    <app-auth-required-modal
+  <app-auth-required-modal
     [visible]="mostrarModalAuth()"
     titulo="Inicia sesión para proponer rutas"
     mensaje="Puedes explorar rutas sin cuenta, pero para enviar propuestas debes iniciar sesión o registrarte."
@@ -304,4 +359,4 @@
     (cancelar)="cancelarPromptParada()"
     (confirmar)="confirmarParada($event)"
   ></app-prompt-modal>
-</div>
+</section>
