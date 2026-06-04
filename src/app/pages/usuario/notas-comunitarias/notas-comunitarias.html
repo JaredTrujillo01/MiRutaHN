@@ -1,46 +1,61 @@
-<div class="notas-page">
+<section class="notas-page">
   <app-sidebar></app-sidebar>
 
-  <main class="notas-main">
+  <main class="notas-main" aria-labelledby="notas-title">
     <header class="page-header">
-      <div>
-        <span class="badge">Comunidad</span>
-        <h1>Notas comunitarias</h1>
-        <p>Comparte observaciones sobre rutas aprobadas y ayuda a confirmar datos útiles para otros pasajeros.</p>
-      </div>
+      <section>
+        <p class="badge">Comunidad</p>
 
-      <div class="header-stats">
-        <span>{{ notas().length }}</span>
-        <small>activas</small>
-      </div>
+        <h1 id="notas-title">Notas comunitarias</h1>
+
+        <p>
+          Comparte observaciones sobre rutas aprobadas y ayuda a confirmar datos
+          útiles para otros pasajeros.
+        </p>
+      </section>
+
+      <aside class="header-stats" aria-label="Resumen de notas activas">
+        <strong>{{ notas().length }}</strong>
+        <span>activas</span>
+      </aside>
     </header>
 
-    <section class="form-card">
-      <div class="section-header">
-        <div>
-          <h2>Nueva nota</h2>
-          <p>Selecciona una ruta y marca el dato que necesita contexto comunitario.</p>
-        </div>
-      </div>
+    <section class="form-card" aria-labelledby="nueva-nota-title">
+      <header class="section-header">
+        <section>
+          <h2 id="nueva-nota-title">Nueva nota</h2>
+          <p>
+            Selecciona una ruta y marca el dato que necesita contexto comunitario.
+          </p>
+        </section>
+      </header>
 
-      <div class="nota-form">
-        <div class="campo">
-          <label>Ruta aprobada</label>
+      <form class="nota-form">
+        <label class="campo" for="rutaNota">
+          Ruta aprobada
+
           <select
+            id="rutaNota"
+            name="rutaNota"
             [ngModel]="nuevaNota().rutaId"
             (ngModelChange)="actualizarNotaCampo('rutaId', $event)"
           >
             <option value="">Seleccionar ruta</option>
 
             @for (ruta of rutas(); track ruta.id) {
-              <option [value]="ruta.id">{{ ruta.nombre }} - Ruta {{ ruta.numero }}</option>
+              <option [value]="ruta.id">
+                {{ ruta.nombre }} - Ruta {{ ruta.numero }}
+              </option>
             }
           </select>
-        </div>
+        </label>
 
-        <div class="campo">
-          <label>Dato observado</label>
+        <label class="campo" for="campoMarcado">
+          Dato observado
+
           <select
+            id="campoMarcado"
+            name="campoMarcado"
             [ngModel]="nuevaNota().campoMarcado"
             (ngModelChange)="actualizarNotaCampo('campoMarcado', $event)"
           >
@@ -51,106 +66,125 @@
             <option value="paradas">Paradas</option>
             <option value="otro">Otro</option>
           </select>
-        </div>
+        </label>
 
-        <div class="campo full">
-          <label>Nota</label>
+        <label class="campo full" for="comentarioNota">
+          Nota
+
           <textarea
+            id="comentarioNota"
+            name="comentarioNota"
             rows="3"
             placeholder="Ej: Actualmente hay desvíos por construcción."
             [ngModel]="nuevaNota().comentario"
             (ngModelChange)="actualizarNotaCampo('comentario', $event)"
           ></textarea>
-        </div>
+        </label>
 
-        <button class="btn-primary" (click)="crearNota()" [disabled]="guardando()">
-          <i class="material-icons">add_comment</i>
-          {{ guardando() ? 'Guardando...' : 'Agregar nota' }}
-        </button>
-      </div>
+        <footer class="form-actions">
+          <button
+            class="btn-primary"
+            type="button"
+            (click)="crearNota()"
+            [disabled]="guardando()"
+          >
+            <i class="material-icons" aria-hidden="true">add_comment</i>
+            {{ guardando() ? 'Guardando...' : 'Agregar nota' }}
+          </button>
+        </footer>
+      </form>
     </section>
 
-    <section class="lista-card">
-      <div class="section-header tools">
-        <div>
-          <h2>Notas activas</h2>
-          <p>Marca como útil o confirma las notas que reflejan la situación actual.</p>
-        </div>
+    <section class="lista-card" aria-labelledby="notas-activas-title">
+      <header class="section-header tools">
+        <section>
+          <h2 id="notas-activas-title">Notas activas</h2>
 
-        <div class="campo filtro">
-          <label>Buscar</label>
+          <p>
+            Marca como útil o confirma las notas que reflejan la situación actual.
+          </p>
+        </section>
+
+        <label class="campo filtro" for="filtroNotas">
+          Buscar
+
           <input
-            type="text"
+            id="filtroNotas"
+            name="filtroNotas"
+            type="search"
             placeholder="Ruta, dato o comentario"
             [ngModel]="filtro()"
             (ngModelChange)="filtro.set($event)"
           />
-        </div>
-      </div>
+        </label>
+      </header>
 
       @if (cargando()) {
-        <div class="state-card">
-          <i class="material-icons">hourglass_empty</i>
-          <p>Cargando notas...</p>
-        </div>
+        <section class="state-card" role="status" aria-live="polite">
+          <i class="material-icons" aria-hidden="true">hourglass_empty</i>
+          <h3>Cargando notas</h3>
+          <p>Estamos preparando las notas comunitarias disponibles.</p>
+        </section>
       }
 
       @if (!cargando() && notasFiltradas().length === 0) {
-        <div class="state-card">
-          <i class="material-icons">rate_review</i>
-          <p>No hay notas comunitarias activas.</p>
-        </div>
+        <section class="state-card">
+          <i class="material-icons" aria-hidden="true">rate_review</i>
+          <h3>Sin notas activas</h3>
+          <p>No hay notas comunitarias activas con ese criterio.</p>
+        </section>
       }
 
-      <div class="notas-grid">
+      <section class="notas-grid" aria-label="Listado de notas comunitarias">
         @for (nota of notasFiltradas(); track nota.id) {
           <article class="nota-card" [class.warning]="nota.confirmaciones >= 3">
-            <div class="nota-top">
-              <span class="campo-chip">{{ nota.campoMarcado || 'otro' }}</span>
-              <strong>{{ nombreRuta(nota.rutaId) }}</strong>
-            </div>
+            <header class="nota-top">
+              <p class="campo-chip">{{ nota.campoMarcado || 'otro' }}</p>
+              <h3>{{ nombreRuta(nota.rutaId) }}</h3>
+            </header>
 
-            <p>{{ nota.comentario }}</p>
+            <p class="nota-texto">{{ nota.comentario }}</p>
 
-            <div class="nota-meta">
-              <span>
-                <i class="material-icons">person</i>
+            <section class="nota-meta" aria-label="Información de la nota">
+              <p>
+                <i class="material-icons" aria-hidden="true">person</i>
                 {{ nota.usuarioNombre }}
-              </span>
-              <span>
-                <i class="material-icons">calendar_today</i>
+              </p>
+
+              <p>
+                <i class="material-icons" aria-hidden="true">calendar_today</i>
                 {{ formatearFecha(nota.creadoEn) }}
-              </span>
-            </div>
+              </p>
+            </section>
 
             @if (nota.confirmaciones >= 3) {
-              <div class="warning-box">
-                <i class="material-icons">warning</i>
-                Nota validada por la comunidad
-              </div>
+              <section class="warning-box" role="status">
+                <i class="material-icons" aria-hidden="true">warning</i>
+                <p>Nota validada por la comunidad</p>
+              </section>
             }
 
-            <div class="nota-actions">
-              <button (click)="votarNota(nota.id)">
-                <i class="material-icons">thumb_up</i>
+            <footer class="nota-actions">
+              <button type="button" (click)="votarNota(nota.id)">
+                <i class="material-icons" aria-hidden="true">thumb_up</i>
                 Útil ({{ nota.votosUtiles }})
               </button>
 
-              <button (click)="confirmarNota(nota.id)">
-                <i class="material-icons">verified</i>
+              <button type="button" (click)="confirmarNota(nota.id)">
+                <i class="material-icons" aria-hidden="true">verified</i>
                 Confirmar ({{ nota.confirmaciones }})
               </button>
 
               @if (esAdmin()) {
-                <button class="danger" (click)="resolverNota(nota.id)">
-                  <i class="material-icons">done</i>
+                <button class="danger" type="button" (click)="resolverNota(nota.id)">
+                  <i class="material-icons" aria-hidden="true">done</i>
                   Resolver
                 </button>
               }
-            </div>
+            </footer>
           </article>
         }
-      </div>
+      </section>
     </section>
   </main>
-</div>
+</section>

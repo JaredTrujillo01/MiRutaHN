@@ -1,154 +1,171 @@
-<div class="comunidad-page">
+<section class="comunidad-page">
   <app-sidebar></app-sidebar>
 
-  <main class="comunidad-main">
+  <main class="comunidad-main" aria-labelledby="validacion-title">
     <header class="page-header">
-      <div>
-        <span class="badge">Validación comunitaria</span>
-        <h1>Revisar propuestas de rutas</h1>
+      <section>
+        <p class="badge">Validación comunitaria</p>
+
+        <h1 id="validacion-title">Revisar propuestas de rutas</h1>
+
         <p>
-          Observa el recorrido trazado, revisa la información y ayuda a validar si una ruta debe publicarse.
+          Observa el recorrido trazado, revisa la información y ayuda a validar
+          si una ruta debe publicarse, actualizarse o eliminarse.
         </p>
-      </div>
+      </section>
     </header>
 
-    <section class="comunidad-layout">
-      <section class="lista-card">
-        <div class="lista-header">
-          <div>
-            <h2>Propuestas ciudadanas</h2>
+    <section class="comunidad-layout" aria-label="Validación de propuestas">
+      <section class="lista-card" aria-labelledby="propuestas-title">
+        <header class="lista-header">
+          <section>
+            <h2 id="propuestas-title">Propuestas ciudadanas</h2>
+
             <p>
-              Las propuestas necesitan {{ approvalThreshold }} aprobaciones para pasar a rutas oficiales.
+              Las propuestas necesitan {{ approvalThreshold }} aprobaciones para
+              pasar a rutas oficiales.
             </p>
-          </div>
-        </div>
+          </section>
+        </header>
 
         @if (cargando()) {
-          <div class="state-card">
-            <i class="material-icons">hourglass_empty</i>
-            <p>Cargando propuestas...</p>
-          </div>
+          <section class="state-card" role="status" aria-live="polite">
+            <i class="material-icons" aria-hidden="true">hourglass_empty</i>
+            <h3>Cargando propuestas</h3>
+            <p>Estamos preparando las propuestas disponibles.</p>
+          </section>
         }
 
         @if (!cargando() && propuestas().length === 0) {
-          <div class="state-card">
-            <i class="material-icons">route</i>
-            <p>Aún no hay propuestas ciudadanas.</p>
-          </div>
+          <section class="state-card">
+            <i class="material-icons" aria-hidden="true">route</i>
+            <h3>Sin propuestas</h3>
+            <p>Aún no hay propuestas ciudadanas para validar.</p>
+          </section>
         }
 
-        <div class="propuestas-grid">
+        <section class="propuestas-grid" aria-label="Listado de propuestas">
           @for (propuesta of propuestas(); track propuesta.id) {
             <article
               class="propuesta-card"
               [class.selected]="propuestaSeleccionada()?.id === propuesta.id"
             >
-              <div class="mini-map-shell">
-                <div
+              <section class="mini-map-shell" aria-label="Mapa de la propuesta">
+                <section
                   #miniMapa
                   class="mini-map"
                   [attr.data-propuesta-id]="propuesta.id"
-                ></div>
-              </div>
+                ></section>
+              </section>
 
-              <div class="ruta-top">
-                <div class="ruta-color" [style.background]="propuesta.color"></div>
+              <header class="ruta-top">
+                <i
+                  class="ruta-color"
+                  [style.background]="propuesta.color"
+                  aria-hidden="true"
+                ></i>
 
-                <div>
-                  <span class="tipo-propuesta">
+                <section>
+                  <p class="tipo-propuesta">
                     {{ tipoPropuestaTexto(propuesta) }}
-                  </span>
-                  <h3>{{ propuesta.nombre }}</h3>
-                  <p>Ruta {{ propuesta.numero }} · L. {{ propuesta.precio }}</p>
-                </div>
+                  </p>
 
-                <span
+                  <h3>{{ propuesta.nombre }}</h3>
+
+                  <p>
+                    Ruta {{ propuesta.numero }} · L. {{ propuesta.precio }}
+                  </p>
+                </section>
+
+                <p
                   class="estado"
                   [class.aprobada]="propuesta.estado === 'aprobada'"
                   [class.rechazada]="propuesta.estado === 'rechazada'"
                 >
                   {{ propuesta.estado }}
-                </span>
-              </div>
+                </p>
+              </header>
 
               <p class="descripcion">
                 {{ propuesta.descripcion || 'Sin descripción adicional.' }}
               </p>
 
-              @if (propuesta.tipoPropuesta === 'actualizacion') {
-                <p class="motivo-cambio">
+              @if (propuesta.tipoPropuesta === 'actualizacion' || propuesta.tipoPropuesta === 'eliminacion') {
+                <section class="motivo-cambio">
                   <strong>Motivo:</strong>
-                  {{ propuesta.motivoCambio || propuesta.comentarios || 'Sin motivo indicado.' }}
-                </p>
+                  <p>
+                    {{ propuesta.motivoCambio || propuesta.comentarios || 'Sin motivo indicado.' }}
+                  </p>
+                </section>
               }
 
-              <div class="ruta-info">
-                <span>
-                  <i class="material-icons">schedule</i>
+              <section class="ruta-info" aria-label="Información de la propuesta">
+                <p>
+                  <i class="material-icons" aria-hidden="true">schedule</i>
                   {{ propuesta.horario || 'Horario no definido' }}
-                </span>
+                </p>
 
-                <span>
-                  <i class="material-icons">sync</i>
+                <p>
+                  <i class="material-icons" aria-hidden="true">sync</i>
                   {{ propuesta.frecuencia || 'Frecuencia no definida' }}
-                </span>
+                </p>
 
-                <span>
-                  <i class="material-icons">place</i>
+                <p>
+                  <i class="material-icons" aria-hidden="true">place</i>
                   {{ propuesta.paradas.length }} paradas
-                </span>
-              </div>
+                </p>
+              </section>
 
-              <div class="paradas-preview">
+              <section class="paradas-preview" aria-label="Paradas principales">
                 @if (propuesta.paradas.length === 0) {
-                  <span>Sin paradas marcadas</span>
+                  <p>Sin paradas marcadas</p>
                 }
 
                 @for (parada of propuesta.paradas.slice(0, 4); track parada.orden) {
-                  <span>{{ parada.nombre }}</span>
+                  <p>{{ parada.nombre }}</p>
                 }
 
                 @if (propuesta.paradas.length > 4) {
-                  <span>+{{ propuesta.paradas.length - 4 }} más</span>
+                  <p>+{{ propuesta.paradas.length - 4 }} más</p>
                 }
-              </div>
+              </section>
 
-              <div class="progress-box">
-                <div class="progress-text">
+              <section class="progress-box" aria-label="Progreso de aprobación">
+                <header class="progress-text">
                   <span>Aprobaciones</span>
                   <strong>{{ propuesta.aprobaciones }} / {{ approvalThreshold }}</strong>
-                </div>
+                </header>
 
-                <div class="progress-track">
-                  <div
+                <section class="progress-track">
+                  <span
                     class="progress-fill"
                     [style.width]="porcentajeAprobacion(propuesta)"
-                  ></div>
-                </div>
-              </div>
+                  ></span>
+                </section>
+              </section>
 
-              <div class="validacion-resumen">
-                <span>
-                  <i class="material-icons">thumb_up</i>
+              <section class="validacion-resumen" aria-label="Resumen de votos">
+                <p>
+                  <i class="material-icons" aria-hidden="true">thumb_up</i>
                   {{ propuesta.aprobaciones }} apoyos
-                </span>
+                </p>
 
-                <span>
-                  <i class="material-icons">thumb_down</i>
+                <p>
+                  <i class="material-icons" aria-hidden="true">thumb_down</i>
                   {{ propuesta.rechazos }} rechazos
-                </span>
+                </p>
 
                 @if (propuesta.rutaPublicadaId) {
-                  <span>
-                    <i class="material-icons">published_with_changes</i>
+                  <p>
+                    <i class="material-icons" aria-hidden="true">published_with_changes</i>
                     Publicada
-                  </span>
+                  </p>
                 }
-              </div>
+              </section>
 
-              <div class="ruta-actions">
+              <footer class="ruta-actions">
                 <button type="button" (click)="seleccionarPropuesta(propuesta)">
-                  <i class="material-icons">rate_review</i>
+                  <i class="material-icons" aria-hidden="true">rate_review</i>
                   Revisar
                 </button>
 
@@ -158,7 +175,7 @@
                     class="success"
                     (click)="aprobarManual(propuesta)"
                   >
-                    <i class="material-icons">publish</i>
+                    <i class="material-icons" aria-hidden="true">publish</i>
                     Publicar
                   </button>
 
@@ -167,7 +184,7 @@
                     class="danger"
                     (click)="rechazarManual(propuesta)"
                   >
-                    <i class="material-icons">block</i>
+                    <i class="material-icons" aria-hidden="true">block</i>
                     Rechazar
                   </button>
                 }
@@ -178,14 +195,14 @@
                     class="danger soft"
                     (click)="eliminarPropuesta(propuesta)"
                   >
-                    <i class="material-icons">delete</i>
+                    <i class="material-icons" aria-hidden="true">delete</i>
                     Eliminar
                   </button>
                 }
-              </div>
+              </footer>
             </article>
           }
-        </div>
+        </section>
       </section>
 
       @if (propuestaSeleccionada()) {
@@ -197,13 +214,17 @@
         ></button>
       }
 
-      <aside class="validation-panel" [class.open]="propuestaSeleccionada()">
-        <div class="lista-card sticky-card">
-          <div class="lista-header">
-            <div>
+      <aside
+        class="validation-panel"
+        [class.open]="propuestaSeleccionada()"
+        aria-label="Panel de validación"
+      >
+        <article class="lista-card sticky-card">
+          <header class="lista-header">
+            <section>
               <h2>Tu validación</h2>
               <p>Selecciona una propuesta para aprobar, rechazar o comentar.</p>
-            </div>
+            </section>
 
             <button
               type="button"
@@ -213,36 +234,41 @@
             >
               <i class="material-icons" aria-hidden="true">close</i>
             </button>
-          </div>
+          </header>
 
           @if (!propuestaSeleccionada()) {
-            <div class="state-card compact">
-              <i class="material-icons">touch_app</i>
-              <p>Selecciona una propuesta de la lista.</p>
-            </div>
+            <section class="state-card compact">
+              <i class="material-icons" aria-hidden="true">touch_app</i>
+              <h3>Selecciona una propuesta</h3>
+              <p>El detalle aparecerá aquí.</p>
+            </section>
           }
 
           @if (propuestaSeleccionada()) {
-            <div class="selected-summary">
-              <span class="badge">{{ propuestaSeleccionada()?.estado }}</span>
-              <span class="badge tipo">{{ tipoPropuestaTexto(propuestaSeleccionada()) }}</span>
+            <section class="selected-summary">
+              <section class="selected-badges">
+                <p class="badge">{{ propuestaSeleccionada()?.estado }}</p>
+                <p class="badge tipo">
+                  {{ tipoPropuestaTexto(propuestaSeleccionada()) }}
+                </p>
+              </section>
 
               <h3>{{ propuestaSeleccionada()?.nombre }}</h3>
 
               <p>
                 {{ propuestaSeleccionada()?.motivoCambio || propuestaSeleccionada()?.comentarios || 'Sin comentario de contexto.' }}
               </p>
-            </div>
+            </section>
 
             @if (propuestaSeleccionada()?.estado === 'pendiente') {
-              <div class="quick-actions">
+              <section class="quick-actions" aria-label="Acciones de validación">
                 <button
                   type="button"
                   class="success"
                   (click)="enviarValidacion('aprobacion')"
                   [disabled]="enviando() || votosDelUsuario(propuestaSeleccionada())"
                 >
-                  <i class="material-icons">thumb_up</i>
+                  <i class="material-icons" aria-hidden="true">thumb_up</i>
                   Aprobar
                 </button>
 
@@ -252,28 +278,31 @@
                   (click)="enviarValidacion('rechazo')"
                   [disabled]="enviando() || votosDelUsuario(propuestaSeleccionada())"
                 >
-                  <i class="material-icons">thumb_down</i>
+                  <i class="material-icons" aria-hidden="true">thumb_down</i>
                   Rechazar
                 </button>
-              </div>
+              </section>
 
               @if (votosDelUsuario(propuestaSeleccionada())) {
-                <div class="notice">
-                  <i class="material-icons">info</i>
-                  Ya votaste esta propuesta. Todavía puedes comentar.
-                </div>
+                <section class="notice" role="status">
+                  <i class="material-icons" aria-hidden="true">info</i>
+                  <p>Ya votaste esta propuesta. Todavía puedes comentar.</p>
+                </section>
               }
             }
 
-            <div class="campo">
-              <label>Comentario o corrección</label>
+            <label class="campo" for="comentarioValidacion">
+              Comentario o corrección
+
               <textarea
+                id="comentarioValidacion"
+                name="comentarioValidacion"
                 rows="4"
                 placeholder="Ej: La tarifa correcta es L.13 o esta ruta no pasa por esa calle."
                 [ngModel]="nuevaValidacion().comentario"
                 (ngModelChange)="actualizarComentario($event)"
               ></textarea>
-            </div>
+            </label>
 
             <button
               type="button"
@@ -281,32 +310,35 @@
               (click)="enviarValidacion('comentario')"
               [disabled]="enviando()"
             >
-              <i class="material-icons">chat</i>
+              <i class="material-icons" aria-hidden="true">chat</i>
               Comentar
             </button>
 
-            <div class="comentarios-list">
+            <section class="comentarios-list" aria-label="Comentarios de validación">
               @if (validaciones().length === 0) {
                 <p class="empty-comments">Aún no hay comentarios.</p>
               }
 
               @for (validacion of validaciones(); track validacion.id) {
                 <article class="comentario-card">
-                  <div>
+                  <header>
                     <strong>{{ validacion.usuarioNombre }}</strong>
                     <span>{{ formatearFecha(validacion.creadoEn) }}</span>
-                  </div>
+                  </header>
 
                   <p>{{ validacion.comentario || validacion.tipo }}</p>
 
-                  <small [class.aprobacion]="validacion.tipo === 'aprobacion'" [class.rechazo]="validacion.tipo === 'rechazo'">
+                  <small
+                    [class.aprobacion]="validacion.tipo === 'aprobacion'"
+                    [class.rechazo]="validacion.tipo === 'rechazo'"
+                  >
                     {{ validacion.tipo }}
                   </small>
                 </article>
               }
-            </div>
+            </section>
           }
-        </div>
+        </article>
       </aside>
     </section>
   </main>
@@ -325,4 +357,4 @@
     [tipo]="alertaTipo()"
     (cerrar)="cerrarAlerta()"
   ></app-alert-modal>
-</div>
+</section>
