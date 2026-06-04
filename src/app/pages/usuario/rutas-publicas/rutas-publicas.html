@@ -5,34 +5,41 @@
     <header class="page-header">
       <section>
         <p class="eyebrow">Rutas oficiales</p>
+
         <h1 id="rutas-title">Rutas públicas disponibles</h1>
+
         <p>
-          Consulta rutas aprobadas por la comunidad y propone correcciones si encuentras información incorrecta.
+          Consulta rutas aprobadas por la comunidad y propone correcciones si
+          encuentras información incorrecta.
         </p>
       </section>
 
-      <aside class="summary-card" aria-label="Resumen de rutas">
+      <aside class="summary-card" aria-label="Resumen de rutas activas">
         <strong>{{ rutasFiltradas().length }}</strong>
         <span>rutas activas</span>
       </aside>
     </header>
 
     <section class="filters" aria-labelledby="filtros-title">
-      <h2 id="filtros-title">Buscar ruta</h2>
+      <header>
+        <h2 id="filtros-title">Buscar ruta</h2>
+      </header>
 
       <form class="filter-form" role="search">
-        <label for="buscarRuta">Nombre, número, parada o zona</label>
+        <label for="buscarRuta">
+          Nombre, número, parada o zona
 
-        <input
-          id="buscarRuta"
-          type="search"
-          [ngModel]="filtro()"
-          (ngModelChange)="actualizarFiltro($event)"
-          name="buscarRuta"
-          autocomplete="off"
-          aria-describedby="buscarRutaAyuda"
-          placeholder="Ej: Universidad, Centro, Ruta 01..."
-        />
+          <input
+            id="buscarRuta"
+            type="search"
+            [ngModel]="filtro()"
+            (ngModelChange)="actualizarFiltro($event)"
+            name="buscarRuta"
+            autocomplete="off"
+            aria-describedby="buscarRutaAyuda"
+            placeholder="Ej: Universidad, Centro, Ruta 01..."
+          />
+        </label>
 
         <p id="buscarRutaAyuda">
           Escribe una referencia para filtrar las rutas oficiales activas.
@@ -197,7 +204,12 @@
             <h2>{{ rutaSeleccionada()?.nombre }}</h2>
           </section>
 
-          <button type="button" class="close-btn" (click)="cerrarSolicitud()" aria-label="Cerrar">
+          <button
+            type="button"
+            class="close-btn"
+            (click)="cerrarSolicitud()"
+            aria-label="Cerrar"
+          >
             <i class="material-icons" aria-hidden="true">close</i>
           </button>
         </header>
@@ -221,109 +233,6 @@
               placeholder="Ej: El precio cambió, ya no pasa por esa zona, falta una parada..."
             ></textarea>
           </fieldset>
-
-          @if (tipoSolicitud() === 'actualizacion' && false) {
-            <section class="update-editor" aria-label="Editor de cambios propuestos">
-              <section class="editor-map-card">
-                <header>
-                  <h3>Trayecto propuesto</h3>
-                  <p>Haz clic en el mapa para agregar puntos al nuevo recorrido.</p>
-                </header>
-
-                <section #editorMapa class="editor-map"></section>
-
-                <footer class="map-actions">
-                  <button type="button" (click)="deshacerPunto()">Deshacer punto</button>
-                  <button type="button" (click)="limpiarTrayecto()">Limpiar trayecto</button>
-                  <button type="button" (click)="restaurarTrayectoOriginal()">Restaurar original</button>
-                </footer>
-              </section>
-
-              <section class="editor-fields">
-                <fieldset>
-                  <legend>Datos de la ruta</legend>
-
-                  <label for="editarNombre">Nombre</label>
-                  <input
-                    id="editarNombre"
-                    name="editarNombre"
-                    type="text"
-                    [ngModel]="editor().nombre"
-                    (ngModelChange)="actualizarEditor('nombre', $event)"
-                  />
-
-                  <label for="editarNumero">Número</label>
-                  <input
-                    id="editarNumero"
-                    name="editarNumero"
-                    type="text"
-                    [ngModel]="editor().numero"
-                    (ngModelChange)="actualizarEditor('numero', $event)"
-                  />
-
-                  <label for="editarPrecio">Precio</label>
-                  <input
-                    id="editarPrecio"
-                    name="editarPrecio"
-                    type="number"
-                    min="0"
-                    [ngModel]="editor().precio"
-                    (ngModelChange)="actualizarEditor('precio', $event)"
-                  />
-
-                  <label for="editarHorario">Horario</label>
-                  <input
-                    id="editarHorario"
-                    name="editarHorario"
-                    type="text"
-                    [ngModel]="editor().horario"
-                    (ngModelChange)="actualizarEditor('horario', $event)"
-                    placeholder="Ej: 06:00 AM - 07:00 PM"
-                  />
-
-                  <label for="editarFrecuencia">Frecuencia</label>
-                  <input
-                    id="editarFrecuencia"
-                    name="editarFrecuencia"
-                    type="text"
-                    [ngModel]="editor().frecuencia"
-                    (ngModelChange)="actualizarEditor('frecuencia', $event)"
-                    placeholder="Ej: Cada 10 minutos"
-                  />
-
-                  <label for="editarDescripcion">Descripción</label>
-                  <textarea
-                    id="editarDescripcion"
-                    name="editarDescripcion"
-                    rows="3"
-                    [ngModel]="editor().descripcion"
-                    (ngModelChange)="actualizarEditor('descripcion', $event)"
-                  ></textarea>
-                </fieldset>
-
-                <section class="paradas-editor" aria-labelledby="paradas-editor-title">
-                  <h3 id="paradas-editor-title">Paradas</h3>
-
-                  @if (paradas().length === 0) {
-                    <p class="empty-text">Esta ruta no tiene paradas registradas.</p>
-                  }
-
-                  @for (parada of paradas(); track parada.orden; let index = $index) {
-                    <article class="parada-row">
-                      <section>
-                        <strong>{{ parada.orden }}. {{ parada.nombre }}</strong>
-                        <p>{{ parada.lat }}, {{ parada.lng }}</p>
-                      </section>
-
-                      <button type="button" (click)="quitarParada(index)">
-                        Quitar
-                      </button>
-                    </article>
-                  }
-                </section>
-              </section>
-            </section>
-          }
 
           <footer class="request-actions">
             <button type="button" class="cancel-btn" (click)="cerrarSolicitud()">
