@@ -24,6 +24,11 @@
           <strong>{{ totalPorRol('usuario') }}</strong>
           <span>Usuarios</span>
         </article>
+
+        <article>
+          <strong>{{ totalPorEstado('suspendido_temporal') + totalPorEstado('suspendido_permanente') }}</strong>
+          <span>Suspendidos</span>
+        </article>
       </aside>
     </header>
 
@@ -46,6 +51,21 @@
         </section>
 
         <section>
+          <label for="estadoUsuarioFiltro">Estado</label>
+          <select
+            id="estadoUsuarioFiltro"
+            name="estadoUsuarioFiltro"
+            [ngModel]="estadoFiltro()"
+            (ngModelChange)="actualizarEstadoFiltro($event)"
+          >
+            <option value="todos">Todos</option>
+            <option value="activo">Activos</option>
+            <option value="suspendido_temporal">Suspendidos temporalmente</option>
+            <option value="suspendido_permanente">Suspendidos permanentemente</option>
+          </select>
+        </section>
+
+        <section>
           <label for="buscarUsuario">Buscar por nombre, correo, telefono o ciudad</label>
           <input
             id="buscarUsuario"
@@ -58,6 +78,13 @@
         </section>
       </form>
     </section>
+
+    @if (mensaje()) {
+      <section class="feedback success" role="status">
+        <i class="material-icons" aria-hidden="true">check_circle</i>
+        <p>{{ mensaje() }}</p>
+      </section>
+    }
 
     @if (cargando()) {
       <section class="state-card" role="status" aria-live="polite">
@@ -96,6 +123,14 @@
               <p>{{ rolUsuario(usuario) === 'admin' ? 'Administrador' : 'Ciudadano' }}</p>
               <h2>{{ usuario.nombre || 'Usuario sin nombre' }}</h2>
             </section>
+
+            <span
+              class="status-badge"
+              [class.suspendido-temporal]="estadoUsuario(usuario) === 'suspendido_temporal'"
+              [class.suspendido-permanente]="estadoUsuario(usuario) === 'suspendido_permanente'"
+            >
+              {{ estadoUsuarioTexto(usuario) }}
+            </span>
           </header>
 
           <dl class="user-details">
@@ -118,7 +153,30 @@
               <dt>Favoritos</dt>
               <dd>{{ usuario.rutasFavoritas?.length || 0 }}</dd>
             </div>
+
+            <div>
+              <dt>Reportes falsos</dt>
+              <dd>{{ usuario.reportesFalsos || 0 }}</dd>
+            </div>
           </dl>
+
+          @if (estadoUsuario(usuario) !== 'activo') {
+            <section class="suspension-box" aria-label="Detalle de suspension">
+              <header>
+                <i class="material-icons" aria-hidden="true">gpp_bad</i>
+                <h3>Cuenta suspendida</h3>
+              </header>
+
+              <p>{{ usuario.motivoSuspension || 'Sin motivo registrado.' }}</p>
+
+              @if (estadoUsuario(usuario) === 'suspendido_temporal') {
+                <p>
+                  <strong>Fin de suspension:</strong>
+                  {{ formatearFecha(usuario.suspensionHasta) }}
+                </p>
+              }
+            </section>
+          }
 
           <footer class="role-actions" aria-label="Cambiar rol del usuario">
             <button
@@ -139,6 +197,39 @@
               <i class="material-icons" aria-hidden="true">admin_panel_settings</i>
               Admin
             </button>
+          </footer>
+
+          <footer class="suspension-actions" aria-label="Administrar suspension del usuario">
+            <button
+              type="button"
+              [disabled]="actualizando() === usuario.uid"
+              (click)="suspenderTemporalmente(usuario)"
+            >
+              <i class="material-icons" aria-hidden="true">timer_off</i>
+              Suspender temporalmente
+            </button>
+
+            <button
+              type="button"
+              class="danger"
+              [disabled]="actualizando() === usuario.uid"
+              (click)="suspenderPermanentemente(usuario)"
+            >
+              <i class="material-icons" aria-hidden="true">block</i>
+              Suspender permanente
+            </button>
+
+            @if (estadoUsuario(usuario) !== 'activo') {
+              <button
+                type="button"
+                class="success"
+                [disabled]="actualizando() === usuario.uid"
+                (click)="reactivarUsuario(usuario)"
+              >
+                <i class="material-icons" aria-hidden="true">verified_user</i>
+                Reactivar
+              </button>
+            }
           </footer>
         </article>
       }

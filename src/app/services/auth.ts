@@ -10,7 +10,12 @@ import {
   updatePassword,
   User,
 } from '@angular/fire/auth';
-import { UsuarioService, PerfilUsuario, UserRole } from './usuario.service';
+import {
+  EstadoUsuario,
+  UsuarioService,
+  PerfilUsuario,
+  UserRole,
+} from './usuario.service';
 
 export interface RegistroUsuario {
   nombre: string;
@@ -117,6 +122,39 @@ export class AuthService {
     return this.hasRole('admin');
   }
 
+  obtenerEstadoUsuario(perfil?: PerfilUsuario | null): EstadoUsuario {
+    return this.usuarioService.estadoUsuarioActual(perfil);
+  }
+
+  estaUsuarioSuspendido(perfil?: PerfilUsuario | null): boolean {
+    return this.usuarioService.estaSuspendido(perfil);
+  }
+
+  async puedeParticipar(): Promise<boolean> {
+    const perfil = await this.getCurrentUserProfile();
+
+    return !!perfil && !this.estaUsuarioSuspendido(perfil);
+  }
+
+  mensajeSuspension(perfil?: PerfilUsuario | null): string {
+    if (!perfil || !this.estaUsuarioSuspendido(perfil)) {
+      return '';
+    }
+
+    const motivo = perfil.motivoSuspension
+      ? ` Motivo: ${perfil.motivoSuspension}`
+      : '';
+
+    if (this.obtenerEstadoUsuario(perfil) === 'suspendido_temporal') {
+      const fecha = this.formatearFecha(perfil.suspensionHasta);
+      const hasta = fecha ? ` hasta el ${fecha}` : '';
+
+      return `Tu cuenta esta suspendida temporalmente${hasta}.${motivo}`;
+    }
+
+    return `Tu cuenta esta suspendida permanentemente.${motivo}`;
+  }
+
   async registrarUsuario(usuario: RegistroUsuario) {
     const credenciales = await createUserWithEmailAndPassword(
       this.auth,
@@ -152,5 +190,22 @@ export class AuthService {
 
     await reauthenticateWithCredential(usuario, credenciales);
     await updatePassword(usuario, passwordNueva);
+  }
+
+  private formatearFecha(fecha: any) {
+    if (!fecha) return '';
+
+    const fechaFinal =
+      typeof fecha.toDate === 'function' ? fecha.toDate() : new Date(fecha);
+
+    if (Number.isNaN(fechaFinal.getTime())) {
+      return '';
+    }
+
+    return fechaFinal.toLocaleDateString('es-HN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
   }
 }

@@ -169,6 +169,27 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
     return true;
   }
 
+  async puedeParticipar() {
+    if (!this.requiereSesion()) return false;
+
+    const perfil =
+      this.usuarioPerfil() ||
+      (this.usuarioAuth()
+        ? await this.authService.obtenerPerfilUsuario(this.usuarioAuth()!.uid)
+        : null);
+
+    if (this.authService.estaUsuarioSuspendido(perfil)) {
+      this.mostrarAlerta(
+        'Participacion suspendida',
+        this.authService.mensajeSuspension(perfil),
+        'warning'
+      );
+      return false;
+    }
+
+    return true;
+  }
+
   cerrarModalAuth() {
     this.mostrarModalAuth.set(false);
   }
@@ -544,7 +565,7 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
   }
 
   async guardarPropuesta() {
-    if (!this.requiereSesion()) return;
+    if (!(await this.puedeParticipar())) return;
 
     const propuesta = this.nuevaPropuesta();
     const usuario = this.usuarioAuth();

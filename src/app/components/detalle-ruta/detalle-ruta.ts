@@ -98,6 +98,13 @@ export class DetalleRuta {
       return null;
     }
 
+    const perfil = await this.authService.obtenerPerfilUsuario(usuario.uid);
+
+    if (this.authService.estaUsuarioSuspendido(perfil)) {
+      window.alert(this.authService.mensajeSuspension(perfil));
+      return null;
+    }
+
     return usuario;
   }
 
