@@ -88,6 +88,8 @@ export class NotasComunitarias {
   async crearNota() {
     const nota = this.nuevaNota();
 
+    if (!(await this.puedeParticipar())) return;
+
     if (!this.usuarioAuth) {
       alert('Debes iniciar sesión para agregar notas.');
       return;
@@ -127,13 +129,17 @@ export class NotasComunitarias {
     }
   }
 
-  votarNota(id?: string) {
+  async votarNota(id?: string) {
     if (!id) return;
+    if (!(await this.puedeParticipar())) return;
+
     this.rutaService.votarNotaUtil(id);
   }
 
-  confirmarNota(id?: string) {
+  async confirmarNota(id?: string) {
     if (!id) return;
+    if (!(await this.puedeParticipar())) return;
+
     this.rutaService.confirmarNota(id);
   }
 
@@ -176,5 +182,23 @@ export class NotasComunitarias {
       month: 'short',
       year: 'numeric',
     });
+  }
+
+  private async puedeParticipar() {
+    if (!this.usuarioAuth) {
+      alert('Debes iniciar sesiÃ³n para participar en notas comunitarias.');
+      return false;
+    }
+
+    const perfil =
+      this.usuarioPerfil ||
+      (await this.authService.obtenerPerfilUsuario(this.usuarioAuth.uid));
+
+    if (this.authService.estaUsuarioSuspendido(perfil)) {
+      alert(this.authService.mensajeSuspension(perfil));
+      return false;
+    }
+
+    return true;
   }
 }

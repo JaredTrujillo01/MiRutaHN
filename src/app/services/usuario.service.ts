@@ -1,5 +1,6 @@
 import { Injectable, Injector, inject, runInInjectionContext } from '@angular/core';
 import {
+  addDoc,
   arrayRemove,
   arrayUnion,
   collection,
@@ -15,6 +16,10 @@ import {
 import { Observable } from 'rxjs';
 
 export type UserRole = 'usuario' | 'admin';
+export type EstadoUsuario =
+  | 'activo'
+  | 'suspendido_temporal'
+  | 'suspendido_permanente';
 
 export interface PerfilUsuario {
   uid: string;
@@ -28,6 +33,22 @@ export interface PerfilUsuario {
   creadoEn?: Date;
   fechaRegistro?: Date;
   rutasFavoritas?: string[];
+  estadoUsuario?: EstadoUsuario;
+  motivoSuspension?: string;
+  suspendidoPor?: string;
+  suspendidoEn?: any;
+  suspensionHasta?: any;
+  reportesFalsos?: number;
+}
+
+interface DatosAuditoriaUsuario {
+  tipoAccion: 'suspension_temporal' | 'suspension_permanente' | 'reactivacion';
+  usuarioAfectadoId: string;
+  usuarioAfectadoNombre?: string;
+  adminId: string;
+  motivo: string;
+  estadoAnterior: EstadoUsuario;
+  estadoNuevo: EstadoUsuario;
 }
 
 @Injectable({
@@ -94,5 +115,129 @@ export class UsuarioService {
     }
 
     return 'usuario';
+  }
+
+  normalizarEstadoUsuario(valor?: string | null): EstadoUsuario {
+    if (valor === 'suspendido_temporal') {
+      return 'suspendido_temporal';
+    }
+
+    if (valor === 'suspendido_permanente') {
+      return 'suspendido_permanente';
+    }
+
+    return 'activo';
+  }
+
+  estadoUsuarioActual(perfil?: PerfilUsuario | null): EstadoUsuario {
+    const estado = this.normalizarEstadoUsuario(perfil?.estadoUsuario);
+
+    if (estado !== 'suspendido_temporal') {
+      return estado;
+    }
+
+    const suspensionHasta = this.fechaMillis(perfil?.suspensionHasta);
+
+    if (suspensionHasta > 0 && suspensionHasta <= Date.now()) {
+      return 'activo';
+    }
+
+    return 'suspendido_temporal';
+  }
+
+  estaSuspendido(perfil?: PerfilUsuario | null): boolean {
+    return this.estadoUsuarioActual(perfil) !== 'activo';
+  }
+
+  async suspenderTemporalmente(
+    usuario: PerfilUsuario,
+    adminId: string,
+    motivo: string,
+    suspensionHasta: Date
+  ) {
+    const estadoAnterior = this.estadoUsuarioActual(usuario);
+
+    await updateDoc(doc(this.firestore, 'usuarios', usuario.uid), {
+      estadoUsuario: 'suspendido_temporal',
+      motivoSuspension: motivo,
+      suspendidoPor: adminId,
+      suspendidoEn: new Date(),
+      suspensionHasta,
+    });
+
+    return this.registrarAccionAdmin({
+      tipoAccion: 'suspension_temporal',
+      usuarioAfectadoId: usuario.uid,
+      usuarioAfectadoNombre: usuario.nombre || usuario.email,
+      adminId,
+      motivo,
+      estadoAnterior,
+      estadoNuevo: 'suspendido_temporal',
+    });
+  }
+
+  async suspenderPermanentemente(
+    usuario: PerfilUsuario,
+    adminId: string,
+    motivo: string
+  ) {
+    const estadoAnterior = this.estadoUsuarioActual(usuario);
+
+    await updateDoc(doc(this.firestore, 'usuarios', usuario.uid), {
+      estadoUsuario: 'suspendido_permanente',
+      motivoSuspension: motivo,
+      suspendidoPor: adminId,
+      suspendidoEn: new Date(),
+      suspensionHasta: null,
+    });
+
+    return this.registrarAccionAdmin({
+      tipoAccion: 'suspension_permanente',
+      usuarioAfectadoId: usuario.uid,
+      usuarioAfectadoNombre: usuario.nombre || usuario.email,
+      adminId,
+      motivo,
+      estadoAnterior,
+      estadoNuevo: 'suspendido_permanente',
+    });
+  }
+
+  async reactivarUsuario(
+    usuario: PerfilUsuario,
+    adminId: string,
+    motivo = 'Usuario reactivado por administracion.'
+  ) {
+    const estadoAnterior = this.estadoUsuarioActual(usuario);
+
+    await updateDoc(doc(this.firestore, 'usuarios', usuario.uid), {
+      estadoUsuario: 'activo',
+      motivoSuspension: '',
+      suspensionHasta: null,
+    });
+
+    return this.registrarAccionAdmin({
+      tipoAccion: 'reactivacion',
+      usuarioAfectadoId: usuario.uid,
+      usuarioAfectadoNombre: usuario.nombre || usuario.email,
+      adminId,
+      motivo,
+      estadoAnterior,
+      estadoNuevo: 'activo',
+    });
+  }
+
+  private registrarAccionAdmin(data: DatosAuditoriaUsuario) {
+    return addDoc(collection(this.firestore, 'admin_acciones'), {
+      ...data,
+      fecha: new Date(),
+    });
+  }
+
+  private fechaMillis(fecha: any) {
+    if (!fecha) return 0;
+    if (typeof fecha.toMillis === 'function') return fecha.toMillis();
+    if (typeof fecha.toDate === 'function') return fecha.toDate().getTime();
+    if (fecha instanceof Date) return fecha.getTime();
+    return new Date(fecha).getTime() || 0;
   }
 }

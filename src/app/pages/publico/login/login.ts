@@ -29,6 +29,7 @@ export class Login {
   alertaTitulo = signal('');
   alertaMensaje = signal('');
   alertaTipo = signal<AlertModalType>('info');
+  redireccionAlCerrar = signal<string | null>(null);
 
   loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -56,8 +57,21 @@ export class Login {
 
       await this.authService.loginUsuario(email, password);
 
+      const perfil = await this.authService.getCurrentUserProfile();
+      const mensajeSuspension = this.authService.mensajeSuspension(perfil);
+
       const rol = await this.authService.getCurrentUserRole();
       localStorage.setItem('rol', rol ?? 'usuario');
+
+      if (mensajeSuspension) {
+        this.mostrarAlerta(
+          'Cuenta suspendida',
+          `${mensajeSuspension} Puedes consultar rutas publicas, pero no participar en acciones comunitarias mientras la suspension este activa.`,
+          'warning'
+        );
+        this.redireccionAlCerrar.set('/dashboard');
+        return;
+      }
 
       if (rol === 'admin') {
         this.router.navigate(['/admin/dashboard-admin']);
@@ -91,5 +105,12 @@ export class Login {
 
   cerrarAlerta() {
     this.alertaVisible.set(false);
+
+    const destino = this.redireccionAlCerrar();
+
+    if (destino) {
+      this.redireccionAlCerrar.set(null);
+      this.router.navigate([destino]);
+    }
   }
 }

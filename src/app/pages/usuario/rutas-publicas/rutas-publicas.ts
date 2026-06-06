@@ -246,11 +246,13 @@ export class RutasPublicas implements AfterViewInit, OnDestroy {
     return puntos.map((punto) => [punto.lat, punto.lng] as [number, number]);
   }
 
-  abrirSolicitud(ruta: RutaTransporte, tipo: TipoSolicitudRuta) {
+  async abrirSolicitud(ruta: RutaTransporte, tipo: TipoSolicitudRuta) {
     if (!this.usuarioId()) {
       this.mostrarModalAuth.set(true);
       return;
     }
+
+    if (!(await this.puedeParticipar())) return;
 
     this.rutaSeleccionada.set(ruta);
     this.tipoSolicitud.set(tipo);
@@ -430,6 +432,8 @@ export class RutasPublicas implements AfterViewInit, OnDestroy {
       return;
     }
 
+    if (!(await this.puedeParticipar())) return;
+
     if (!comentario) {
       this.mensajeError.set('Escribe una explicación para enviar la solicitud.');
       return;
@@ -532,7 +536,7 @@ export class RutasPublicas implements AfterViewInit, OnDestroy {
     );
   }
 
-  irAValidarActualizacion(propuesta?: PropuestaRuta) {
+  async irAValidarActualizacion(propuesta?: PropuestaRuta) {
     if (!propuesta?.id) return;
 
     if (!this.usuarioId()) {
@@ -540,10 +544,25 @@ export class RutasPublicas implements AfterViewInit, OnDestroy {
       return;
     }
 
+    if (!(await this.puedeParticipar())) return;
+
     this.router.navigate(['/comunidad'], {
       queryParams: {
         propuestaId: propuesta.id,
       },
     });
+  }
+
+  private async puedeParticipar() {
+    this.mensajeError.set('');
+
+    const perfil = await this.authService.getCurrentUserProfile();
+
+    if (this.authService.estaUsuarioSuspendido(perfil)) {
+      this.mensajeError.set(this.authService.mensajeSuspension(perfil));
+      return false;
+    }
+
+    return true;
   }
 }
