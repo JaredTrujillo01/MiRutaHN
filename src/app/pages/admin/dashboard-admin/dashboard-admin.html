@@ -1,2 +1,310 @@
-<p>dashboard-admin works!</p>
-<app-sidebar></app-sidebar>
+<section class="admin-dashboard-page">
+  <app-sidebar></app-sidebar>
+
+  <main class="admin-main" aria-labelledby="dashboard-admin-title">
+    <header class="page-header">
+      <section>
+        <p class="eyebrow">Administracion</p>
+        <h1 id="dashboard-admin-title">Panel del sistema</h1>
+        <p>
+          Monitorea rutas publicas, propuestas comunitarias, usuarios y notas
+          activas desde una sola vista.
+        </p>
+      </section>
+
+      <aside class="admin-greeting" aria-label="Administrador actual">
+        <i class="material-icons" aria-hidden="true">admin_panel_settings</i>
+        <section>
+          <span>Sesion administrativa</span>
+          <strong>{{ adminActual()?.nombre || 'Administrador' }}</strong>
+        </section>
+      </aside>
+    </header>
+
+    @if (cargando()) {
+      <section class="state-card" role="status" aria-live="polite">
+        <i class="material-icons" aria-hidden="true">hourglass_empty</i>
+        <h2>Cargando panel</h2>
+        <p>Estamos consultando la informacion mas reciente del sistema.</p>
+      </section>
+    }
+
+    @if (!cargando() && error()) {
+      <section class="state-card error" role="alert">
+        <i class="material-icons" aria-hidden="true">error</i>
+        <h2>Error al cargar</h2>
+        <p>{{ error() }}</p>
+      </section>
+    }
+
+    @if (!cargando() && !error()) {
+      <section class="summary-grid" aria-label="Resumen del sistema">
+        <article class="metric-card">
+          <span class="metric-icon">
+            <i class="material-icons" aria-hidden="true">route</i>
+          </span>
+          <section>
+            <strong>{{ rutasPublicas().length }}</strong>
+            <span>Rutas publicas</span>
+          </section>
+        </article>
+
+        <article class="metric-card warning">
+          <span class="metric-icon">
+            <i class="material-icons" aria-hidden="true">pending_actions</i>
+          </span>
+          <section>
+            <strong>{{ propuestasPendientes().length }}</strong>
+            <span>Propuestas pendientes</span>
+          </section>
+        </article>
+
+        <article class="metric-card">
+          <span class="metric-icon">
+            <i class="material-icons" aria-hidden="true">groups</i>
+          </span>
+          <section>
+            <strong>{{ usuarios().length }}</strong>
+            <span>Usuarios registrados</span>
+          </section>
+        </article>
+
+        <article class="metric-card">
+          <span class="metric-icon">
+            <i class="material-icons" aria-hidden="true">rate_review</i>
+          </span>
+          <section>
+            <strong>{{ notasActivas().length }}</strong>
+            <span>Notas activas</span>
+          </section>
+        </article>
+
+        <article class="metric-card success">
+          <span class="metric-icon">
+            <i class="material-icons" aria-hidden="true">verified</i>
+          </span>
+          <section>
+            <strong>{{ propuestasAprobadas().length }}</strong>
+            <span>Propuestas aprobadas</span>
+          </section>
+        </article>
+
+        <article class="metric-card danger">
+          <span class="metric-icon">
+            <i class="material-icons" aria-hidden="true">block</i>
+          </span>
+          <section>
+            <strong>{{ propuestasRechazadas().length }}</strong>
+            <span>Propuestas rechazadas</span>
+          </section>
+        </article>
+      </section>
+
+      <section class="quick-actions" aria-labelledby="acciones-title">
+        <header class="section-header">
+          <section>
+            <p class="eyebrow">Acciones rapidas</p>
+            <h2 id="acciones-title">Administrar plataforma</h2>
+          </section>
+        </header>
+
+        <section class="actions-grid">
+          <a routerLink="/admin/usuarios" aria-label="Gestionar usuarios">
+            <i class="material-icons" aria-hidden="true">manage_accounts</i>
+            <span>Gestionar usuarios</span>
+          </a>
+
+          <a routerLink="/comunidad" aria-label="Revisar propuestas comunitarias">
+            <i class="material-icons" aria-hidden="true">how_to_vote</i>
+            <span>Revisar propuestas</span>
+          </a>
+
+          <a routerLink="/rutas" aria-label="Ver rutas publicas">
+            <i class="material-icons" aria-hidden="true">route</i>
+            <span>Ver rutas publicas</span>
+          </a>
+
+          <a routerLink="/notas-comunitarias" aria-label="Ver notas comunitarias">
+            <i class="material-icons" aria-hidden="true">rate_review</i>
+            <span>Ver notas comunitarias</span>
+          </a>
+        </section>
+      </section>
+
+      <section class="dashboard-grid">
+        <article class="panel activity-panel" aria-labelledby="actividad-title">
+          <header class="section-header">
+            <section>
+              <p class="eyebrow">Actividad</p>
+              <h2 id="actividad-title">Movimiento reciente</h2>
+            </section>
+          </header>
+
+          @if (actividadReciente().length === 0) {
+            <section class="empty-state">
+              <i class="material-icons" aria-hidden="true">history</i>
+              <h3>Sin actividad reciente</h3>
+              <p>Aun no hay eventos para mostrar en el panel.</p>
+            </section>
+          } @else {
+            <section class="activity-list">
+              @for (actividad of actividadReciente(); track $index) {
+                <article class="activity-item">
+                  <span class="activity-icon">
+                    <i class="material-icons" aria-hidden="true">{{ actividad.icono }}</i>
+                  </span>
+
+                  <section>
+                    <h3>{{ actividad.titulo }}</h3>
+                    <p>{{ actividad.descripcion }}</p>
+                    <span>{{ actividad.detalle }} · {{ formatearFecha(actividad.fecha) }}</span>
+                  </section>
+                </article>
+              }
+            </section>
+          }
+        </article>
+
+        <article class="panel" aria-labelledby="propuestas-title">
+          <header class="section-header">
+            <section>
+              <p class="eyebrow">Validacion</p>
+              <h2 id="propuestas-title">Resumen de propuestas</h2>
+            </section>
+          </header>
+
+          <section class="proposal-stats" aria-label="Estado de propuestas">
+            <article>
+              <strong>{{ propuestasPendientes().length }}</strong>
+              <span>Pendientes</span>
+            </article>
+
+            <article>
+              <strong>{{ propuestasAprobadas().length }}</strong>
+              <span>Aprobadas</span>
+            </article>
+
+            <article>
+              <strong>{{ propuestasRechazadas().length }}</strong>
+              <span>Rechazadas</span>
+            </article>
+          </section>
+
+          @if (propuestasPorRevisar().length === 0) {
+            <section class="empty-state compact">
+              <i class="material-icons" aria-hidden="true">task_alt</i>
+              <h3>Sin propuestas en revision</h3>
+              <p>No hay propuestas con actividad de votos en este momento.</p>
+            </section>
+          } @else {
+            <section class="review-list" aria-label="Propuestas que necesitan revision">
+              @for (propuesta of propuestasPorRevisar(); track propuesta.id) {
+                <article class="review-item">
+                  <section>
+                    <h3>{{ propuesta.nombre }}</h3>
+                    <p>{{ tipoPropuestaTexto(propuesta) }}</p>
+                  </section>
+                  <span>{{ progresoPropuesta(propuesta) }}</span>
+                </article>
+              }
+            </section>
+          }
+        </article>
+      </section>
+
+      <section class="dashboard-grid lower-grid">
+        <article class="panel" aria-labelledby="rutas-title">
+          <header class="section-header">
+            <section>
+              <p class="eyebrow">Rutas</p>
+              <h2 id="rutas-title">Rutas publicas recientes</h2>
+            </section>
+          </header>
+
+          @if (rutasRecientes().length === 0) {
+            <section class="empty-state compact">
+              <i class="material-icons" aria-hidden="true">route</i>
+              <h3>Sin rutas publicas</h3>
+              <p>No hay rutas activas publicadas todavia.</p>
+            </section>
+          } @else {
+            <section class="table-list" aria-label="Rutas publicas recientes">
+              @for (ruta of rutasRecientes(); track ruta.id) {
+                <article class="route-row">
+                  <section>
+                    <h3>{{ ruta.nombre }}</h3>
+                    <p>Ruta {{ ruta.numero }} · {{ ruta.creadoPorNombre || 'Sin autor registrado' }}</p>
+                  </section>
+
+                  <dl>
+                    <div>
+                      <dt>Precio</dt>
+                      <dd>{{ formatearPrecio(ruta.precio) }}</dd>
+                    </div>
+
+                    <div>
+                      <dt>Frecuencia</dt>
+                      <dd>{{ ruta.frecuencia || 'No definida' }}</dd>
+                    </div>
+
+                    <div>
+                      <dt>Estado</dt>
+                      <dd>{{ estadoTexto(ruta.estado) }}</dd>
+                    </div>
+                  </dl>
+                </article>
+              }
+            </section>
+          }
+        </article>
+
+        <article class="panel" aria-labelledby="usuarios-title">
+          <header class="section-header">
+            <section>
+              <p class="eyebrow">Usuarios</p>
+              <h2 id="usuarios-title">Resumen de usuarios</h2>
+            </section>
+          </header>
+
+          <section class="user-overview" aria-label="Usuarios por rol">
+            <article>
+              <i class="material-icons" aria-hidden="true">admin_panel_settings</i>
+              <strong>{{ usuariosAdmin().length }}</strong>
+              <span>Administradores</span>
+            </article>
+
+            <article>
+              <i class="material-icons" aria-hidden="true">person</i>
+              <strong>{{ usuariosRegulares().length }}</strong>
+              <span>Usuarios regulares</span>
+            </article>
+          </section>
+
+          @if (usuariosRecientes().length === 0) {
+            <section class="empty-state compact">
+              <i class="material-icons" aria-hidden="true">person_off</i>
+              <h3>Sin usuarios recientes</h3>
+              <p>No hay perfiles registrados para mostrar.</p>
+            </section>
+          } @else {
+            <section class="recent-users" aria-label="Usuarios recientes">
+              @for (usuario of usuariosRecientes(); track usuario.uid) {
+                <article>
+                  <img
+                    [src]="usuario.avatarUrl || 'assets/avatars/avatar-1.png'"
+                    [alt]="'Avatar de ' + (usuario.nombre || usuario.email)"
+                  />
+                  <section>
+                    <h3>{{ usuario.nombre || 'Usuario sin nombre' }}</h3>
+                    <p>{{ usuario.email }}</p>
+                  </section>
+                  <span>{{ rolUsuario(usuario) === 'admin' ? 'Admin' : 'Usuario' }}</span>
+                </article>
+              }
+            </section>
+          }
+        </article>
+      </section>
+    }
+  </main>
+</section>
