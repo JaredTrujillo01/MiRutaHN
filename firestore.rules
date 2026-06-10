@@ -1,0 +1,317 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // rutas: public route documents used by public map/list screens.
+    // propuestas_rutas/propuestasRutas: community route proposals.
+    // validaciones_rutas/validacionesRutas: votes and comments on proposals.
+    // notas_comunitarias/notasComunitarias: public active route notes.
+    // usuarios: private user profiles with PII (email/phone/city/role).
+    // admin_acciones: admin audit log.
+    //
+    // Public screens intentionally read rutas, proposals, validations, and
+    // active notes without login. User profiles remain owner/admin only.
+    // ===============================================================
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function userPath(userId) {
+      return /databases/$(database)/documents/usuarios/$(userId);
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        exists(userPath(request.auth.uid)) &&
+        (
+          get(userPath(request.auth.uid)).data.role == 'admin' ||
+          get(userPath(request.auth.uid)).data.rol == 'admin'
+        );
+    }
+
+    function hasOnly(data, fields) {
+      return data.keys().hasOnly(fields);
+    }
+
+    function hasAll(data, fields) {
+      return data.keys().hasAll(fields);
+    }
+
+    function optionalString(data, field, maxSize) {
+      return !data.keys().hasAny([field]) ||
+        (data[field] is string && data[field].size() <= maxSize);
+    }
+
+    function optionalNumber(data, field) {
+      return !data.keys().hasAny([field]) || data[field] is number;
+    }
+
+    function optionalTimestamp(data, field) {
+      return !data.keys().hasAny([field]) ||
+        data[field] == null ||
+        data[field] is timestamp;
+    }
+
+    function optionalBool(data, field) {
+      return !data.keys().hasAny([field]) || data[field] is bool;
+    }
+
+    function optionalList(data, field, maxSize) {
+      return !data.keys().hasAny([field]) ||
+        (data[field] is list && data[field].size() <= maxSize);
+    }
+
+    function isValidRuta(data) {
+      return hasOnly(data, [
+          'nombre', 'numero', 'precio', 'horario', 'frecuencia', 'color',
+          'descripcion', 'puntosGuia', 'recorrido', 'paradas', 'estado',
+          'publicadoDesdePropuesta', 'propuestaOrigenId', 'origenPropuestaId',
+          'creadoPor', 'creadoPorNombre', 'creadoEn', 'actualizadoEn'
+        ]) &&
+        hasAll(data, ['nombre', 'numero', 'precio', 'horario', 'color', 'estado']) &&
+        data.nombre is string && data.nombre.size() > 0 && data.nombre.size() <= 120 &&
+        data.numero is string && data.numero.size() > 0 && data.numero.size() <= 40 &&
+        data.precio is number && data.precio >= 0 && data.precio <= 1000 &&
+        data.horario is string && data.horario.size() <= 160 &&
+        data.color is string && data.color.size() <= 32 &&
+        data.estado in ['activa', 'inactiva'] &&
+        optionalString(data, 'frecuencia', 120) &&
+        optionalString(data, 'descripcion', 1000) &&
+        optionalString(data, 'propuestaOrigenId', 120) &&
+        optionalString(data, 'origenPropuestaId', 120) &&
+        optionalString(data, 'creadoPor', 128) &&
+        optionalString(data, 'creadoPorNombre', 120) &&
+        optionalBool(data, 'publicadoDesdePropuesta') &&
+        optionalTimestamp(data, 'creadoEn') &&
+        optionalTimestamp(data, 'actualizadoEn') &&
+        optionalList(data, 'puntosGuia', 200) &&
+        optionalList(data, 'recorrido', 300) &&
+        optionalList(data, 'paradas', 200);
+    }
+
+    function isValidPropuesta(data) {
+      return hasOnly(data, [
+          'tipoPropuesta', 'rutaOrigenId', 'motivoCambio', 'nombre', 'numero',
+          'precio', 'horario', 'frecuencia', 'color', 'descripcion',
+          'comentarios', 'puntosGuia', 'recorrido', 'paradas', 'estado',
+          'creadoPor', 'creadoPorNombre', 'creadoEn', 'actualizadoEn',
+          'aprobaciones', 'rechazos', 'rutaPublicadaId'
+        ]) &&
+        hasAll(data, [
+          'nombre', 'numero', 'precio', 'horario', 'color', 'estado',
+          'creadoPor', 'creadoPorNombre', 'creadoEn', 'aprobaciones', 'rechazos'
+        ]) &&
+        data.nombre is string && data.nombre.size() > 0 && data.nombre.size() <= 140 &&
+        data.numero is string && data.numero.size() > 0 && data.numero.size() <= 40 &&
+        data.precio is number && data.precio >= 0 && data.precio <= 1000 &&
+        data.horario is string && data.horario.size() <= 160 &&
+        data.color is string && data.color.size() <= 32 &&
+        data.estado in ['pendiente', 'aprobada', 'rechazada'] &&
+        data.creadoPor is string && data.creadoPor.size() > 0 && data.creadoPor.size() <= 128 &&
+        data.creadoPorNombre is string && data.creadoPorNombre.size() <= 120 &&
+        data.creadoEn is timestamp &&
+        data.aprobaciones is number && data.aprobaciones >= 0 &&
+        data.rechazos is number && data.rechazos >= 0 &&
+        optionalString(data, 'tipoPropuesta', 40) &&
+        (!data.keys().hasAny(['tipoPropuesta']) || data.tipoPropuesta in ['nueva', 'actualizacion', 'eliminacion']) &&
+        optionalString(data, 'rutaOrigenId', 120) &&
+        optionalString(data, 'motivoCambio', 1000) &&
+        optionalString(data, 'frecuencia', 120) &&
+        optionalString(data, 'descripcion', 1000) &&
+        optionalString(data, 'comentarios', 1000) &&
+        optionalString(data, 'rutaPublicadaId', 120) &&
+        optionalTimestamp(data, 'actualizadoEn') &&
+        optionalList(data, 'puntosGuia', 200) &&
+        optionalList(data, 'recorrido', 300) &&
+        optionalList(data, 'paradas', 200);
+    }
+
+    function isValidValidacion(data) {
+      return hasOnly(data, [
+          'propuestaId', 'usuarioId', 'usuarioNombre', 'tipo', 'comentario', 'creadoEn'
+        ]) &&
+        hasAll(data, ['propuestaId', 'usuarioId', 'usuarioNombre', 'tipo', 'creadoEn']) &&
+        data.propuestaId is string && data.propuestaId.size() > 0 && data.propuestaId.size() <= 128 &&
+        data.usuarioId is string && data.usuarioId.size() > 0 && data.usuarioId.size() <= 128 &&
+        data.usuarioNombre is string && data.usuarioNombre.size() <= 120 &&
+        data.tipo in ['aprobacion', 'rechazo', 'comentario'] &&
+        data.creadoEn is timestamp &&
+        optionalString(data, 'comentario', 1000);
+    }
+
+    function isValidNota(data) {
+      return hasOnly(data, [
+          'rutaId', 'usuarioId', 'usuarioNombre', 'comentario', 'campoMarcado',
+          'estado', 'votosUtiles', 'confirmaciones', 'creadoEn', 'actualizadoEn'
+        ]) &&
+        hasAll(data, [
+          'rutaId', 'usuarioId', 'usuarioNombre', 'comentario', 'estado',
+          'votosUtiles', 'confirmaciones', 'creadoEn'
+        ]) &&
+        data.rutaId is string && data.rutaId.size() > 0 && data.rutaId.size() <= 128 &&
+        data.usuarioId is string && data.usuarioId.size() > 0 && data.usuarioId.size() <= 128 &&
+        data.usuarioNombre is string && data.usuarioNombre.size() <= 120 &&
+        data.comentario is string && data.comentario.size() > 0 && data.comentario.size() <= 1000 &&
+        data.estado in ['activa', 'oculta', 'resuelta'] &&
+        data.votosUtiles is number && data.votosUtiles >= 0 &&
+        data.confirmaciones is number && data.confirmaciones >= 0 &&
+        data.creadoEn is timestamp &&
+        optionalTimestamp(data, 'actualizadoEn') &&
+        optionalString(data, 'campoMarcado', 40) &&
+        (!data.keys().hasAny(['campoMarcado']) ||
+          data.campoMarcado in ['precio', 'horario', 'frecuencia', 'recorrido', 'paradas', 'descripcion', 'otro']);
+    }
+
+    function isValidUser(data) {
+      return hasOnly(data, [
+          'uid', 'nombre', 'email', 'telefono', 'ciudad', 'role', 'rol',
+          'avatarUrl', 'creadoEn', 'fechaRegistro', 'rutasFavoritas',
+          'estadoUsuario', 'motivoSuspension', 'suspendidoPor', 'suspendidoEn',
+          'suspensionHasta', 'reportesFalsos'
+        ]) &&
+        hasAll(data, ['uid', 'nombre', 'email']) &&
+        data.uid is string && data.uid.size() > 0 && data.uid.size() <= 128 &&
+        data.nombre is string && data.nombre.size() > 0 && data.nombre.size() <= 120 &&
+        data.email is string && data.email.size() > 3 && data.email.size() <= 180 &&
+        optionalString(data, 'telefono', 40) &&
+        optionalString(data, 'ciudad', 120) &&
+        optionalString(data, 'role', 20) &&
+        optionalString(data, 'rol', 20) &&
+        (!data.keys().hasAny(['role']) || data.role in ['usuario', 'admin']) &&
+        (!data.keys().hasAny(['rol']) || data.rol in ['usuario', 'admin', 'ciudadano']) &&
+        optionalString(data, 'avatarUrl', 500) &&
+        optionalTimestamp(data, 'creadoEn') &&
+        optionalTimestamp(data, 'fechaRegistro') &&
+        optionalList(data, 'rutasFavoritas', 200) &&
+        optionalString(data, 'estadoUsuario', 40) &&
+        (!data.keys().hasAny(['estadoUsuario']) ||
+          data.estadoUsuario in ['activo', 'suspendido_temporal', 'suspendido_permanente']) &&
+        optionalString(data, 'motivoSuspension', 1000) &&
+        optionalString(data, 'suspendidoPor', 128) &&
+        optionalTimestamp(data, 'suspendidoEn') &&
+        optionalTimestamp(data, 'suspensionHasta') &&
+        optionalNumber(data, 'reportesFalsos');
+    }
+
+    function isOwnNewUser(userId) {
+      return isOwner(userId) &&
+        request.resource.data.uid == userId &&
+        (!request.resource.data.keys().hasAny(['role']) || request.resource.data.role == 'usuario') &&
+        (!request.resource.data.keys().hasAny(['rol']) || request.resource.data.rol in ['usuario', 'ciudadano']);
+    }
+
+    function userImmutableFieldsUnchanged() {
+      return !request.resource.data.diff(resource.data).affectedKeys()
+        .hasAny(['uid', 'email', 'role', 'rol', 'estadoUsuario', 'motivoSuspension', 'suspendidoPor', 'suspendidoEn', 'suspensionHasta']);
+    }
+
+    function onlyNoteCountersChanged() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['votosUtiles', 'confirmaciones', 'actualizadoEn']) &&
+        request.resource.data.votosUtiles >= resource.data.votosUtiles &&
+        request.resource.data.confirmaciones >= resource.data.confirmaciones;
+    }
+
+    function isProposalProgressUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['aprobaciones', 'rechazos', 'estado', 'rutaPublicadaId', 'actualizadoEn']) &&
+        request.resource.data.creadoPor == resource.data.creadoPor &&
+        request.resource.data.creadoEn == resource.data.creadoEn &&
+        request.resource.data.aprobaciones >= resource.data.aprobaciones &&
+        request.resource.data.aprobaciones <= resource.data.aprobaciones + 1 &&
+        request.resource.data.rechazos >= resource.data.rechazos &&
+        request.resource.data.rechazos <= resource.data.rechazos + 1 &&
+        request.resource.data.estado in ['pendiente', 'aprobada', 'rechazada'];
+    }
+
+    match /rutas/{rutaId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isValidRuta(request.resource.data);
+      allow update: if isAdmin() && isValidRuta(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /propuestas_rutas/{propuestaId} {
+      allow read: if true;
+      allow create: if isSignedIn() &&
+        request.resource.data.creadoPor == request.auth.uid &&
+        isValidPropuesta(request.resource.data);
+      allow update: if isValidPropuesta(request.resource.data) &&
+        (isAdmin() || (isSignedIn() && isProposalProgressUpdate()));
+      allow delete: if isAdmin();
+    }
+
+    match /propuestasRutas/{propuestaId} {
+      allow read: if true;
+      allow create: if isSignedIn() &&
+        request.resource.data.creadoPor == request.auth.uid &&
+        isValidPropuesta(request.resource.data);
+      allow update: if isValidPropuesta(request.resource.data) &&
+        (isAdmin() || (isSignedIn() && isProposalProgressUpdate()));
+      allow delete: if isAdmin();
+    }
+
+    match /validaciones_rutas/{validacionId} {
+      allow read: if true;
+      allow create: if isSignedIn() &&
+        request.resource.data.usuarioId == request.auth.uid &&
+        isValidValidacion(request.resource.data);
+      allow update, delete: if isAdmin();
+    }
+
+    match /validacionesRutas/{validacionId} {
+      allow read: if true;
+      allow create: if isSignedIn() &&
+        request.resource.data.usuarioId == request.auth.uid &&
+        isValidValidacion(request.resource.data);
+      allow update, delete: if isAdmin();
+    }
+
+    match /notas_comunitarias/{notaId} {
+      allow read: if resource.data.estado == 'activa';
+      allow create: if isSignedIn() &&
+        request.resource.data.usuarioId == request.auth.uid &&
+        isValidNota(request.resource.data);
+      allow update: if isAdmin() && isValidNota(request.resource.data) ||
+        (isSignedIn() && isValidNota(request.resource.data) && onlyNoteCountersChanged());
+      allow delete: if isAdmin();
+    }
+
+    match /notasComunitarias/{notaId} {
+      allow read: if resource.data.estado == 'activa';
+      allow create: if isSignedIn() &&
+        request.resource.data.usuarioId == request.auth.uid &&
+        isValidNota(request.resource.data);
+      allow update: if isAdmin() && isValidNota(request.resource.data) ||
+        (isSignedIn() && isValidNota(request.resource.data) && onlyNoteCountersChanged());
+      allow delete: if isAdmin();
+    }
+
+    match /usuarios/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwnNewUser(userId) && isValidUser(request.resource.data);
+      allow update: if isValidUser(request.resource.data) &&
+        ((isOwner(userId) && userImmutableFieldsUnchanged()) || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    match /admin_acciones/{accionId} {
+      allow read, create: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
