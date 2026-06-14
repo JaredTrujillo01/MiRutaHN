@@ -1,16 +1,38 @@
 @if (visible()) {
-  <div class="modal-backdrop">
-    <div class="modal-card">
-      <div class="modal-icon" [class]="tipo()">
-        <i class="material-icons">{{ icono() }}</i>
-      </div>
+  <section
+    class="modal-backdrop"
+    role="presentation"
+    aria-hidden="false"
+  >
+    <article
+      class="modal-card"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="alert-modal-title"
+      aria-describedby="alert-modal-message"
+      tabindex="-1"
+    >
+      <section
+        class="modal-icon"
+        [class]="tipo()"
+        aria-hidden="true"
+      >
+        <i class="material-icons" aria-hidden="true">{{ icono() }}</i>
+      </section>
 
-      <h2>{{ titulo() }}</h2>
-      <p>{{ mensaje() }}</p>
+      <h2 id="alert-modal-title">{{ titulo() }}</h2>
 
-      <button type="button" class="btn-primary" (click)="cerrarModal()">
+      <p id="alert-modal-message">{{ mensaje() }}</p>
+
+      <button
+        type="button"
+        class="btn-primary"
+        (click)="cerrarModal()"
+        aria-label="Aceptar y cerrar aviso"
+        autofocus
+      >
         Aceptar
       </button>
-    </div>
-  </div>
+    </article>
+  </section>
 }

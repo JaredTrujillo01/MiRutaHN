@@ -1,74 +1,148 @@
-<aside class="sidebar" aria-label="Menú lateral de MiRutaHN">
+<aside class="sidebar" aria-labelledby="sidebar-title">
   <header class="sidebar-header">
-    <section class="logo" aria-label="Marca MiRutaHN">
+    <section class="logo" aria-label="Marca de MiRutaHN">
       <i class="material-icons" aria-hidden="true">directions_bus</i>
-      <strong>MiRutaHN</strong>
+      <strong id="sidebar-title">MiRutaHN</strong>
     </section>
 
-    <p class="user-badge">{{ badgeRol() }}</p>
+    <p class="user-badge" aria-label="Rol actual del usuario">
+      {{ badgeRol() }}
+    </p>
   </header>
 
-  <nav class="sidebar-nav" aria-label="Opciones principales">
+  <nav class="sidebar-nav" aria-label="Navegación principal del sistema">
     @if (rol() === 'admin' && sesionActiva()) {
-      <a class="nav-item" routerLink="/admin/dashboard-admin" routerLinkActive="active">
+      <a
+        class="nav-item"
+        routerLink="/admin/dashboard-admin"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        aria-label="Ir al panel de administración"
+      >
         <i class="material-icons" aria-hidden="true">dashboard</i>
         <span>Panel Admin</span>
       </a>
 
-      <a class="nav-item" routerLink="/admin/rutas" routerLinkActive="active">
+      <a
+        class="nav-item"
+        routerLink="/admin/rutas"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        aria-label="Ir a gestión de rutas"
+      >
         <i class="material-icons" aria-hidden="true">route</i>
         <span>Gestionar Rutas</span>
       </a>
 
-      <a class="nav-item" routerLink="/comunidad" routerLinkActive="active">
+      <a
+        class="nav-item"
+        routerLink="/comunidad"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        aria-label="Ir a validaciones comunitarias"
+      >
         <i class="material-icons" aria-hidden="true">how_to_vote</i>
         <span>Validaciones</span>
       </a>
 
-      <a class="nav-item" routerLink="/notas-comunitarias" routerLinkActive="active">
+      <a
+        class="nav-item"
+        routerLink="/notas-comunitarias"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        aria-label="Ir a notas comunitarias"
+      >
         <i class="material-icons" aria-hidden="true">rate_review</i>
         <span>Notas</span>
       </a>
 
-      <a class="nav-item" routerLink="/admin/usuarios" routerLinkActive="active">
+      <a
+        class="nav-item"
+        routerLink="/admin/usuarios"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        aria-label="Ir a administración de usuarios"
+      >
         <i class="material-icons" aria-hidden="true">groups</i>
         <span>Usuarios</span>
       </a>
 
-      <a class="nav-item" routerLink="/perfil" routerLinkActive="active">
+      <a
+        class="nav-item"
+        routerLink="/perfil"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        aria-label="Ir a mi perfil"
+      >
         <i class="material-icons" aria-hidden="true">person</i>
         <span>Perfil</span>
       </a>
     }
 
     @if (rol() === 'usuario') {
-      <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
+      <a
+        class="nav-item"
+        routerLink="/dashboard"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        aria-label="Ir a explorar rutas"
+      >
         <i class="material-icons" aria-hidden="true">map</i>
         <span>Explorar</span>
       </a>
 
-      <a class="nav-item" routerLink="/rutas" routerLinkActive="active">
+      <a
+        class="nav-item"
+        routerLink="/rutas"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        aria-label="Ir a rutas públicas"
+      >
         <i class="material-icons" aria-hidden="true">route</i>
         <span>Rutas</span>
       </a>
 
-      <a class="nav-item" routerLink="/proponer-ruta" routerLinkActive="active">
+      <a
+        class="nav-item"
+        routerLink="/proponer-ruta"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        aria-label="Ir a proponer una ruta"
+      >
         <i class="material-icons" aria-hidden="true">add_road</i>
         <span>Proponer</span>
       </a>
 
-      <a class="nav-item" routerLink="/comunidad" routerLinkActive="active">
+      <a
+        class="nav-item"
+        routerLink="/comunidad"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        aria-label="Ir a validar rutas comunitarias"
+      >
         <i class="material-icons" aria-hidden="true">how_to_vote</i>
         <span>Validar</span>
       </a>
 
-      <a class="nav-item" routerLink="/notas-comunitarias" routerLinkActive="active">
+      <a
+        class="nav-item"
+        routerLink="/notas-comunitarias"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        aria-label="Ir a notas comunitarias"
+      >
         <i class="material-icons" aria-hidden="true">rate_review</i>
         <span>Notas</span>
       </a>
 
       @if (sesionActiva()) {
-        <a class="nav-item" routerLink="/perfil" routerLinkActive="active">
+        <a
+          class="nav-item"
+          routerLink="/perfil"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          aria-label="Ir a mi perfil"
+        >
           <i class="material-icons" aria-hidden="true">person</i>
           <span>Perfil</span>
         </a>
@@ -76,19 +150,34 @@
     }
   </nav>
 
-  <footer class="sidebar-footer">
+  <footer class="sidebar-footer" aria-label="Acciones de sesión">
     @if (sesionActiva()) {
-      <button class="footer-link logout" type="button" (click)="cerrarSesion()">
+      <button
+        class="footer-link logout"
+        type="button"
+        (click)="cerrarSesion()"
+        aria-label="Cerrar sesión actual"
+      >
         <i class="material-icons" aria-hidden="true">logout</i>
         <span>Cerrar sesión</span>
       </button>
     } @else {
-      <button class="footer-link login" type="button" (click)="irLogin()">
+      <button
+        class="footer-link login"
+        type="button"
+        (click)="irLogin()"
+        aria-label="Ir a iniciar sesión"
+      >
         <i class="material-icons" aria-hidden="true">login</i>
         <span>Iniciar sesión</span>
       </button>
 
-      <button class="footer-link register" type="button" (click)="irRegistro()">
+      <button
+        class="footer-link register"
+        type="button"
+        (click)="irRegistro()"
+        aria-label="Ir a crear una cuenta"
+      >
         <i class="material-icons" aria-hidden="true">person_add</i>
         <span>Registrarse</span>
       </button>

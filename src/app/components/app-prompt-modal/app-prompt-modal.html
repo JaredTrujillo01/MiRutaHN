@@ -1,34 +1,73 @@
 @if (visible()) {
-  <div class="modal-backdrop">
-    <div class="modal-card">
-      <button class="modal-close" type="button" (click)="cerrar()">
-        <i class="material-icons">close</i>
+  <section
+    class="modal-backdrop"
+    role="presentation"
+    aria-hidden="false"
+  >
+    <article
+      class="modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="prompt-modal-title"
+      aria-describedby="prompt-modal-description"
+    >
+      <button
+        class="modal-close"
+        type="button"
+        (click)="cerrar()"
+        aria-label="Cerrar ventana"
+      >
+        <i class="material-icons" aria-hidden="true">close</i>
       </button>
 
-      <div class="modal-icon">
-        <i class="material-icons">edit_location_alt</i>
-      </div>
+      <section class="modal-icon" aria-hidden="true">
+        <i class="material-icons" aria-hidden="true">edit_location_alt</i>
+      </section>
 
-      <h2>{{ titulo() }}</h2>
+      <h2 id="prompt-modal-title">
+        {{ titulo() }}
+      </h2>
 
-      <label>{{ label() }}</label>
+      <p
+        id="prompt-modal-description"
+        class="sr-only"
+      >
+        Complete la información solicitada y luego presione aceptar.
+      </p>
+
+      <label for="prompt-input">
+        {{ label() }}
+      </label>
 
       <input
+        id="prompt-input"
         type="text"
         [placeholder]="placeholder()"
         [ngModel]="valor()"
         (ngModelChange)="valor.set($event)"
+        aria-required="true"
+        autofocus
       />
 
       <div class="modal-actions">
-        <button type="button" class="btn-secondary" (click)="cerrar()">
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="cerrar()"
+          aria-label="Cancelar operación"
+        >
           Cancelar
         </button>
 
-        <button type="button" class="btn-primary" (click)="aceptar()">
+        <button
+          type="button"
+          class="btn-primary"
+          (click)="aceptar()"
+          aria-label="Aceptar y guardar información"
+        >
           Aceptar
         </button>
       </div>
-    </div>
-  </div>
+    </article>
+  </section>
 }

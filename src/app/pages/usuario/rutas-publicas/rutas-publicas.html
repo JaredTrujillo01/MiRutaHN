@@ -8,24 +8,33 @@
 
         <h1 id="rutas-title">Rutas públicas disponibles</h1>
 
-        <p>
+        <p id="rutas-description">
           Consulta rutas aprobadas por la comunidad y propone correcciones si
           encuentras información incorrecta.
         </p>
       </section>
 
-      <aside class="summary-card" aria-label="Resumen de rutas activas">
+      <aside
+        class="summary-card"
+        aria-label="Resumen de rutas activas"
+        role="status"
+        aria-live="polite"
+      >
         <strong>{{ rutasFiltradas().length }}</strong>
         <span>rutas activas</span>
       </aside>
     </header>
 
-    <section class="filters" aria-labelledby="filtros-title">
+    <section
+      class="filters"
+      aria-labelledby="filtros-title"
+      aria-describedby="buscarRutaAyuda"
+    >
       <header>
         <h2 id="filtros-title">Buscar ruta</h2>
       </header>
 
-      <form class="filter-form" role="search">
+      <form class="filter-form" role="search" aria-label="Buscar rutas públicas">
         <label for="buscarRuta">
           Nombre, número, parada o zona
 
@@ -48,7 +57,7 @@
     </section>
 
     @if (mensajeExito()) {
-      <section class="feedback success" role="status">
+      <section class="feedback success" role="status" aria-live="polite">
         <i class="material-icons" aria-hidden="true">check_circle</i>
         <p>{{ mensajeExito() }}</p>
       </section>
@@ -78,21 +87,31 @@
     }
 
     @if (!cargando() && !error() && rutasFiltradas().length === 0) {
-      <section class="state-card">
+      <section class="state-card" role="status" aria-live="polite">
         <i class="material-icons" aria-hidden="true">route</i>
         <h2>Sin resultados</h2>
         <p>No encontramos rutas activas con ese criterio.</p>
       </section>
     }
 
-    <section class="rutas-grid" aria-label="Listado de rutas públicas">
+    <section
+      class="rutas-grid"
+      aria-label="Listado de rutas públicas"
+      role="list"
+      aria-live="polite"
+    >
       @for (ruta of rutasFiltradas(); track ruta.id) {
-        <article class="ruta-card">
+        <article
+          class="ruta-card"
+          role="listitem"
+          [attr.aria-label]="'Ruta pública ' + ruta.nombre + ', ruta número ' + ruta.numero"
+        >
           <section
             #miniMapa
             class="mini-map"
             [attr.data-ruta-id]="ruta.id"
-            aria-label="Mini mapa de {{ ruta.nombre }}"
+            role="img"
+            [attr.aria-label]="'Mini mapa de la ruta ' + ruta.nombre"
           ></section>
 
           <header class="ruta-card-header">
@@ -107,7 +126,7 @@
               <h2>{{ ruta.nombre }}</h2>
             </section>
 
-            <p class="status-pill">
+            <p class="status-pill" role="status">
               <i class="material-icons" aria-hidden="true">check_circle</i>
               Activa
             </p>
@@ -140,7 +159,7 @@
           </section>
 
           @if (primerasParadas(ruta).length > 0) {
-            <section class="stops-preview" aria-label="Paradas principales">
+            <section class="stops-preview" aria-label="Paradas principales de la ruta">
               @for (parada of primerasParadas(ruta); track parada.orden) {
                 <p>
                   <i class="material-icons" aria-hidden="true">trip_origin</i>
@@ -151,7 +170,11 @@
           }
 
           @if (actualizacionPendiente(ruta); as propuestaActualizacion) {
-            <section class="update-notice" role="status">
+            <section
+              class="update-notice"
+              role="status"
+              aria-live="polite"
+            >
               <i class="material-icons" aria-hidden="true">published_with_changes</i>
 
               <p>
@@ -161,18 +184,21 @@
               <button
                 type="button"
                 (click)="irAValidarActualizacion(propuestaActualizacion)"
+                [attr.aria-label]="'Validar actualización pendiente de la ruta ' + ruta.nombre"
               >
                 Validar actualización
               </button>
             </section>
           }
 
-          <footer class="ruta-actions">
+          <footer class="ruta-actions" aria-label="Acciones de la ruta">
             <button
               type="button"
               class="action-btn update"
               [disabled]="actualizacionPendiente(ruta)"
+              [attr.aria-disabled]="actualizacionPendiente(ruta)"
               (click)="abrirSolicitud(ruta, 'actualizacion')"
+              [attr.aria-label]="'Proponer actualización para la ruta ' + ruta.nombre"
             >
               <i class="material-icons" aria-hidden="true">edit_road</i>
               {{ actualizacionPendiente(ruta) ? 'Actualización en validación' : 'Proponer actualización' }}
@@ -182,6 +208,7 @@
               type="button"
               class="action-btn danger"
               (click)="abrirSolicitud(ruta, 'eliminacion')"
+              [attr.aria-label]="'Reportar como falsa la ruta ' + ruta.nombre"
             >
               <i class="material-icons" aria-hidden="true">report</i>
               Reportar falsa
@@ -193,28 +220,38 @@
   </main>
 
   @if (rutaSeleccionada()) {
-    <section class="request-backdrop" aria-label="Enviar solicitud comunitaria">
-      <article class="request-modal">
+    <section
+      class="request-backdrop"
+      role="presentation"
+      aria-hidden="false"
+    >
+      <article
+        class="request-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="request-title"
+        aria-describedby="request-description"
+      >
         <header class="request-header">
           <section>
             <p class="eyebrow">
               {{ tipoSolicitud() === 'eliminacion' ? 'Reportar ruta falsa' : 'Proponer actualización' }}
             </p>
 
-            <h2>{{ rutaSeleccionada()?.nombre }}</h2>
+            <h2 id="request-title">{{ rutaSeleccionada()?.nombre }}</h2>
           </section>
 
           <button
             type="button"
             class="close-btn"
             (click)="cerrarSolicitud()"
-            aria-label="Cerrar"
+            aria-label="Cerrar solicitud"
           >
             <i class="material-icons" aria-hidden="true">close</i>
           </button>
         </header>
 
-        <form class="request-form">
+        <form class="request-form" aria-label="Formulario de solicitud comunitaria">
           <fieldset>
             <legend>Motivo de la solicitud</legend>
 
@@ -224,6 +261,10 @@
                 : 'Explica por qué se debe actualizar esta ruta' }}
             </label>
 
+            <p id="request-description" class="sr-only">
+              Escribe el motivo por el cual deseas reportar o actualizar esta ruta.
+            </p>
+
             <textarea
               id="comentarioSolicitud"
               name="comentarioSolicitud"
@@ -231,11 +272,18 @@
               [ngModel]="comentarioSolicitud()"
               (ngModelChange)="actualizarComentario($event)"
               placeholder="Ej: El precio cambió, ya no pasa por esa zona, falta una parada..."
+              aria-required="true"
+              aria-describedby="request-description"
             ></textarea>
           </fieldset>
 
-          <footer class="request-actions">
-            <button type="button" class="cancel-btn" (click)="cerrarSolicitud()">
+          <footer class="request-actions" aria-label="Acciones de la solicitud">
+            <button
+              type="button"
+              class="cancel-btn"
+              (click)="cerrarSolicitud()"
+              aria-label="Cancelar solicitud"
+            >
               Cancelar
             </button>
 
@@ -243,7 +291,9 @@
               type="button"
               class="submit-btn"
               [disabled]="guardandoSolicitud()"
+              [attr.aria-disabled]="guardandoSolicitud()"
               (click)="enviarSolicitud()"
+              aria-label="Enviar solicitud a validación"
             >
               <i class="material-icons" aria-hidden="true">send</i>
               {{ guardandoSolicitud() ? 'Enviando...' : (tipoSolicitud() === 'actualizacion' ? 'Siguiente' : 'Enviar a validación') }}

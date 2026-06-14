@@ -1,20 +1,38 @@
-<main class="dashboard">
+<main class="dashboard" aria-labelledby="explorar-title">
   <app-sidebar></app-sidebar>
 
   <section class="main-content" aria-labelledby="explorar-title">
     <h1 id="explorar-title" class="sr-only">Explorar rutas de MiRutaHN</h1>
 
     @if (paso() !== 4) {
-      <section class="map-shell" aria-label="Mapa interactivo de rutas">
+      <section
+        class="map-shell"
+        aria-label="Mapa interactivo de rutas públicas"
+        aria-describedby="mapa-descripcion"
+      >
+        <p id="mapa-descripcion" class="sr-only">
+          En esta pantalla puedes explorar rutas aprobadas, buscar destinos y revisar detalles de rutas.
+        </p>
+
         <section
           #mapaExplorar
           class="mapa-principal"
+          role="application"
           aria-label="Mapa de rutas aprobadas"
         ></section>
 
         @if (paso() === 1) {
-          <section class="top-overlay" aria-label="Búsqueda rápida">
-            <button class="search-box" type="button" (click)="abrirBusqueda()">
+          <section
+            class="top-overlay"
+            aria-label="Búsqueda rápida"
+            role="search"
+          >
+            <button
+              class="search-box"
+              type="button"
+              (click)="abrirBusqueda()"
+              aria-label="Abrir formulario para buscar una ruta por destino"
+            >
               <i class="material-icons" aria-hidden="true">search</i>
               <span>¿A dónde vamos hoy? Buscar destino...</span>
             </button>
@@ -22,7 +40,12 @@
         }
 
         @if (paso() === 2) {
-          <section class="flow-overlay" aria-label="Formulario de búsqueda de rutas">
+          <section
+            class="flow-overlay"
+            aria-label="Formulario de búsqueda de rutas"
+            role="region"
+            aria-live="polite"
+          >
             <app-buscar
               (buscar)="buscarRutas($event)"
               (cancelar)="cancelarBusqueda()"
@@ -31,7 +54,12 @@
         }
 
         @if (paso() === 3) {
-          <section class="flow-overlay flow-results" aria-label="Resultados de búsqueda">
+          <section
+            class="flow-overlay flow-results"
+            aria-label="Resultados de búsqueda de rutas"
+            role="region"
+            aria-live="polite"
+          >
             <app-buscar
               (buscar)="buscarRutas($event)"
               (cancelar)="cancelarBusqueda()"
@@ -50,12 +78,33 @@
     }
 
     @if (paso() === 4) {
-      <section class="detalle-page" aria-label="Detalle de ruta seleccionada">
-        <section class="detalle-map-card" aria-label="Mapa de la ruta seleccionada">
-          <section #mapaDetalle class="mapa-detalle"></section>
+      <section
+        class="detalle-page"
+        aria-label="Detalle de ruta seleccionada"
+        role="region"
+        aria-live="polite"
+      >
+        <section
+          class="detalle-map-card"
+          aria-label="Mapa de la ruta seleccionada"
+          aria-describedby="detalle-mapa-descripcion"
+        >
+          <p id="detalle-mapa-descripcion" class="sr-only">
+            Este mapa muestra únicamente el recorrido de la ruta seleccionada.
+          </p>
+
+          <section
+            #mapaDetalle
+            class="mapa-detalle"
+            role="application"
+            aria-label="Mapa del recorrido de la ruta seleccionada"
+          ></section>
         </section>
 
-        <aside class="detalle-panel" aria-label="Información de la ruta">
+        <aside
+          class="detalle-panel"
+          aria-label="Información detallada de la ruta seleccionada"
+        >
           <app-detalle-ruta
             [ruta]="rutaSeleccionada()"
             (volver)="volverAResultados()"

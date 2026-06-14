@@ -1,6 +1,15 @@
-<section class="resultados" aria-labelledby="resultados-title">
+<section
+  class="resultados"
+  aria-labelledby="resultados-title"
+  aria-describedby="resultados-contador"
+>
   <header class="resultados-header">
-    <button class="btn-volver" type="button" (click)="volver.emit()">
+    <button
+      class="btn-volver"
+      type="button"
+      (click)="volver.emit()"
+      aria-label="Volver al formulario de búsqueda"
+    >
       <i class="material-icons" aria-hidden="true">arrow_back</i>
       Volver
     </button>
@@ -8,7 +17,12 @@
     <section class="header-info">
       <h2 id="resultados-title">Rutas recomendadas</h2>
 
-      <p class="contador">
+      <p
+        id="resultados-contador"
+        class="contador"
+        role="status"
+        aria-live="polite"
+      >
         @if (cargando()) {
           Buscando rutas...
         } @else {
@@ -19,7 +33,7 @@
   </header>
 
   @if (!cargando() && rutas().length === 0) {
-    <article class="estado-vacio">
+    <article class="estado-vacio" role="status" aria-live="polite">
       <i class="material-icons" aria-hidden="true">route</i>
 
       <h3>Sin resultados</h3>
@@ -31,25 +45,43 @@
     </article>
   }
 
-  <section class="lista-rutas">
+  <section
+    class="lista-rutas"
+    aria-label="Listado de rutas recomendadas"
+    aria-live="polite"
+  >
     @for (ruta of rutas(); track ruta.id; let index = $index) {
-      <article class="ruta" [class.active]="index === 0">
+      <article
+        class="ruta"
+        [class.active]="index === 0"
+        [attr.aria-label]="'Ruta recomendada: ' + ruta.nombre + ', ruta número ' + ruta.numero"
+      >
         <header class="ruta-top">
-          <section class="ruta-icon">
+          <section class="ruta-icon" aria-hidden="true">
             <i class="material-icons" aria-hidden="true">directions_bus</i>
           </section>
 
           <section class="ruta-info">
             <h3>{{ ruta.nombre }} - Ruta {{ ruta.numero }}</h3>
 
-            <section class="estado-ruta">
-              <p class="badge" [class.verde]="index === 0">
+            <section
+              class="estado-ruta"
+              aria-label="Estado de la ruta"
+            >
+              <p
+                class="badge"
+                [class.verde]="index === 0"
+                [attr.aria-label]="'Llegada estimada en ' + llegadaEstimada(index)"
+              >
                 <i class="material-icons" aria-hidden="true">timer</i>
                 Llega en {{ llegadaEstimada(index) }}
               </p>
 
               @if (ruta.publicadoDesdePropuesta) {
-                <p class="badge comunidad">
+                <p
+                  class="badge comunidad"
+                  aria-label="Ruta publicada desde una propuesta comunitaria"
+                >
                   <i class="material-icons" aria-hidden="true">diversity_3</i>
                   Comunidad
                 </p>
@@ -58,7 +90,10 @@
           </section>
         </header>
 
-        <section class="detalles">
+        <section
+          class="detalles"
+          aria-label="Detalles principales de la ruta"
+        >
           <p>
             <i class="material-icons" aria-hidden="true">payments</i>
             L.{{ ruta.precio }}
@@ -75,7 +110,12 @@
           </p>
         </section>
 
-        <button class="btn-ver" type="button" (click)="seleccionarRuta(ruta)">
+        <button
+          class="btn-ver"
+          type="button"
+          (click)="seleccionarRuta(ruta)"
+          [attr.aria-label]="'Ver detalle de la ruta ' + ruta.nombre"
+        >
           Ver ruta
           <i class="material-icons" aria-hidden="true">arrow_forward</i>
         </button>

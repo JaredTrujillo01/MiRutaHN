@@ -1,27 +1,38 @@
 <article class="detalle" aria-labelledby="detalle-title">
   <header class="detalle-header">
-    <button class="btn-volver" type="button" (click)="volver.emit()">
+    <button
+      class="btn-volver"
+      type="button"
+      (click)="volver.emit()"
+      aria-label="Volver a resultados de rutas"
+    >
       <i class="material-icons" aria-hidden="true">arrow_back</i>
       Volver
     </button>
 
-    <button class="btn-favorito" type="button" aria-label="Guardar ruta favorita">
+    <button
+      class="btn-favorito"
+      type="button"
+      aria-label="Guardar esta ruta como favorita"
+    >
       <i class="material-icons" aria-hidden="true">star</i>
     </button>
   </header>
 
-  <section class="info-ruta">
-    <p class="estado">
+  <section class="info-ruta" aria-describedby="detalle-description">
+    <p class="estado" role="status">
       <i class="material-icons" aria-hidden="true">check_circle</i>
       Ruta oficial
     </p>
 
     <h2 id="detalle-title">{{ tituloRuta() }}</h2>
 
-    <p>{{ ruta()?.descripcion || 'Ruta oficial validada por la comunidad.' }}</p>
+    <p id="detalle-description">
+      {{ ruta()?.descripcion || 'Ruta oficial validada por la comunidad.' }}
+    </p>
   </section>
 
-  <section class="resumen-ruta" aria-label="Información principal">
+  <section class="resumen-ruta" aria-label="Información principal de la ruta">
     <article>
       <h3>Precio del pasaje</h3>
       <p>{{ precioRuta() }}</p>
@@ -41,17 +52,27 @@
   <section class="itinerario" aria-labelledby="itinerario-title">
     <h3 id="itinerario-title">Itinerario de paradas</h3>
 
-    <section class="paradas-timeline">
+    <section
+      class="paradas-timeline"
+      aria-label="Listado de paradas de la ruta"
+    >
       @if (paradasRuta().length === 0) {
-        <article class="parada-vacia">
+        <article class="parada-vacia" role="status">
           <h4>Paradas no registradas</h4>
           <p>Esta ruta aún no tiene paradas detalladas.</p>
         </article>
       }
 
       @for (parada of paradasRuta(); track parada.orden; let index = $index) {
-        <article class="parada-item">
-          <p class="circulo" [class.inicio]="index === 0">
+        <article
+          class="parada-item"
+          [attr.aria-label]="'Parada ' + parada.orden + ': ' + parada.nombre"
+        >
+          <p
+            class="circulo"
+            [class.inicio]="index === 0"
+            aria-hidden="true"
+          >
             {{ parada.orden }}
           </p>
 
@@ -75,30 +96,50 @@
     </section>
   </section>
 
-  <section class="notas-comunitarias" aria-labelledby="notas-title">
+  <section
+    class="notas-comunitarias"
+    aria-labelledby="notas-title"
+    aria-describedby="notas-description"
+  >
     <header class="notas-header">
       <section>
         <h3 id="notas-title">Notas comunitarias de hoy</h3>
-        <p>Reportes recientes de la comunidad para esta ruta.</p>
+
+        <p id="notas-description">
+          Reportes recientes de la comunidad para esta ruta.
+        </p>
       </section>
 
-      <p class="nota-count">
+      <p
+        class="nota-count"
+        role="status"
+        aria-live="polite"
+        [attr.aria-label]="'Cantidad de notas comunitarias de hoy: ' + notas().length"
+      >
         <i class="material-icons" aria-hidden="true">rate_review</i>
         {{ notas().length }}
       </p>
     </header>
 
     @if (notas().length === 0) {
-      <article class="nota-vacia">
+      <article class="nota-vacia" role="status" aria-live="polite">
         <i class="material-icons" aria-hidden="true">info</i>
         <p>No hay notas comunitarias registradas hoy.</p>
       </article>
     }
 
     @if (notas().length > 0) {
-      <section class="notas-list" aria-label="Notas del día">
+      <section
+        class="notas-list"
+        aria-label="Notas comunitarias registradas hoy"
+        aria-live="polite"
+      >
         @for (nota of notas(); track nota.id) {
-          <article class="nota-card" [class.warning]="nota.confirmaciones >= 3">
+          <article
+            class="nota-card"
+            [class.warning]="nota.confirmaciones >= 3"
+            [attr.aria-label]="'Nota sobre ' + (nota.campoMarcado || 'otro')"
+          >
             <header class="nota-top">
               <p class="nota-campo">
                 <i class="material-icons" aria-hidden="true">label</i>
@@ -106,7 +147,7 @@
               </p>
 
               @if (nota.confirmaciones >= 3) {
-                <p class="nota-validada">
+                <p class="nota-validada" role="status">
                   <i class="material-icons" aria-hidden="true">verified</i>
                   Confirmada
                 </p>
@@ -115,13 +156,24 @@
 
             <p>{{ nota.comentario }}</p>
 
-            <section class="acciones" aria-label="Acciones de nota">
-              <button type="button" (click)="votarNota(nota.id)">
+            <section
+              class="acciones"
+              aria-label="Acciones disponibles para esta nota"
+            >
+              <button
+                type="button"
+                (click)="votarNota(nota.id)"
+                [attr.aria-label]="'Marcar nota como útil. Votos útiles actuales: ' + nota.votosUtiles"
+              >
                 <i class="material-icons" aria-hidden="true">thumb_up</i>
                 Útil {{ nota.votosUtiles }}
               </button>
 
-              <button type="button" (click)="confirmarNota(nota.id)">
+              <button
+                type="button"
+                (click)="confirmarNota(nota.id)"
+                [attr.aria-label]="'Confirmar esta nota. Confirmaciones actuales: ' + nota.confirmaciones"
+              >
                 <i class="material-icons" aria-hidden="true">verified</i>
                 Confirmar {{ nota.confirmaciones }}
               </button>
@@ -131,16 +183,26 @@
       </section>
     }
 
-    <form class="nota-form" aria-label="Agregar nota comunitaria">
+    <form
+      class="nota-form"
+      aria-labelledby="form-nota-title"
+      aria-describedby="form-nota-description"
+    >
       <fieldset>
-        <legend>Agregar reporte comunitario</legend>
+        <legend id="form-nota-title">Agregar reporte comunitario</legend>
+
+        <p id="form-nota-description" class="sr-only">
+          Selecciona el tipo de reporte y escribe un comentario para esta ruta.
+        </p>
 
         <label for="campoMarcado">Tipo de reporte</label>
+
         <select
           id="campoMarcado"
           name="campoMarcado"
           [ngModel]="nuevaNota().campoMarcado"
           (ngModelChange)="actualizarNotaCampo('campoMarcado', $event)"
+          aria-required="true"
         >
           <option value="precio">Precio</option>
           <option value="horario">Horario</option>
@@ -151,6 +213,7 @@
         </select>
 
         <label for="comentarioNota">Comentario</label>
+
         <textarea
           id="comentarioNota"
           name="comentarioNota"
@@ -158,10 +221,20 @@
           placeholder="Ej: Hoy esta ruta está tardando más de lo normal."
           [ngModel]="nuevaNota().comentario"
           (ngModelChange)="actualizarNotaCampo('comentario', $event)"
+          aria-required="true"
+          aria-describedby="comentarioNotaAyuda"
         ></textarea>
+
+        <p id="comentarioNotaAyuda" class="sr-only">
+          Escribe una observación breve y clara sobre la situación actual de la ruta.
+        </p>
       </fieldset>
 
-      <button type="button" (click)="crearNota()">
+      <button
+        type="button"
+        (click)="crearNota()"
+        aria-label="Agregar nota comunitaria a esta ruta"
+      >
         <i class="material-icons" aria-hidden="true">add_comment</i>
         Agregar nota
       </button>

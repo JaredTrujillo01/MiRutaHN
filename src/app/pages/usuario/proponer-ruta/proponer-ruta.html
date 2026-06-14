@@ -10,7 +10,7 @@
           {{ modoActualizacion() ? 'Actualizar ruta pública' : 'Proponer una ruta' }}
         </h1>
 
-        <p>
+        <p id="proponer-description">
           {{ modoActualizacion()
             ? 'Ajusta los datos, recorrido o paradas de la ruta y envía la actualización a validación.'
             : 'Dibuja el recorrido, marca paradas y envía una propuesta para que la comunidad la valide.' }}
@@ -18,12 +18,16 @@
       </section>
     </header>
 
-    <section class="propuesta-layout" aria-label="Formulario para proponer ruta">
-      <article class="map-card">
+    <section
+      class="propuesta-layout"
+      aria-label="Formulario para proponer ruta"
+      aria-describedby="proponer-description"
+    >
+      <article class="map-card" aria-labelledby="mapa-title">
         <header class="map-toolbar">
           <section>
-            <h2>Dibujar recorrido</h2>
-            <p>
+            <h2 id="mapa-title">Dibujar recorrido</h2>
+            <p id="mapa-ayuda">
               Haz clic en el mapa para marcar puntos guía. Luego calcula el recorrido por calles.
             </p>
           </section>
@@ -34,22 +38,37 @@
               type="button"
               (click)="calcularRutaPorCalles()"
               [disabled]="calculandoRuta()"
+              [attr.aria-disabled]="calculandoRuta()"
+              aria-describedby="mapa-ayuda"
             >
               <i class="material-icons" aria-hidden="true">alt_route</i>
               {{ calculandoRuta() ? 'Calculando...' : 'Calcular ruta' }}
             </button>
 
-            <button type="button" (click)="marcarUltimoComoParada()">
+            <button
+              type="button"
+              (click)="marcarUltimoComoParada()"
+              aria-label="Marcar el último punto como parada"
+            >
               <i class="material-icons" aria-hidden="true">add_location_alt</i>
               Parada
             </button>
 
-            <button type="button" (click)="deshacerPunto()">
+            <button
+              type="button"
+              (click)="deshacerPunto()"
+              aria-label="Deshacer el último punto marcado"
+            >
               <i class="material-icons" aria-hidden="true">undo</i>
               Deshacer
             </button>
 
-            <button class="danger" type="button" (click)="limpiarMapa()">
+            <button
+              class="danger"
+              type="button"
+              (click)="limpiarMapa()"
+              aria-label="Limpiar todos los puntos del mapa"
+            >
               <i class="material-icons" aria-hidden="true">delete_sweep</i>
               Limpiar
             </button>
@@ -59,10 +78,17 @@
         <section
           #mapaPropuesta
           class="mapa-propuesta"
-          aria-label="Mapa para dibujar la propuesta de ruta"
+          role="application"
+          aria-label="Mapa interactivo para dibujar la propuesta de ruta"
+          aria-describedby="mapa-ayuda"
         ></section>
 
-        <footer class="map-summary" aria-label="Resumen del dibujo de la ruta">
+        <footer
+          class="map-summary"
+          aria-label="Resumen del dibujo de la ruta"
+          role="status"
+          aria-live="polite"
+        >
           <p>
             <i class="material-icons" aria-hidden="true">timeline</i>
             {{ puntosGuia().length }} puntos
@@ -86,14 +112,18 @@
             {{ modoActualizacion() ? 'Cambios propuestos' : 'Nueva propuesta' }}
           </h2>
 
-          <p>
+          <p id="form-propuesta-description">
             {{ modoActualizacion()
               ? 'El motivo indicado en rutas públicas se enviará junto con estos cambios.'
               : 'La propuesta quedará pendiente hasta recibir validación comunitaria.' }}
           </p>
         </header>
 
-        <form class="form-propuesta">
+        <form
+          class="form-propuesta"
+          aria-labelledby="form-propuesta-title"
+          aria-describedby="form-propuesta-description"
+        >
           <fieldset class="form-grid">
             <legend>Datos principales de la ruta</legend>
 
@@ -107,8 +137,14 @@
                 [ngModel]="nuevaPropuesta().nombre"
                 (ngModelChange)="actualizarCampo('nombre', $event)"
                 required
+                aria-required="true"
+                aria-describedby="nombreRutaAyuda"
               />
             </label>
+
+            <p id="nombreRutaAyuda" class="sr-only">
+              Ingresa un nombre descriptivo para identificar la ruta.
+            </p>
 
             <label class="campo" for="numeroRuta">
               Número
@@ -120,8 +156,14 @@
                 [ngModel]="nuevaPropuesta().numero"
                 (ngModelChange)="actualizarCampo('numero', $event)"
                 required
+                aria-required="true"
+                aria-describedby="numeroRutaAyuda"
               />
             </label>
+
+            <p id="numeroRutaAyuda" class="sr-only">
+              Ingresa el número o identificador de la ruta.
+            </p>
 
             <label class="campo" for="precioRuta">
               Precio aproximado
@@ -133,8 +175,13 @@
                 placeholder="13"
                 [ngModel]="nuevaPropuesta().precio"
                 (ngModelChange)="actualizarCampo('precio', $event)"
+                aria-describedby="precioRutaAyuda"
               />
             </label>
+
+            <p id="precioRutaAyuda" class="sr-only">
+              Ingresa el precio aproximado del pasaje en lempiras.
+            </p>
 
             <label class="campo" for="frecuenciaRuta">
               Frecuencia
@@ -145,12 +192,21 @@
                 placeholder="Ej: Cada 10 min"
                 [ngModel]="nuevaPropuesta().frecuencia"
                 (ngModelChange)="actualizarCampo('frecuencia', $event)"
+                aria-describedby="frecuenciaRutaAyuda"
               />
             </label>
+
+            <p id="frecuenciaRutaAyuda" class="sr-only">
+              Indica cada cuánto tiempo suele pasar la unidad.
+            </p>
           </fieldset>
 
-          <fieldset class="campo full">
+          <fieldset class="campo full" aria-describedby="horario-ayuda">
             <legend>Horario</legend>
+
+            <p id="horario-ayuda" class="sr-only">
+              Selecciona hora, minuto y periodo para el inicio y fin del horario de la ruta.
+            </p>
 
             <section class="horario-grid">
               <section class="horario-box" aria-labelledby="horario-inicio">
@@ -163,6 +219,7 @@
                     name="inicioHora"
                     [ngModel]="obtenerHorarioParte('inicioHora')"
                     (ngModelChange)="actualizarHorarioParte('inicioHora', $event)"
+                    aria-label="Hora de inicio"
                   >
                     @for (hora of horasHorario; track hora) {
                       <option [value]="hora">{{ hora }}</option>
@@ -175,6 +232,7 @@
                     name="inicioMinuto"
                     [ngModel]="obtenerHorarioParte('inicioMinuto')"
                     (ngModelChange)="actualizarHorarioParte('inicioMinuto', $event)"
+                    aria-label="Minuto de inicio"
                   >
                     @for (minuto of minutosHorario; track minuto) {
                       <option [value]="minuto">{{ minuto }}</option>
@@ -187,6 +245,7 @@
                     name="inicioPeriodo"
                     [ngModel]="obtenerHorarioParte('inicioPeriodo')"
                     (ngModelChange)="actualizarHorarioParte('inicioPeriodo', $event)"
+                    aria-label="Periodo de inicio"
                   >
                     @for (periodo of periodosHorario; track periodo) {
                       <option [value]="periodo">{{ periodo }}</option>
@@ -205,6 +264,7 @@
                     name="finHora"
                     [ngModel]="obtenerHorarioParte('finHora')"
                     (ngModelChange)="actualizarHorarioParte('finHora', $event)"
+                    aria-label="Hora de finalización"
                   >
                     @for (hora of horasHorario; track hora) {
                       <option [value]="hora">{{ hora }}</option>
@@ -217,6 +277,7 @@
                     name="finMinuto"
                     [ngModel]="obtenerHorarioParte('finMinuto')"
                     (ngModelChange)="actualizarHorarioParte('finMinuto', $event)"
+                    aria-label="Minuto de finalización"
                   >
                     @for (minuto of minutosHorario; track minuto) {
                       <option [value]="minuto">{{ minuto }}</option>
@@ -229,6 +290,7 @@
                     name="finPeriodo"
                     [ngModel]="obtenerHorarioParte('finPeriodo')"
                     (ngModelChange)="actualizarHorarioParte('finPeriodo', $event)"
+                    aria-label="Periodo de finalización"
                   >
                     @for (periodo of periodosHorario; track periodo) {
                       <option [value]="periodo">{{ periodo }}</option>
@@ -242,7 +304,11 @@
           <fieldset class="campo full">
             <legend>Color de la ruta</legend>
 
-            <section class="color-grid" aria-label="Seleccionar color de la ruta">
+            <section
+              class="color-grid"
+              aria-label="Seleccionar color de la ruta"
+              role="group"
+            >
               @for (color of coloresRuta; track color) {
                 <button
                   type="button"
@@ -251,6 +317,7 @@
                   [style.background]="color"
                   (click)="seleccionarColor(color)"
                   [attr.aria-label]="'Seleccionar color ' + color"
+                  [attr.aria-pressed]="nuevaPropuesta().color === color"
                 >
                   @if (nuevaPropuesta().color === color) {
                     <i class="material-icons" aria-hidden="true">check</i>
@@ -272,8 +339,13 @@
                 placeholder="Describe hacia dónde va, referencias o datos útiles."
                 [ngModel]="nuevaPropuesta().descripcion"
                 (ngModelChange)="actualizarCampo('descripcion', $event)"
+                aria-describedby="descripcionRutaAyuda"
               ></textarea>
             </label>
+
+            <p id="descripcionRutaAyuda" class="sr-only">
+              Puedes escribir referencias, zonas o datos útiles sobre la ruta.
+            </p>
 
             <label class="campo full" for="comentarioRuta">
               {{ modoActualizacion() ? 'Motivo de actualización' : 'Comentario para revisores' }}
@@ -284,30 +356,42 @@
                 placeholder="Ej: Esta ruta entra por el mercado los sábados."
                 [ngModel]="nuevaPropuesta().comentarios"
                 (ngModelChange)="actualizarCampo('comentarios', $event)"
+                aria-describedby="comentarioRutaAyuda"
               ></textarea>
             </label>
+
+            <p id="comentarioRutaAyuda" class="sr-only">
+              Explica el motivo o agrega un comentario para quienes revisarán la propuesta.
+            </p>
           </fieldset>
 
-          <section class="paradas-box" aria-labelledby="paradas-title">
+          <section
+            class="paradas-box"
+            aria-labelledby="paradas-title"
+            aria-live="polite"
+          >
             <header class="paradas-title">
               <h3 id="paradas-title">Paradas marcadas</h3>
-              <p>{{ paradas().length }}</p>
+              <p aria-label="Cantidad de paradas marcadas">{{ paradas().length }}</p>
             </header>
 
             @if (paradas().length === 0) {
-              <p>No hay paradas marcadas todavía.</p>
+              <p role="status">No hay paradas marcadas todavía.</p>
             }
 
             @for (parada of paradas(); track parada.orden; let index = $index) {
-              <article class="parada-item">
-                <p>{{ parada.orden }}</p>
+              <article
+                class="parada-item"
+                [attr.aria-label]="'Parada ' + parada.orden + ': ' + parada.nombre"
+              >
+                <p aria-hidden="true">{{ parada.orden }}</p>
                 <strong>{{ parada.nombre }}</strong>
 
                 <button
                   type="button"
                   class="parada-delete"
                   (click)="eliminarParada(index)"
-                  aria-label="Eliminar parada"
+                  [attr.aria-label]="'Eliminar parada ' + parada.nombre"
                 >
                   <i class="material-icons" aria-hidden="true">delete</i>
                 </button>
@@ -315,18 +399,25 @@
             }
           </section>
 
-          <footer class="form-actions">
+          <footer class="form-actions" aria-label="Acciones del formulario">
             <button
               class="btn-primary"
               type="button"
               (click)="guardarPropuesta()"
               [disabled]="guardando()"
+              [attr.aria-disabled]="guardando()"
+              aria-label="Enviar propuesta de ruta"
             >
               <i class="material-icons" aria-hidden="true">send</i>
               {{ guardando() ? 'Guardando...' : (modoActualizacion() ? 'Enviar actualización' : 'Enviar propuesta') }}
             </button>
 
-            <button class="btn-secondary" type="button" (click)="resetFormulario()">
+            <button
+              class="btn-secondary"
+              type="button"
+              (click)="resetFormulario()"
+              aria-label="Cancelar y limpiar formulario"
+            >
               Cancelar
             </button>
           </footer>
