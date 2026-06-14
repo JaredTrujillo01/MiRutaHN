@@ -21,8 +21,6 @@
   padding: 0 1rem;
 }
 
-/* HEADER DE SECCIONES */
-
 .section-header {
   text-align: center;
   margin-bottom: 2rem;
@@ -40,13 +38,13 @@
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 900;
-  margin-bottom: 1rem;
+  margin: 0 0 1rem;
 }
 
 .section-header h2 {
   font-size: 1.55rem;
   line-height: 1.2;
-  margin-bottom: 0.8rem;
+  margin: 0 0 0.8rem;
   color: var(--color-text);
 }
 
@@ -57,8 +55,6 @@
   max-width: 640px;
   margin: 0 auto;
 }
-
-/* HERO */
 
 .hero {
   min-height: 100vh;
@@ -88,7 +84,7 @@
   line-height: 1.05;
   font-weight: 900;
   letter-spacing: -1px;
-  margin-bottom: 1rem;
+  margin: 0 0 1rem;
   color: var(--color-text);
 }
 
@@ -107,8 +103,6 @@
   margin-bottom: 2rem;
   padding: 0;
 }
-
-/* BOTONES */
 
 .btn-primary,
 .btn-secondary,
@@ -143,6 +137,14 @@
   background: var(--color-primary-hover);
 }
 
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-enviar:focus-visible,
+.cta-button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
 .btn-secondary {
   background: var(--color-surface);
   color: var(--color-primary);
@@ -152,8 +154,6 @@
 .btn-secondary:hover {
   background: var(--color-primary-light);
 }
-
-/* STATS */
 
 .hero-stats {
   display: grid;
@@ -181,9 +181,8 @@
   color: var(--color-muted);
   font-size: 0.82rem;
   font-weight: 800;
+  margin: 0;
 }
-
-/* PHONE PREVIEW */
 
 .hero-card {
   width: 100%;
@@ -228,6 +227,7 @@
 .phone-header p {
   color: var(--color-muted);
   font-size: 0.82rem;
+  margin: 0;
 }
 
 .map-preview {
@@ -235,54 +235,23 @@
   height: 250px;
   border-radius: 24px;
   overflow: hidden;
-  background:
-    linear-gradient(90deg, rgba(29, 78, 216, 0.08) 1px, transparent 1px),
-    linear-gradient(rgba(29, 78, 216, 0.08) 1px, transparent 1px),
-    var(--color-bg);
-  background-size: 32px 32px;
+  background: var(--color-bg);
   padding: 0;
+  border: 1px solid var(--color-border);
 }
 
-.route-line {
-  position: absolute;
-  width: 75%;
-  height: 8px;
-  top: 54%;
-  left: 12%;
-  transform: rotate(-20deg);
-  border-radius: 999px;
-  background: var(--color-primary);
+.landing-map {
+  z-index: 1;
 }
 
-.map-icon {
-  position: absolute;
-  z-index: 2;
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--color-surface);
-  color: var(--color-primary);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.15);
-  font-size: 1.5rem;
+.landing-map .leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 24px;
 }
 
-.map-icon.bus {
-  left: 43%;
-  top: 40%;
-  background: var(--color-primary);
-  color: #ffffff;
-}
-
-.map-icon.pin-one {
-  left: 10%;
-  top: 58%;
-}
-
-.map-icon.pin-two {
-  right: 10%;
-  top: 25%;
+.landing-map .leaflet-control-container {
+  display: none;
 }
 
 .route-card,
@@ -302,7 +271,7 @@
 
 .route-card h3 {
   font-size: 0.95rem;
-  margin-bottom: 0.2rem;
+  margin: 0 0 0.2rem;
 }
 
 .route-card p,
@@ -310,14 +279,15 @@
   color: var(--color-muted);
   font-size: 0.82rem;
   line-height: 1.4;
+  margin: 0;
 }
 
 .status {
   background: var(--color-success-light);
-  color: var(--color-success);
+  color: var(--color-success) !important;
   border-radius: 999px;
   padding: 0.35rem 0.7rem;
-  font-size: 0.72rem;
+  font-size: 0.72rem !important;
   font-weight: 900;
   display: inline-flex;
   align-items: center;
@@ -335,8 +305,6 @@
   color: var(--color-warning);
   font-size: 1.4rem;
 }
-
-/* SECCIONES */
 
 .problema,
 .contacto {
@@ -390,7 +358,7 @@
 .contacto-formulario h3,
 .contacto-info h3 {
   font-size: 1.15rem;
-  margin-bottom: 0.6rem;
+  margin: 0 0 0.6rem;
 }
 
 .info-card p,
@@ -400,6 +368,7 @@
   color: var(--color-muted);
   line-height: 1.55;
   font-size: 0.95rem;
+  margin: 0;
 }
 
 .beneficio-card {
@@ -433,8 +402,6 @@
   background: var(--color-warning-light);
   color: var(--color-warning);
 }
-
-/* COMO FUNCIONA */
 
 .como-funciona {
   background: linear-gradient(135deg, #1d4ed8, #1e3a8a);
@@ -493,8 +460,6 @@
   color: #eff6ff;
   max-width: 330px;
 }
-
-/* CONTACTO */
 
 .contacto-formulario fieldset {
   border: none;
@@ -560,10 +525,8 @@
 
 .info-item h4 {
   font-size: 0.95rem;
-  margin-bottom: 0.2rem;
+  margin: 0 0 0.2rem;
 }
-
-/* CTA */
 
 .cta-final {
   text-align: center;
@@ -593,16 +556,14 @@
 
 .cta-container h2 {
   font-size: 1.6rem;
-  margin-bottom: 0.8rem;
+  margin: 0 0 0.8rem;
 }
 
 .cta-container p {
   color: var(--color-muted);
   line-height: 1.6;
-  margin-bottom: 1.5rem;
+  margin: 0 0 1.5rem;
 }
-
-/* RESPONSIVE */
 
 @media (min-width: 480px) {
   .container {

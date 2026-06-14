@@ -1,19 +1,74 @@
-<header class="navbar">
-  <nav class="nav-container" aria-label="Navegación principal">
-    <button class="logo" type="button" (click)="scrollTo('hero')" aria-label="Ir al inicio">
-      <i class="material-icons" aria-hidden="true">directions_bus</i>
-      MiRutaHN
+<header
+  class="navbar"
+  role="banner"
+>
+  <nav
+    class="nav-container"
+    aria-label="Navegación principal"
+  >
+    <button
+      class="logo"
+      type="button"
+      (click)="scrollTo('hero')"
+      aria-label="Ir al inicio de MiRutaHN"
+    >
+      <i
+        class="material-icons"
+        aria-hidden="true"
+      >
+        directions_bus
+      </i>
+
+      <span>MiRutaHN</span>
     </button>
 
-    <section class="nav-menu" aria-label="Secciones principales">
-      <button type="button" (click)="scrollTo('hero')">Inicio</button>
-      <button type="button" (click)="scrollTo('beneficios')">Beneficios</button>
-      <button type="button" (click)="scrollTo('como-funciona')">Cómo funciona</button>
-      <button type="button" (click)="scrollTo('contacto')">Contacto</button>
+    <section
+      class="nav-menu"
+      aria-label="Secciones principales del sitio"
+    >
+      <button
+        type="button"
+        (click)="scrollTo('hero')"
+        aria-label="Ir a la sección inicio"
+      >
+        Inicio
+      </button>
+
+      <button
+        type="button"
+        (click)="scrollTo('beneficios')"
+        aria-label="Ir a la sección beneficios"
+      >
+        Beneficios
+      </button>
+
+      <button
+        type="button"
+        (click)="scrollTo('como-funciona')"
+        aria-label="Ir a la sección cómo funciona"
+      >
+        Cómo funciona
+      </button>
+
+      <button
+        type="button"
+        (click)="scrollTo('contacto')"
+        aria-label="Ir a la sección contacto"
+      >
+        Contacto
+      </button>
     </section>
 
-    <aside class="nav-actions" aria-label="Acceso a la plataforma">
-      <button class="btn-portal" type="button" routerLink="/dashboard">
+    <aside
+      class="nav-actions"
+      aria-label="Acceso a la plataforma"
+    >
+      <button
+        class="btn-portal"
+        type="button"
+        routerLink="/dashboard"
+        aria-label="Entrar a la plataforma MiRutaHN"
+      >
         Entrar a MiRutaHN
       </button>
     </aside>
@@ -24,9 +79,12 @@
       (click)="toggleMenu()"
       [attr.aria-expanded]="menuOpen"
       aria-controls="menu-mobile"
-      aria-label="Abrir o cerrar menú"
+      [attr.aria-label]="menuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'"
     >
-      <i class="material-icons" aria-hidden="true">
+      <i
+        class="material-icons"
+        aria-hidden="true"
+      >
         {{ menuOpen ? 'close' : 'menu' }}
       </i>
     </button>
@@ -37,28 +95,51 @@
     class="nav-mobile"
     [class.open]="menuOpen"
     aria-label="Navegación móvil"
+    [attr.aria-hidden]="!menuOpen"
   >
-    <button type="button" (click)="scrollTo('hero')">
+    <button
+      type="button"
+      (click)="scrollTo('hero')"
+      aria-label="Ir a la sección inicio"
+    >
       <i class="material-icons" aria-hidden="true">home</i>
       Inicio
     </button>
 
-    <button type="button" (click)="scrollTo('beneficios')">
+    <button
+      type="button"
+      (click)="scrollTo('beneficios')"
+      aria-label="Ir a la sección beneficios"
+    >
       <i class="material-icons" aria-hidden="true">star</i>
       Beneficios
     </button>
 
-    <button type="button" (click)="scrollTo('como-funciona')">
+    <button
+      type="button"
+      (click)="scrollTo('como-funciona')"
+      aria-label="Ir a la sección cómo funciona"
+    >
       <i class="material-icons" aria-hidden="true">info</i>
       Cómo funciona
     </button>
 
-    <button type="button" (click)="scrollTo('contacto')">
+    <button
+      type="button"
+      (click)="scrollTo('contacto')"
+      aria-label="Ir a la sección contacto"
+    >
       <i class="material-icons" aria-hidden="true">mail</i>
       Contacto
     </button>
 
-    <button class="btn-portal-mobile" type="button" routerLink="/dashboard" (click)="closeMenu()">
+    <button
+      class="btn-portal-mobile"
+      type="button"
+      routerLink="/dashboard"
+      (click)="closeMenu()"
+      aria-label="Entrar a la plataforma MiRutaHN"
+    >
       Entrar a MiRutaHN
     </button>
   </nav>

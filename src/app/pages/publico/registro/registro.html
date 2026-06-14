@@ -1,48 +1,72 @@
 <main class="auth-page" aria-labelledby="registro-title">
   <section class="auth-visual" aria-label="Presentación de MiRutaHN">
     <article class="visual-content">
-      <a class="brand" routerLink="/inicio" aria-label="Ir al inicio">
+      <a
+        class="brand"
+        routerLink="/inicio"
+        aria-label="Ir al inicio de MiRutaHN"
+      >
         <i class="material-icons" aria-hidden="true">directions_bus</i>
         MiRutaHN
       </a>
 
-      <section class="visual-message">
+      <section
+        class="visual-message"
+        aria-labelledby="visual-registro-title"
+      >
         <p class="eyebrow">Movilidad ciudadana</p>
 
-        <h2>Únete a la comunidad que mejora las rutas en Honduras.</h2>
+        <h2 id="visual-registro-title">
+          Únete a la comunidad que mejora las rutas en Honduras.
+        </h2>
 
         <p>
-          Crea tu cuenta para proponer rutas, validar información y publicar notas
-          comunitarias útiles para otros pasajeros.
+          Crea tu cuenta para proponer rutas, validar información y publicar
+          notas comunitarias útiles para otros pasajeros.
         </p>
       </section>
 
-      <article class="verified-card">
+      <article
+        class="verified-card"
+        aria-label="Beneficio de participación comunitaria"
+      >
         <strong>
           <i class="material-icons" aria-hidden="true">diversity_3</i>
           Participación colaborativa
         </strong>
 
         <span>
-          Tu aporte ayuda a mantener actualizada la información del transporte público.
+          Tu aporte ayuda a mantener actualizada la información del transporte
+          público.
         </span>
       </article>
     </article>
   </section>
 
   <section class="auth-content">
-    <article class="auth-card">
+    <article
+      class="auth-card"
+      aria-labelledby="registro-title"
+      aria-describedby="registro-description"
+    >
       <header class="auth-header">
         <p class="eyebrow">Registro ciudadano</p>
 
         <h1 id="registro-title">Crea tu cuenta gratuita</h1>
 
-        <p>
-          Regístrate para colaborar con propuestas, validaciones y notas comunitarias.
+        <p id="registro-description">
+          Regístrate para colaborar con propuestas, validaciones y notas
+          comunitarias.
         </p>
       </header>
 
-      <form class="auth-form" [formGroup]="registroForm" (ngSubmit)="registrar()">
+      <form
+        class="auth-form"
+        [formGroup]="registroForm"
+        (ngSubmit)="registrar()"
+        aria-label="Formulario de registro"
+        novalidate
+      >
         <label class="field" for="nombre">
           Nombre completo
 
@@ -53,8 +77,18 @@
             formControlName="nombre"
             autocomplete="name"
             required
+            aria-required="true"
+            aria-describedby="nombre-help"
+            [attr.aria-invalid]="
+              registroForm.get('nombre')?.invalid &&
+              registroForm.get('nombre')?.touched
+            "
           />
         </label>
+
+        <p id="nombre-help" class="sr-only">
+          Ingresa tu nombre completo.
+        </p>
 
         <section class="form-row">
           <label class="field" for="email">
@@ -67,6 +101,12 @@
               formControlName="email"
               autocomplete="email"
               required
+              aria-required="true"
+              aria-describedby="email-help"
+              [attr.aria-invalid]="
+                registroForm.get('email')?.invalid &&
+                registroForm.get('email')?.touched
+              "
             />
           </label>
 
@@ -80,14 +120,38 @@
               formControlName="telefono"
               autocomplete="tel"
               required
+              aria-required="true"
+              aria-describedby="telefono-help"
+              [attr.aria-invalid]="
+                registroForm.get('telefono')?.invalid &&
+                registroForm.get('telefono')?.touched
+              "
             />
           </label>
         </section>
 
+        <p id="email-help" class="sr-only">
+          Ingresa un correo electrónico válido.
+        </p>
+
+        <p id="telefono-help" class="sr-only">
+          Ingresa un número de teléfono de contacto.
+        </p>
+
         <label class="field" for="ciudad">
           Ciudad
 
-          <select id="ciudad" formControlName="ciudad" required>
+          <select
+            id="ciudad"
+            formControlName="ciudad"
+            required
+            aria-required="true"
+            aria-describedby="ciudad-help"
+            [attr.aria-invalid]="
+              registroForm.get('ciudad')?.invalid &&
+              registroForm.get('ciudad')?.touched
+            "
+          >
             <option value="">Seleccione tu ciudad</option>
             <option value="Tegucigalpa">Tegucigalpa</option>
             <option value="San Pedro Sula">San Pedro Sula</option>
@@ -96,6 +160,10 @@
             <option value="El Progreso">El Progreso</option>
           </select>
         </label>
+
+        <p id="ciudad-help" class="sr-only">
+          Selecciona la ciudad donde resides.
+        </p>
 
         <label class="field" for="password">
           Contraseña
@@ -107,39 +175,97 @@
             formControlName="password"
             autocomplete="new-password"
             required
+            aria-required="true"
+            aria-describedby="password-help"
+            [attr.aria-invalid]="
+              registroForm.get('password')?.invalid &&
+              registroForm.get('password')?.touched
+            "
           />
         </label>
+
+        <p id="password-help" class="sr-only">
+          La contraseña debe contener al menos seis caracteres.
+        </p>
 
         <label class="terms" for="aceptaTerminos">
           <input
             id="aceptaTerminos"
             type="checkbox"
             formControlName="aceptaTerminos"
+            aria-required="true"
+            [attr.aria-invalid]="
+              registroForm.get('aceptaTerminos')?.invalid &&
+              registroForm.get('aceptaTerminos')?.touched
+            "
           />
 
           <span>
             Acepto los
-            <a href="#">Términos y Condiciones</a>
+            <a
+              href="#"
+              aria-label="Leer términos y condiciones"
+            >
+              Términos y Condiciones
+            </a>
           </span>
         </label>
 
-        <button class="btn-primary" type="submit" [disabled]="cargando()">
+        <button
+          class="btn-primary"
+          type="submit"
+          [disabled]="cargando()"
+          [attr.aria-disabled]="cargando()"
+          aria-describedby="registro-status"
+        >
           <i class="material-icons" aria-hidden="true">person_add</i>
+
           {{ cargando() ? 'Creando cuenta...' : 'Crear cuenta' }}
         </button>
+
+        <p
+          id="registro-status"
+          class="sr-only"
+          role="status"
+          aria-live="polite"
+        >
+          @if (cargando()) {
+            Creando cuenta. Por favor espera.
+          }
+        </p>
       </form>
 
       <footer class="auth-footer">
         <p>
           ¿Ya tienes cuenta?
-          <a routerLink="/login">Iniciar sesión</a>
+          <a
+            routerLink="/login"
+            aria-label="Ir a iniciar sesión"
+          >
+            Iniciar sesión
+          </a>
         </p>
 
-        <a class="portal-link" routerLink="/dashboard">
+        <a
+          class="portal-link"
+          routerLink="/dashboard"
+          aria-label="Entrar sin registrarme"
+        >
           Entrar sin registrarme
         </a>
       </footer>
     </article>
+  </section>
+
+  <section
+    class="sr-only"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  >
+    @if (alertaVisible()) {
+      {{ alertaTitulo() }}. {{ alertaMensaje() }}
+    }
   </section>
 
   <app-alert-modal

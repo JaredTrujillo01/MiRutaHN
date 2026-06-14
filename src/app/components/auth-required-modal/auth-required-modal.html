@@ -1,23 +1,47 @@
 @if (visible()) {
-  <div class="modal-backdrop">
-    <div class="modal-card">
-      <button class="modal-close" type="button" (click)="cerrarModal()">
-        <i class="material-icons">close</i>
+  <section
+    class="modal-backdrop"
+    role="presentation"
+    aria-hidden="false"
+  >
+    <article
+      class="modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="auth-modal-title"
+      aria-describedby="auth-modal-description"
+    >
+      <button
+        class="modal-close"
+        type="button"
+        (click)="cerrarModal()"
+        aria-label="Cerrar ventana"
+      >
+        <i class="material-icons" aria-hidden="true">close</i>
       </button>
 
-      <div class="modal-icon">
-        <i class="material-icons">lock</i>
-      </div>
+      <section class="modal-icon" aria-hidden="true">
+        <i class="material-icons" aria-hidden="true">lock</i>
+      </section>
 
-      <h2>{{ titulo() }}</h2>
+      <h2 id="auth-modal-title">
+        {{ titulo() }}
+      </h2>
 
-      <p>{{ mensaje() }}</p>
+      <p id="auth-modal-description">
+        {{ mensaje() }}
+      </p>
 
-      <div class="modal-actions">
+      <div
+        class="modal-actions"
+        role="group"
+        aria-label="Opciones de autenticación"
+      >
         <a
           routerLink="/login"
           class="btn-primary"
           (click)="cerrarModal()"
+          aria-label="Ir a iniciar sesión"
         >
           Iniciar sesión
         </a>
@@ -26,10 +50,11 @@
           routerLink="/registro"
           class="btn-secondary"
           (click)="cerrarModal()"
+          aria-label="Ir a registrarse"
         >
           Registrarse
         </a>
       </div>
-    </div>
-  </div>
+    </article>
+  </section>
 }

@@ -1,24 +1,55 @@
-<section class="formulario-busqueda" aria-labelledby="buscar-title">
+<section
+  class="formulario-busqueda"
+  aria-labelledby="buscar-title"
+>
   <header class="form-header">
     <section>
-      <i class="material-icons" aria-hidden="true">travel_explore</i>
-      <h2 id="buscar-title">Buscar ruta</h2>
-      <p>Ingresa tu origen, destino y horario.</p>
+      <i
+        class="material-icons"
+        aria-hidden="true"
+      >
+        travel_explore
+      </i>
+
+      <h2 id="buscar-title">
+        Buscar ruta
+      </h2>
+
+      <p id="buscar-description">
+        Ingresa tu origen, destino y horario.
+      </p>
     </section>
 
-    <button class="btn-cancelar" type="button" (click)="cancelar.emit()" aria-label="Cerrar búsqueda">
+    <button
+      class="btn-cancelar"
+      type="button"
+      (click)="cancelar.emit()"
+      aria-label="Cerrar formulario de búsqueda"
+    >
       <i class="material-icons" aria-hidden="true">close</i>
     </button>
   </header>
 
-  <fieldset class="form-grid">
-    <legend class="sr-only">Datos de búsqueda</legend>
+  <fieldset
+    class="form-grid"
+    aria-describedby="buscar-description"
+  >
+    <legend class="sr-only">
+      Datos para buscar una ruta
+    </legend>
 
     <section class="campo">
-      <label for="origen">Origen</label>
+      <label for="origen">
+        Origen
+      </label>
 
       <section class="campo-input">
-        <i class="material-icons" aria-hidden="true">my_location</i>
+        <i
+          class="material-icons"
+          aria-hidden="true"
+        >
+          my_location
+        </i>
 
         <input
           id="origen"
@@ -27,38 +58,57 @@
           placeholder="Colonia Miraflores"
           [ngModel]="origen()"
           (ngModelChange)="origen.set($event)"
+          aria-label="Punto de origen"
+          aria-required="true"
         />
       </section>
     </section>
 
     <section class="campo">
-      <label for="destino">Destino</label>
+      <label for="destino">
+        Destino
+      </label>
 
       <section class="campo-input">
-        <i class="material-icons" aria-hidden="true">location_on</i>
+        <i
+          class="material-icons"
+          aria-hidden="true"
+        >
+          location_on
+        </i>
 
         <input
           id="destino"
           name="destino"
           type="text"
-          placeholder="Ej: City Mall, Centro, UNAH..."
+          placeholder="Ejemplo City Mall, Centro o UNAH"
           [ngModel]="destino()"
           (ngModelChange)="destino.set($event)"
+          aria-label="Punto de destino"
+          aria-required="true"
         />
       </section>
     </section>
 
     <section class="campo campo-horario">
-      <label for="horario">Horario</label>
+      <label for="horario">
+        Horario
+      </label>
 
       <section class="campo-input">
-        <i class="material-icons" aria-hidden="true">schedule</i>
+        <i
+          class="material-icons"
+          aria-hidden="true"
+        >
+          schedule
+        </i>
 
         <select
           id="horario"
           name="horario"
           [ngModel]="horario()"
           (ngModelChange)="horario.set($event)"
+          aria-label="Horario estimado de salida"
         >
           <option>Ahora</option>
           <option>En 15 min</option>
@@ -69,8 +119,19 @@
     </section>
   </fieldset>
 
-  <button class="btn-buscar" type="button" (click)="enviarBusqueda()">
+  <button
+    class="btn-buscar"
+    type="button"
+    (click)="enviarBusqueda()"
+    aria-label="Buscar rutas disponibles"
+  >
     Buscar ruta
-    <i class="material-icons" aria-hidden="true">arrow_forward</i>
+
+    <i
+      class="material-icons"
+      aria-hidden="true"
+    >
+      arrow_forward
+    </i>
   </button>
 </section>

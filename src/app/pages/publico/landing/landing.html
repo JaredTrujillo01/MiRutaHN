@@ -19,12 +19,22 @@
         </p>
 
         <nav class="hero-buttons" aria-label="Acciones principales">
-          <button class="btn-primary" type="button" routerLink="/dashboard">
+          <button
+            class="btn-primary"
+            type="button"
+            routerLink="/dashboard"
+            aria-label="Entrar a la plataforma MiRutaHN"
+          >
             Entrar a MiRutaHN
             <i class="material-icons" aria-hidden="true">arrow_forward</i>
           </button>
 
-          <button class="btn-secondary" type="button" (click)="scrollTo('beneficios')">
+          <button
+            class="btn-secondary"
+            type="button"
+            (click)="scrollTo('beneficios')"
+            aria-label="Conocer los beneficios de MiRutaHN"
+          >
             Conocer beneficios
           </button>
         </nav>
@@ -54,21 +64,21 @@
 
             <section>
               <h2>MiRutaHN</h2>
-              <p>Ruta recomendada</p>
+              <p>Ruta pública activa</p>
             </section>
           </header>
 
-          <section class="map-preview" aria-label="Vista simulada de mapa">
-            <i class="material-icons map-icon bus" aria-hidden="true">directions_bus</i>
-            <i class="material-icons map-icon pin-one" aria-hidden="true">place</i>
-            <i class="material-icons map-icon pin-two" aria-hidden="true">school</i>
-            <span class="route-line" aria-hidden="true"></span>
-          </section>
+          <section
+            #landingMap
+            class="map-preview landing-map"
+            role="img"
+            aria-label="Mapa de vista previa con una ruta pública activa"
+          ></section>
 
           <article class="route-card">
             <section>
-              <h3>Centro → UNAH</h3>
-              <p>Tiempo estimado: 25 min</p>
+              <h3>Ruta recomendada</h3>
+              <p>Entra para ver mas rutas disponibles</p>
             </section>
 
             <p class="status">
@@ -77,9 +87,9 @@
             </p>
           </article>
 
-          <aside class="alert-card" aria-label="Reporte ciudadano">
+          <aside class="alert-card" aria-label="Reporte ciudadano destacado">
             <i class="material-icons" aria-hidden="true">campaign</i>
-            <p>Usuarios reportan tráfico moderado en la zona.</p>
+            <p>Usuarios pueden compartir notas y reportes comunitarios.</p>
           </aside>
         </article>
       </aside>
@@ -90,13 +100,18 @@
     <section class="container">
       <header class="section-header">
         <p class="badge">El problema</p>
-        <h2 id="problema-title">La información del transporte público no siempre es clara</h2>
+
+        <h2 id="problema-title">
+          La información del transporte público no siempre es clara
+        </h2>
+
         <p>
-          Muchos usuarios esperan buses sin saber horarios, rutas exactas o cambios en el recorrido.
+          Muchos usuarios esperan buses sin saber horarios, rutas exactas o cambios
+          en el recorrido.
         </p>
       </header>
 
-      <section class="problema-grid">
+      <section class="problema-grid" aria-label="Problemas principales">
         <article class="info-card">
           <i class="material-icons card-icon" aria-hidden="true">schedule</i>
           <h3>Esperas innecesarias</h3>
@@ -122,13 +137,18 @@
     <section class="container">
       <header class="section-header">
         <p class="badge">La solución</p>
-        <h2 id="beneficios-title">Una plataforma hecha para moverte mejor</h2>
+
+        <h2 id="beneficios-title">
+          Una plataforma hecha para moverte mejor
+        </h2>
+
         <p>
-          MiRutaHN combina mapas, reportes ciudadanos y rutas colaborativas en una experiencia simple.
+          MiRutaHN combina mapas, reportes ciudadanos y rutas colaborativas en una
+          experiencia simple.
         </p>
       </header>
 
-      <section class="beneficios-grid">
+      <section class="beneficios-grid" aria-label="Beneficios de MiRutaHN">
         <article class="beneficio-card">
           <i class="material-icons beneficio-icon blue" aria-hidden="true">route</i>
           <h3>Rutas en mapa</h3>
@@ -160,27 +180,31 @@
     <section class="container">
       <header class="section-header light">
         <p class="badge">Cómo funciona</p>
+
         <h2 id="funciona-title">3 pasos para moverte mejor</h2>
-        <p>Una experiencia sencilla para consultar rutas y colaborar con la comunidad.</p>
+
+        <p>
+          Una experiencia sencilla para consultar rutas y colaborar con la comunidad.
+        </p>
       </header>
 
-      <section class="pasos-grid">
+      <section class="pasos-grid" aria-label="Pasos de uso de MiRutaHN">
         <article class="paso">
-          <p class="paso-number">1</p>
+          <p class="paso-number" aria-hidden="true">1</p>
           <i class="material-icons paso-icon" aria-hidden="true">travel_explore</i>
           <h3>Explora rutas</h3>
           <p>Consulta rutas y paradas sin necesidad de crear una cuenta.</p>
         </article>
 
         <article class="paso">
-          <p class="paso-number">2</p>
+          <p class="paso-number" aria-hidden="true">2</p>
           <i class="material-icons paso-icon" aria-hidden="true">map</i>
           <h3>Consulta información</h3>
           <p>Revisa recorridos, paradas, horarios aproximados y estado actual.</p>
         </article>
 
         <article class="paso">
-          <p class="paso-number">3</p>
+          <p class="paso-number" aria-hidden="true">3</p>
           <i class="material-icons paso-icon" aria-hidden="true">campaign</i>
           <h3>Colabora</h3>
           <p>Inicia sesión solo si deseas proponer rutas, votar, comentar o reportar.</p>
@@ -193,15 +217,19 @@
     <section class="container">
       <header class="section-header">
         <p class="badge">Contáctanos</p>
+
         <h2 id="contacto-title">¿Tienes preguntas o sugerencias?</h2>
-        <p>Tu opinión ayuda a mejorar MiRutaHN para más ciudades de Honduras.</p>
+
+        <p>
+          Tu opinión ayuda a mejorar MiRutaHN para más ciudades de Honduras.
+        </p>
       </header>
 
       <section class="contacto-grid">
         <article class="contacto-formulario">
           <h3>Envíanos un mensaje</h3>
 
-          <form aria-label="Formulario de contacto">
+          <form aria-labelledby="contacto-title">
             <fieldset>
               <legend>Datos del mensaje</legend>
 
@@ -213,6 +241,7 @@
                 class="form-input"
                 placeholder="Ej: Eduardo Trujillo"
                 required
+                aria-required="true"
               />
 
               <label for="contactoEmail">Correo electrónico</label>
@@ -223,6 +252,7 @@
                 class="form-input"
                 placeholder="ejemplo@correo.com"
                 required
+                aria-required="true"
               />
 
               <label for="contactoMensaje">Mensaje</label>
@@ -233,10 +263,15 @@
                 rows="4"
                 placeholder="Escribe tu mensaje aquí..."
                 required
+                aria-required="true"
               ></textarea>
             </fieldset>
 
-            <button type="submit" class="btn-enviar">
+            <button
+              type="submit"
+              class="btn-enviar"
+              aria-label="Enviar mensaje de contacto"
+            >
               Enviar mensaje
               <i class="material-icons" aria-hidden="true">send</i>
             </button>
@@ -285,12 +320,20 @@
   <section class="cta-final" aria-labelledby="cta-title">
     <article class="cta-container">
       <i class="material-icons cta-icon" aria-hidden="true">directions_bus_filled</i>
+
       <h2 id="cta-title">Empieza a moverte con más seguridad</h2>
+
       <p>
-        Explora rutas públicas, consulta información del transporte y colabora cuando quieras iniciar sesión.
+        Explora rutas públicas, consulta información del transporte y colabora
+        cuando quieras iniciar sesión.
       </p>
 
-      <button class="cta-button" type="button" routerLink="/dashboard">
+      <button
+        class="cta-button"
+        type="button"
+        routerLink="/dashboard"
+        aria-label="Entrar a la plataforma MiRutaHN"
+      >
         Entrar a MiRutaHN
         <i class="material-icons" aria-hidden="true">arrow_forward</i>
       </button>

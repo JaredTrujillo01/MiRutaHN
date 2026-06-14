@@ -10,7 +10,7 @@
     }
 
     @if (mensaje()) {
-      <section class="alerta exito" role="status">
+      <section class="alerta exito" role="status" aria-live="polite">
         {{ mensaje() }}
       </section>
     }
@@ -22,7 +22,7 @@
     }
 
     @if (usuario() && !cargando()) {
-      <header class="perfil-hero">
+      <header class="perfil-hero" role="banner" aria-labelledby="perfil-title">
         <section class="hero-bg" aria-hidden="true"></section>
 
         <section class="perfil-header">
@@ -41,7 +41,12 @@
             <p>{{ usuario()?.email }}</p>
           </section>
 
-          <button class="btn-editar" type="button" (click)="iniciarEdicion()">
+          <button
+            class="btn-editar"
+            type="button"
+            (click)="iniciarEdicion()"
+            aria-label="Editar información del perfil"
+          >
             <i class="material-icons" aria-hidden="true">edit</i>
             Editar perfil
           </button>
@@ -136,8 +141,15 @@
             <p class="nivel-badge">{{ nivelCiudadano() }}</p>
           </header>
 
-          <section class="progreso" aria-label="Progreso de participación">
-            <span [style.width.%]="porcentajeParticipacion()"></span>
+          <section
+            class="progreso"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            [attr.aria-valuenow]="porcentajeParticipacion()"
+            aria-label="Nivel de participación"
+          >
+            <span [style.width.%]="porcentajeParticipacion()" aria-hidden="true"></span>
           </section>
         </section>
 
@@ -154,7 +166,7 @@
             </p>
           </header>
 
-          <section class="participacion-grid">
+          <section class="participacion-grid" aria-label="Indicadores de participación">
             @if (!esAdmin()) {
               <article>
                 <span>Propuestas enviadas</span>
@@ -212,16 +224,16 @@
           </header>
 
           @if (actividadReciente().length === 0) {
-            <article class="empty-card">
+            <article class="empty-card" role="status">
               <i class="material-icons" aria-hidden="true">history</i>
               <p>No hay actividad reciente para mostrar.</p>
             </article>
           }
 
           @if (actividadReciente().length > 0) {
-            <section class="timeline">
+            <section class="timeline" role="feed" aria-label="Actividad reciente">
               @for (item of actividadReciente(); track $index) {
-                <article class="timeline-item">
+                <article class="timeline-item" role="article">
                   <i class="material-icons" aria-hidden="true">{{ item.icono }}</i>
 
                   <section>
@@ -245,36 +257,36 @@
             </p>
           </header>
 
-          <nav class="quick-actions" aria-label="Accesos del perfil">
+          <nav class="quick-actions" aria-label="Acciones rápidas del perfil">
             @if (!esAdmin()) {
-              <a routerLink="/proponer-ruta">
+              <a routerLink="/proponer-ruta" aria-label="Ir a nueva propuesta de ruta">
                 <i class="material-icons" aria-hidden="true">add_road</i>
                 Nueva propuesta
               </a>
 
-              <a routerLink="/comunidad">
+              <a routerLink="/comunidad" aria-label="Ir a validar rutas">
                 <i class="material-icons" aria-hidden="true">how_to_vote</i>
                 Validar rutas
               </a>
 
-              <a routerLink="/notas-comunitarias">
+              <a routerLink="/notas-comunitarias" aria-label="Ir a notas comunitarias">
                 <i class="material-icons" aria-hidden="true">rate_review</i>
                 Notas comunitarias
               </a>
             }
 
             @if (esAdmin()) {
-              <a routerLink="/admin/rutas">
+              <a routerLink="/admin/rutas" aria-label="Ir a gestionar rutas">
                 <i class="material-icons" aria-hidden="true">route</i>
                 Gestionar rutas
               </a>
 
-              <a routerLink="/comunidad">
+              <a routerLink="/comunidad" aria-label="Ir a revisar validaciones">
                 <i class="material-icons" aria-hidden="true">fact_check</i>
                 Revisar validaciones
               </a>
 
-              <a routerLink="/admin/usuarios">
+              <a routerLink="/admin/usuarios" aria-label="Ir a ver usuarios">
                 <i class="material-icons" aria-hidden="true">groups</i>
                 Ver usuarios
               </a>
@@ -289,7 +301,7 @@
           </header>
 
           @if (!editando()) {
-            <section class="info-grid">
+            <section class="info-grid" aria-label="Datos personales del perfil">
               <article class="info-item">
                 <span>Nombre completo</span>
                 <strong>{{ usuario()?.nombre }}</strong>
@@ -313,16 +325,18 @@
           }
 
           @if (editando()) {
-            <form class="form-editar">
+            <form class="form-editar" aria-label="Formulario de edición de perfil">
               <section class="avatar-selector">
                 <label>Elige tu avatar</label>
 
-                <section class="avatar-grid">
+                <section class="avatar-grid" aria-label="Opciones de avatar">
                   @for (avatar of avatares; track avatar) {
                     <button
                       type="button"
                       class="avatar-option"
                       [class.active]="avatarEdit() === avatar"
+                      [attr.aria-pressed]="avatarEdit() === avatar"
+                      aria-label="Seleccionar avatar"
                       (click)="seleccionarAvatar(avatar)"
                     >
                       <img [src]="avatar" alt="Avatar disponible" />
@@ -334,32 +348,69 @@
               <section class="form-grid">
                 <label class="campo" for="nombreEdit">
                   Nombre completo
-                  <input id="nombreEdit" type="text" [ngModel]="nombreEdit()" (ngModelChange)="nombreEdit.set($event)" name="nombreEdit" />
+                  <input
+                    id="nombreEdit"
+                    type="text"
+                    [ngModel]="nombreEdit()"
+                    (ngModelChange)="nombreEdit.set($event)"
+                    name="nombreEdit"
+                    aria-required="true"
+                  />
                 </label>
 
                 <label class="campo" for="telefonoEdit">
                   Teléfono
-                  <input id="telefonoEdit" type="text" [ngModel]="telefonoEdit()" (ngModelChange)="telefonoEdit.set($event)" name="telefonoEdit" />
+                  <input
+                    id="telefonoEdit"
+                    type="text"
+                    [ngModel]="telefonoEdit()"
+                    (ngModelChange)="telefonoEdit.set($event)"
+                    name="telefonoEdit"
+                    aria-required="false"
+                  />
                 </label>
 
                 <label class="campo" for="ciudadEdit">
                   Ciudad
-                  <input id="ciudadEdit" type="text" [ngModel]="ciudadEdit()" (ngModelChange)="ciudadEdit.set($event)" name="ciudadEdit" />
+                  <input
+                    id="ciudadEdit"
+                    type="text"
+                    [ngModel]="ciudadEdit()"
+                    (ngModelChange)="ciudadEdit.set($event)"
+                    name="ciudadEdit"
+                    aria-required="false"
+                  />
                 </label>
 
                 <label class="campo disabled" for="emailPerfil">
                   Correo electrónico
-                  <input id="emailPerfil" type="text" [value]="usuario()?.email" disabled />
+                  <input
+                    id="emailPerfil"
+                    type="text"
+                    [value]="usuario()?.email"
+                    disabled
+                    aria-disabled="true"
+                  />
                 </label>
               </section>
 
               <footer class="acciones">
-                <button class="btn-guardar" type="button" (click)="guardarCambios()">
+                <button
+                  class="btn-guardar"
+                  type="button"
+                  (click)="guardarCambios()"
+                  aria-label="Guardar cambios del perfil"
+                >
                   <i class="material-icons" aria-hidden="true">save</i>
                   Guardar cambios
                 </button>
 
-                <button class="btn-cancelar" type="button" (click)="cancelarEdicion()">
+                <button
+                  class="btn-cancelar"
+                  type="button"
+                  (click)="cancelarEdicion()"
+                  aria-label="Cancelar edición del perfil"
+                >
                   Cancelar
                 </button>
               </footer>
@@ -367,25 +418,35 @@
           }
         </section>
 
-        <section class="security-card">
+        <section class="security-card" aria-labelledby="seguridad-title">
           <section>
-            <h2>Seguridad</h2>
+            <h2 id="seguridad-title">Seguridad</h2>
             <p>Administra opciones importantes de tu cuenta.</p>
           </section>
 
-          <button class="btn-secundario" type="button" (click)="abrirPasswordForm()">
+          <button
+            class="btn-secundario"
+            type="button"
+            (click)="abrirPasswordForm()"
+            aria-label="Abrir formulario para cambiar contraseña"
+          >
             <i class="material-icons" aria-hidden="true">lock</i>
             Cambiar contraseña
           </button>
         </section>
 
-        <section class="logout-card">
+        <section class="logout-card" aria-labelledby="logout-title">
           <section>
-            <h2>Cerrar sesión</h2>
+            <h2 id="logout-title">Cerrar sesión</h2>
             <p>Sal de tu cuenta y vuelve a la plataforma pública.</p>
           </section>
 
-          <button class="btn-logout" type="button" (click)="cerrarSesion()">
+          <button
+            class="btn-logout"
+            type="button"
+            (click)="cerrarSesion()"
+            aria-label="Cerrar sesión actual"
+          >
             <i class="material-icons" aria-hidden="true">logout</i>
             Cerrar sesión
           </button>
@@ -394,41 +455,85 @@
     }
 
     @if (mostrarPasswordForm()) {
-      <section class="password-overlay">
+      <section
+        class="password-overlay"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="password-title"
+        aria-describedby="password-description"
+      >
         <article class="password-card">
-          <button class="btn-close-password" type="button" (click)="cerrarPasswordForm()">
+          <button
+            class="btn-close-password"
+            type="button"
+            (click)="cerrarPasswordForm()"
+            aria-label="Cerrar formulario de cambio de contraseña"
+          >
             <i class="material-icons" aria-hidden="true">close</i>
           </button>
 
           <header class="section-title">
-            <h2>Cambiar contraseña</h2>
-            <p>Ingresa tu contraseña actual y define una nueva.</p>
+            <h2 id="password-title">Cambiar contraseña</h2>
+            <p id="password-description">
+              Ingresa tu contraseña actual y define una nueva.
+            </p>
           </header>
 
-          <form class="password-grid">
+          <form class="password-grid" aria-label="Formulario para cambiar contraseña">
             <label class="campo" for="passwordActual">
               Contraseña actual
-              <input id="passwordActual" type="password" [ngModel]="passwordActual()" (ngModelChange)="passwordActual.set($event)" name="passwordActual" />
+              <input
+                id="passwordActual"
+                type="password"
+                [ngModel]="passwordActual()"
+                (ngModelChange)="passwordActual.set($event)"
+                name="passwordActual"
+                aria-required="true"
+              />
             </label>
 
             <label class="campo" for="passwordNueva">
               Nueva contraseña
-              <input id="passwordNueva" type="password" [ngModel]="passwordNueva()" (ngModelChange)="passwordNueva.set($event)" name="passwordNueva" />
+              <input
+                id="passwordNueva"
+                type="password"
+                [ngModel]="passwordNueva()"
+                (ngModelChange)="passwordNueva.set($event)"
+                name="passwordNueva"
+                aria-required="true"
+              />
             </label>
 
             <label class="campo" for="passwordConfirmar">
               Confirmar nueva contraseña
-              <input id="passwordConfirmar" type="password" [ngModel]="passwordConfirmar()" (ngModelChange)="passwordConfirmar.set($event)" name="passwordConfirmar" />
+              <input
+                id="passwordConfirmar"
+                type="password"
+                [ngModel]="passwordConfirmar()"
+                (ngModelChange)="passwordConfirmar.set($event)"
+                name="passwordConfirmar"
+                aria-required="true"
+              />
             </label>
           </form>
 
           <footer class="acciones">
-            <button class="btn-guardar" type="button" (click)="cambiarPassword()">
+            <button
+              class="btn-guardar"
+              type="button"
+              (click)="cambiarPassword()"
+              aria-label="Actualizar contraseña"
+            >
               <i class="material-icons" aria-hidden="true">lock_reset</i>
               Actualizar contraseña
             </button>
 
-            <button class="btn-cancelar" type="button" (click)="cerrarPasswordForm()">
+            <button
+              class="btn-cancelar"
+              type="button"
+              (click)="cerrarPasswordForm()"
+              aria-label="Cancelar cambio de contraseña"
+            >
               Cancelar
             </button>
           </footer>

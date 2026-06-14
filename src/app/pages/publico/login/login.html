@@ -1,42 +1,64 @@
 <main class="auth-page" aria-labelledby="login-title">
   <section class="auth-visual" aria-label="Presentación de MiRutaHN">
     <article class="visual-content">
-      <a class="brand" routerLink="/inicio" aria-label="Ir al inicio">
+      <a
+        class="brand"
+        routerLink="/inicio"
+        aria-label="Ir al inicio de MiRutaHN"
+      >
         <i class="material-icons" aria-hidden="true">directions_bus</i>
         MiRutaHN
       </a>
 
-      <section class="visual-message">
+      <section class="visual-message" aria-labelledby="visual-login-title">
         <p class="eyebrow">Movilidad colaborativa</p>
 
-        <h2>Rutas confiables creadas por la comunidad.</h2>
+        <h2 id="visual-login-title">
+          Rutas confiables creadas por la comunidad.
+        </h2>
 
         <p>
-          Consulta rutas públicas sin iniciar sesión y accede a herramientas colaborativas cuando
-          quieras proponer, validar o reportar información.
+          Consulta rutas públicas sin iniciar sesión y accede a herramientas
+          colaborativas cuando quieras proponer, validar o reportar información.
         </p>
       </section>
 
-      <article class="verified-card">
+      <article class="verified-card" aria-label="Beneficio destacado">
         <strong>
           <i class="material-icons" aria-hidden="true">verified</i>
           Comunidad verificada
         </strong>
 
-        <span> Ayuda a mejorar la información del transporte público en Honduras. </span>
+        <span>
+          Ayuda a mejorar la información del transporte público en Honduras.
+        </span>
       </article>
     </article>
   </section>
 
   <section class="auth-content">
-    <article class="auth-card">
+    <article
+      class="auth-card"
+      aria-labelledby="login-title"
+      aria-describedby="login-description"
+    >
       <header class="auth-header">
         <p class="eyebrow">Acceso ciudadano</p>
+
         <h1 id="login-title">Bienvenido de nuevo</h1>
-        <p>Ingresa tus credenciales para continuar en MiRutaHN.</p>
+
+        <p id="login-description">
+          Ingresa tus credenciales para continuar en MiRutaHN.
+        </p>
       </header>
 
-      <form class="auth-form" [formGroup]="loginForm" (ngSubmit)="login()">
+      <form
+        class="auth-form"
+        [formGroup]="loginForm"
+        (ngSubmit)="login()"
+        aria-label="Formulario de inicio de sesión"
+        novalidate
+      >
         <label class="field" for="email">
           Correo electrónico
 
@@ -47,12 +69,27 @@
             formControlName="email"
             autocomplete="email"
             required
+            aria-required="true"
+            aria-describedby="email-help"
+            [attr.aria-invalid]="
+              loginForm.get('email')?.invalid && loginForm.get('email')?.touched
+            "
           />
         </label>
 
+        <p id="email-help" class="sr-only">
+          Ingresa el correo electrónico asociado a tu cuenta.
+        </p>
+
         <section class="password-label">
           <label for="password">Contraseña</label>
-          <a href="#">Olvidé mi contraseña</a>
+
+          <a
+            href="#"
+            aria-label="Recuperar contraseña"
+          >
+            Olvidé mi contraseña
+          </a>
         </section>
 
         <label class="field sr-label" for="password">
@@ -65,29 +102,84 @@
             formControlName="password"
             autocomplete="current-password"
             required
+            aria-required="true"
+            aria-describedby="password-help"
+            [attr.aria-invalid]="
+              loginForm.get('password')?.invalid &&
+              loginForm.get('password')?.touched
+            "
           />
         </label>
 
+        <p id="password-help" class="sr-only">
+          Ingresa tu contraseña para acceder a la plataforma.
+        </p>
+
         <label class="remember" for="recordarSesion">
-          <input id="recordarSesion" type="checkbox" formControlName="recordarSesion" />
+          <input
+            id="recordarSesion"
+            type="checkbox"
+            formControlName="recordarSesion"
+            aria-label="Recordar mi sesión en este dispositivo"
+          />
+
           Recordar mi sesión
         </label>
 
-        <button class="btn-primary" type="submit" [disabled]="cargando()">
+        <button
+          class="btn-primary"
+          type="submit"
+          [disabled]="cargando()"
+          [attr.aria-disabled]="cargando()"
+          aria-describedby="login-status"
+        >
           <i class="material-icons" aria-hidden="true">login</i>
           {{ cargando() ? 'Ingresando...' : 'Iniciar sesión' }}
         </button>
+
+        <p
+          id="login-status"
+          class="sr-only"
+          role="status"
+          aria-live="polite"
+        >
+          @if (cargando()) {
+            Iniciando sesión, por favor espera.
+          }
+        </p>
       </form>
 
       <footer class="auth-footer">
         <p>
           ¿No tienes cuenta?
-          <a routerLink="/registro">Crear cuenta</a>
+          <a
+            routerLink="/registro"
+            aria-label="Ir a crear una cuenta"
+          >
+            Crear cuenta
+          </a>
         </p>
 
-        <a class="portal-link" routerLink="/dashboard"> Entrar sin iniciar sesión </a>
+        <a
+          class="portal-link"
+          routerLink="/dashboard"
+          aria-label="Entrar a MiRutaHN sin iniciar sesión"
+        >
+          Entrar sin iniciar sesión
+        </a>
       </footer>
     </article>
+  </section>
+
+  <section
+    class="sr-only"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  >
+    @if (alertaVisible()) {
+      {{ alertaTitulo() }}. {{ alertaMensaje() }}
+    }
   </section>
 
   <app-alert-modal
