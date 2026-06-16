@@ -5,6 +5,7 @@ import {
   OnDestroy,
   ViewChild,
   inject,
+  signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import * as L from 'leaflet';
@@ -28,6 +29,8 @@ export class Landing implements AfterViewInit, OnDestroy {
   private routeLayer?: L.Polyline;
   private markersLayer = L.layerGroup();
   private mapTimeout?: ReturnType<typeof setTimeout>;
+  contactoIntentoEnvio = signal(false);
+  contactoEstado = signal('');
 
   scrollTo(sectionId: string) {
     const element = document.getElementById(sectionId);
@@ -42,6 +45,30 @@ export class Landing implements AfterViewInit, OnDestroy {
         behavior: 'smooth',
       });
     }
+  }
+
+  enviarContacto(event: Event) {
+    event.preventDefault();
+    this.contactoIntentoEnvio.set(true);
+
+    const form = event.target as HTMLFormElement;
+    const data = new FormData(form);
+    const nombre = String(data.get('contactoNombre') || '').trim();
+    const email = String(data.get('contactoEmail') || '').trim();
+    const mensaje = String(data.get('contactoMensaje') || '').trim();
+
+    if (!nombre || !email || !mensaje) {
+      this.contactoEstado.set('Completa nombre, correo y mensaje antes de enviar.');
+      return;
+    }
+
+    this.contactoEstado.set(
+      'Mensaje listo para enviar. Este formulario es informativo en esta versión.'
+    );
+  }
+
+  contactoCampoInvalido(valor: string) {
+    return this.contactoIntentoEnvio() && !valor.trim();
   }
 
   ngAfterViewInit() {

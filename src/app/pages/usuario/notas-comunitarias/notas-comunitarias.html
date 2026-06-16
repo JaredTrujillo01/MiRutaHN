@@ -25,6 +25,20 @@
       </aside>
     </header>
 
+    @if (mensaje()) {
+      <section class="feedback success" role="status" aria-live="polite">
+        <i class="material-icons" aria-hidden="true">check_circle</i>
+        <p>{{ mensaje() }}</p>
+      </section>
+    }
+
+    @if (error()) {
+      <section class="feedback error" role="alert" aria-live="assertive">
+        <i class="material-icons" aria-hidden="true">error</i>
+        <p>{{ error() }}</p>
+      </section>
+    }
+
     <section
       class="form-card"
       aria-labelledby="nueva-nota-title"
@@ -49,7 +63,8 @@
             [ngModel]="nuevaNota().rutaId"
             (ngModelChange)="actualizarNotaCampo('rutaId', $event)"
             aria-required="true"
-            aria-describedby="rutaNotaAyuda"
+            aria-describedby="rutaNotaAyuda rutaNotaError"
+            [attr.aria-invalid]="rutaNotaInvalida()"
           >
             <option value="">Seleccionar ruta</option>
 
@@ -64,6 +79,11 @@
         <p id="rutaNotaAyuda" class="sr-only">
           Selecciona la ruta sobre la cual deseas agregar una nota comunitaria.
         </p>
+        @if (rutaNotaInvalida()) {
+          <p id="rutaNotaError" class="sr-only">
+            Selecciona una ruta aprobada.
+          </p>
+        }
 
         <label class="campo" for="campoMarcado">
           Dato observado
@@ -100,13 +120,20 @@
             [ngModel]="nuevaNota().comentario"
             (ngModelChange)="actualizarNotaCampo('comentario', $event)"
             aria-required="true"
-            aria-describedby="comentarioNotaAyuda"
+            aria-describedby="comentarioNotaAyuda comentarioNotaError"
+            [attr.aria-invalid]="comentarioNotaInvalido()"
           ></textarea>
         </label>
 
         <p id="comentarioNotaAyuda" class="sr-only">
           Escribe una observación breve y clara sobre la situación actual de la ruta.
         </p>
+
+        @if (comentarioNotaInvalido()) {
+          <p id="comentarioNotaError" class="sr-only">
+            Escribe una observaciÃ³n antes de agregar la nota.
+          </p>
+        }
 
         <footer class="form-actions">
           <button

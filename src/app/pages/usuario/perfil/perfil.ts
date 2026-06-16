@@ -41,6 +41,8 @@ export class Perfil {
 
   mensaje = signal('');
   error = signal('');
+  intentoGuardarPerfil = signal(false);
+  intentoCambiarPassword = signal(false);
 
   nombreEdit = signal('');
   telefonoEdit = signal('');
@@ -224,6 +226,7 @@ export class Perfil {
 
   iniciarEdicion() {
     this.editando.set(true);
+    this.intentoGuardarPerfil.set(false);
     this.mensaje.set('');
     this.error.set('');
   }
@@ -237,6 +240,7 @@ export class Perfil {
     this.avatarEdit.set(user?.avatarUrl || 'assets/avatars/avatar-1.png');
 
     this.editando.set(false);
+    this.intentoGuardarPerfil.set(false);
   }
 
   seleccionarAvatar(avatar: string) {
@@ -247,6 +251,15 @@ export class Perfil {
     const uid = this.uid();
 
     if (!uid) return;
+
+    this.intentoGuardarPerfil.set(true);
+    this.mensaje.set('');
+    this.error.set('');
+
+    if (this.nombreInvalido()) {
+      this.error.set('El nombre completo es obligatorio.');
+      return;
+    }
 
     try {
       await updateDoc(doc(this.firestore, 'usuarios', uid), {
@@ -265,6 +278,7 @@ export class Perfil {
       }));
 
       this.editando.set(false);
+      this.intentoGuardarPerfil.set(false);
       this.mensaje.set('Perfil actualizado correctamente.');
     } catch {
       this.error.set('No se pudo actualizar el perfil.');
@@ -276,15 +290,26 @@ export class Perfil {
     this.passwordActual.set('');
     this.passwordNueva.set('');
     this.passwordConfirmar.set('');
+    this.intentoCambiarPassword.set(false);
     this.mensaje.set('');
     this.error.set('');
   }
 
   cerrarPasswordForm() {
     this.mostrarPasswordForm.set(false);
+    this.intentoCambiarPassword.set(false);
   }
 
   async cambiarPassword() {
+    this.intentoCambiarPassword.set(true);
+    this.mensaje.set('');
+    this.error.set('');
+
+    if (this.passwordActualInvalida()) {
+      this.error.set('Ingresa tu contraseña actual.');
+      return;
+    }
+
     if (this.passwordNueva() !== this.passwordConfirmar()) {
       this.error.set('Las contraseñas no coinciden.');
       return;
@@ -302,6 +327,7 @@ export class Perfil {
       );
 
       this.mostrarPasswordForm.set(false);
+      this.intentoCambiarPassword.set(false);
       this.mensaje.set('Contraseña actualizada correctamente.');
     } catch {
       this.error.set('No se pudo cambiar la contraseña.');
@@ -324,5 +350,24 @@ export class Perfil {
       month: 'short',
       year: 'numeric',
     });
+  }
+
+  nombreInvalido() {
+    return this.intentoGuardarPerfil() && !this.nombreEdit().trim();
+  }
+
+  passwordActualInvalida() {
+    return this.intentoCambiarPassword() && !this.passwordActual().trim();
+  }
+
+  passwordNuevaInvalida() {
+    return this.intentoCambiarPassword() && this.passwordNueva().length < 6;
+  }
+
+  passwordConfirmarInvalida() {
+    return (
+      this.intentoCambiarPassword() &&
+      this.passwordNueva() !== this.passwordConfirmar()
+    );
   }
 }

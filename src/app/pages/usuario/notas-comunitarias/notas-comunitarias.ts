@@ -26,6 +26,9 @@ export class NotasComunitarias {
   guardando = signal(false);
   esAdmin = signal(false);
   filtro = signal('');
+  mensaje = signal('');
+  error = signal('');
+  intentoCrearNota = signal(false);
 
   usuarioAuth: Awaited<ReturnType<AuthService['obtenerUsuarioActual']>> = null;
   usuarioPerfil: any = null;
@@ -87,15 +90,21 @@ export class NotasComunitarias {
 
   async crearNota() {
     const nota = this.nuevaNota();
+    this.intentoCrearNota.set(true);
+    this.mensaje.set('');
+    this.error.set('');
 
     if (!(await this.puedeParticipar())) return;
 
     if (!this.usuarioAuth) {
+      this.error.set('Debes iniciar sesión para participar en notas comunitarias.');
+      this.error.set('Debes iniciar sesión para agregar notas.');
       alert('Debes iniciar sesión para agregar notas.');
       return;
     }
 
     if (!nota.rutaId || !nota.comentario.trim()) {
+      this.error.set('Selecciona una ruta y escribe la observación.');
       alert('Selecciona una ruta y escribe la observación.');
       return;
     }
@@ -121,8 +130,11 @@ export class NotasComunitarias {
         campoMarcado: 'otro',
         comentario: '',
       });
+      this.intentoCrearNota.set(false);
+      this.mensaje.set('Nota comunitaria agregada correctamente.');
     } catch (err) {
       console.error(err);
+      this.error.set('No se pudo guardar la nota.');
       alert('No se pudo guardar la nota.');
     } finally {
       this.guardando.set(false);
@@ -133,19 +145,41 @@ export class NotasComunitarias {
     if (!id) return;
     if (!(await this.puedeParticipar())) return;
 
-    this.rutaService.votarNotaUtil(id);
+    try {
+      await this.rutaService.votarNotaUtil(id);
+      this.mensaje.set('Voto útil registrado.');
+      this.error.set('');
+    } catch (err) {
+      console.error(err);
+      this.error.set('No se pudo registrar el voto.');
+    }
   }
 
   async confirmarNota(id?: string) {
     if (!id) return;
     if (!(await this.puedeParticipar())) return;
 
-    this.rutaService.confirmarNota(id);
+    try {
+      await this.rutaService.confirmarNota(id);
+      this.mensaje.set('Confirmación de nota registrada.');
+      this.error.set('');
+    } catch (err) {
+      console.error(err);
+      this.error.set('No se pudo confirmar la nota.');
+    }
   }
 
-  resolverNota(id?: string) {
+  async resolverNota(id?: string) {
     if (!this.esAdmin() || !id) return;
-    this.rutaService.resolverNotaComunitaria(id);
+
+    try {
+      await this.rutaService.resolverNotaComunitaria(id);
+      this.mensaje.set('Nota resuelta y ocultada correctamente.');
+      this.error.set('');
+    } catch (err) {
+      console.error(err);
+      this.error.set('No se pudo resolver la nota.');
+    }
   }
 
   notasFiltradas() {
@@ -195,10 +229,19 @@ export class NotasComunitarias {
       (await this.authService.obtenerPerfilUsuario(this.usuarioAuth.uid));
 
     if (this.authService.estaUsuarioSuspendido(perfil)) {
+      this.error.set(this.authService.mensajeSuspension(perfil));
       alert(this.authService.mensajeSuspension(perfil));
       return false;
     }
 
     return true;
+  }
+
+  rutaNotaInvalida() {
+    return this.intentoCrearNota() && !this.nuevaNota().rutaId;
+  }
+
+  comentarioNotaInvalido() {
+    return this.intentoCrearNota() && !this.nuevaNota().comentario.trim();
   }
 }

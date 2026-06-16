@@ -35,7 +35,10 @@
     <section class="filters" aria-labelledby="usuarios-filtros-title">
       <h2 id="usuarios-filtros-title">Filtros</h2>
 
-      <form class="filter-form">
+      <form class="filter-form" aria-describedby="usuarios-filtros-ayuda">
+        <p id="usuarios-filtros-ayuda" class="sr-only">
+          Usa estos filtros para reducir el listado de usuarios por rol, estado o texto.
+        </p>
         <section>
           <label for="rolUsuarioFiltro">Rol</label>
           <select
@@ -43,6 +46,7 @@
             name="rolUsuarioFiltro"
             [ngModel]="rolFiltro()"
             (ngModelChange)="actualizarRolFiltro($event)"
+            aria-describedby="usuarios-filtros-ayuda"
           >
             <option value="todos">Todos</option>
             <option value="admin">Administradores</option>
@@ -57,6 +61,7 @@
             name="estadoUsuarioFiltro"
             [ngModel]="estadoFiltro()"
             (ngModelChange)="actualizarEstadoFiltro($event)"
+            aria-describedby="usuarios-filtros-ayuda"
           >
             <option value="todos">Todos</option>
             <option value="activo">Activos</option>
@@ -74,13 +79,14 @@
             [ngModel]="filtro()"
             (ngModelChange)="actualizarFiltro($event)"
             autocomplete="off"
+            aria-describedby="usuarios-filtros-ayuda"
           />
         </section>
       </form>
     </section>
 
     @if (mensaje()) {
-      <section class="feedback success" role="status">
+      <section class="feedback success" role="status" aria-live="polite">
         <i class="material-icons" aria-hidden="true">check_circle</i>
         <p>{{ mensaje() }}</p>
       </section>
@@ -182,6 +188,7 @@
             <button
               type="button"
               [disabled]="actualizando() === usuario.uid || rolUsuario(usuario) === 'usuario'"
+              [attr.aria-disabled]="actualizando() === usuario.uid || rolUsuario(usuario) === 'usuario'"
               (click)="cambiarRol(usuario, 'usuario')"
             >
               <i class="material-icons" aria-hidden="true">person</i>
@@ -192,6 +199,7 @@
               type="button"
               class="admin"
               [disabled]="actualizando() === usuario.uid || rolUsuario(usuario) === 'admin'"
+              [attr.aria-disabled]="actualizando() === usuario.uid || rolUsuario(usuario) === 'admin'"
               (click)="cambiarRol(usuario, 'admin')"
             >
               <i class="material-icons" aria-hidden="true">admin_panel_settings</i>
@@ -203,6 +211,7 @@
             <button
               type="button"
               [disabled]="actualizando() === usuario.uid"
+              [attr.aria-disabled]="actualizando() === usuario.uid"
               (click)="suspenderTemporalmente(usuario)"
             >
               <i class="material-icons" aria-hidden="true">timer_off</i>
@@ -213,6 +222,7 @@
               type="button"
               class="danger"
               [disabled]="actualizando() === usuario.uid"
+              [attr.aria-disabled]="actualizando() === usuario.uid"
               (click)="suspenderPermanentemente(usuario)"
             >
               <i class="material-icons" aria-hidden="true">block</i>
@@ -224,6 +234,7 @@
                 type="button"
                 class="success"
                 [disabled]="actualizando() === usuario.uid"
+                [attr.aria-disabled]="actualizando() === usuario.uid"
                 (click)="reactivarUsuario(usuario)"
               >
                 <i class="material-icons" aria-hidden="true">verified_user</i>

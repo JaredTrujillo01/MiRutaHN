@@ -14,8 +14,24 @@ export class Buscar {
   origen = signal('Colonia Miraflores');
   destino = signal('');
   horario = signal('Ahora');
+  busquedaIntentada = signal(false);
+  estadoBusqueda = signal('');
 
   enviarBusqueda() {
+    this.busquedaIntentada.set(true);
+    this.estadoBusqueda.set(
+      this.destino().trim()
+        ? 'Búsqueda de rutas enviada.'
+        : 'Ingresa un destino para mejorar los resultados.'
+    );
     this.buscar.emit(this.destino());
+  }
+
+  origenInvalido() {
+    return this.busquedaIntentada() && !this.origen().trim();
+  }
+
+  destinoInvalido() {
+    return this.busquedaIntentada() && !this.destino().trim();
   }
 }

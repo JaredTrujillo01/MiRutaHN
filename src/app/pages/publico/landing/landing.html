@@ -229,7 +229,7 @@
         <article class="contacto-formulario">
           <h3>Envíanos un mensaje</h3>
 
-          <form aria-labelledby="contacto-title">
+          <form aria-labelledby="contacto-title" (submit)="enviarContacto($event)" novalidate>
             <fieldset>
               <legend>Datos del mensaje</legend>
 
@@ -242,7 +242,18 @@
                 placeholder="Ej: Eduardo Trujillo"
                 required
                 aria-required="true"
+                aria-describedby="contactoNombreAyuda contactoNombreError"
+                [attr.aria-invalid]="contactoCampoInvalido(contactoNombre.value)"
+                #contactoNombre
               />
+              <p id="contactoNombreAyuda" class="sr-only">
+                Escribe tu nombre para identificar el mensaje.
+              </p>
+              @if (contactoCampoInvalido(contactoNombre.value)) {
+                <p id="contactoNombreError" class="sr-only">
+                  El nombre es obligatorio.
+                </p>
+              }
 
               <label for="contactoEmail">Correo electrónico</label>
               <input
@@ -253,7 +264,18 @@
                 placeholder="ejemplo@correo.com"
                 required
                 aria-required="true"
+                aria-describedby="contactoEmailAyuda contactoEmailError"
+                [attr.aria-invalid]="contactoCampoInvalido(contactoEmail.value)"
+                #contactoEmail
               />
+              <p id="contactoEmailAyuda" class="sr-only">
+                Escribe un correo electrÃ³nico de contacto.
+              </p>
+              @if (contactoCampoInvalido(contactoEmail.value)) {
+                <p id="contactoEmailError" class="sr-only">
+                  El correo electrÃ³nico es obligatorio.
+                </p>
+              }
 
               <label for="contactoMensaje">Mensaje</label>
               <textarea
@@ -264,7 +286,18 @@
                 placeholder="Escribe tu mensaje aquí..."
                 required
                 aria-required="true"
+                aria-describedby="contactoMensajeAyuda contactoMensajeError"
+                [attr.aria-invalid]="contactoCampoInvalido(contactoMensaje.value)"
+                #contactoMensaje
               ></textarea>
+              <p id="contactoMensajeAyuda" class="sr-only">
+                Escribe la pregunta o sugerencia que deseas enviar.
+              </p>
+              @if (contactoCampoInvalido(contactoMensaje.value)) {
+                <p id="contactoMensajeError" class="sr-only">
+                  El mensaje es obligatorio.
+                </p>
+              }
             </fieldset>
 
             <button
@@ -275,6 +308,10 @@
               Enviar mensaje
               <i class="material-icons" aria-hidden="true">send</i>
             </button>
+
+            <p class="sr-only" role="status" aria-live="polite">
+              {{ contactoEstado() }}
+            </p>
           </form>
         </article>
 

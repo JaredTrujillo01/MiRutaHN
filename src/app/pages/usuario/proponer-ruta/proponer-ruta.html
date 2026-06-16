@@ -80,7 +80,8 @@
           class="mapa-propuesta"
           role="application"
           aria-label="Mapa interactivo para dibujar la propuesta de ruta"
-          aria-describedby="mapa-ayuda"
+          aria-describedby="mapa-ayuda recorridoRutaError"
+          [attr.aria-invalid]="recorridoRutaInvalido()"
         ></section>
 
         <footer
@@ -104,6 +105,11 @@
             {{ paradas().length }} paradas
           </p>
         </footer>
+        @if (recorridoRutaInvalido()) {
+          <p id="recorridoRutaError" class="sr-only">
+            Dibuja al menos dos puntos guÃ­a en el mapa antes de enviar la propuesta.
+          </p>
+        }
       </article>
 
       <aside class="form-card" aria-labelledby="form-propuesta-title">
@@ -138,13 +144,19 @@
                 (ngModelChange)="actualizarCampo('nombre', $event)"
                 required
                 aria-required="true"
-                aria-describedby="nombreRutaAyuda"
+                aria-describedby="nombreRutaAyuda nombreRutaError"
+                [attr.aria-invalid]="nombreRutaInvalido()"
               />
             </label>
 
             <p id="nombreRutaAyuda" class="sr-only">
               Ingresa un nombre descriptivo para identificar la ruta.
             </p>
+            @if (nombreRutaInvalido()) {
+              <p id="nombreRutaError" class="sr-only">
+                El nombre de la ruta es obligatorio.
+              </p>
+            }
 
             <label class="campo" for="numeroRuta">
               Número
@@ -157,13 +169,20 @@
                 (ngModelChange)="actualizarCampo('numero', $event)"
                 required
                 aria-required="true"
-                aria-describedby="numeroRutaAyuda"
+                aria-describedby="numeroRutaAyuda numeroRutaError"
+                [attr.aria-invalid]="numeroRutaInvalido()"
               />
             </label>
 
             <p id="numeroRutaAyuda" class="sr-only">
               Ingresa el número o identificador de la ruta.
             </p>
+
+            @if (numeroRutaInvalido()) {
+              <p id="numeroRutaError" class="sr-only">
+                El nÃºmero o identificador de la ruta es obligatorio.
+              </p>
+            }
 
             <label class="campo" for="precioRuta">
               Precio aproximado
@@ -201,7 +220,11 @@
             </p>
           </fieldset>
 
-          <fieldset class="campo full" aria-describedby="horario-ayuda">
+          <fieldset
+            class="campo full"
+            aria-describedby="horario-ayuda horarioRutaError"
+            [attr.aria-invalid]="horarioRutaInvalido()"
+          >
             <legend>Horario</legend>
 
             <p id="horario-ayuda" class="sr-only">
@@ -299,6 +322,11 @@
                 </section>
               </section>
             </section>
+            @if (horarioRutaInvalido()) {
+              <p id="horarioRutaError" class="sr-only">
+                Selecciona el horario aproximado de la ruta.
+              </p>
+            }
           </fieldset>
 
           <fieldset class="campo full">
@@ -432,6 +460,10 @@
     mensaje="Puedes explorar rutas sin cuenta, pero para enviar propuestas debes iniciar sesión o registrarte."
     (cerrar)="cerrarModalAuth()"
   ></app-auth-required-modal>
+
+  <section class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+    {{ estadoPropuesta() }}
+  </section>
 
   <app-alert-modal
     [visible]="alertaVisible()"

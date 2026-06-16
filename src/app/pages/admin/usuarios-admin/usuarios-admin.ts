@@ -113,9 +113,17 @@ export class UsuariosAdmin {
     if (!usuario.uid || this.rolUsuario(usuario) === rol) return;
 
     this.actualizando.set(usuario.uid);
+    this.mensaje.set('');
+    this.error.set('');
 
     try {
       await this.usuarioService.actualizarRol(usuario.uid, rol);
+      this.mensaje.set(
+        `Rol de ${usuario.nombre || usuario.email} actualizado a ${rol}.`
+      );
+    } catch (error) {
+      console.error(error);
+      this.error.set('No se pudo actualizar el rol del usuario.');
     } finally {
       this.actualizando.set(null);
     }
