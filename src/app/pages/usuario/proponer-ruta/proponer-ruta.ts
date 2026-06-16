@@ -58,6 +58,8 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
 
   guardando = signal(false);
   calculandoRuta = signal(false);
+  intentoGuardarPropuesta = signal(false);
+  estadoPropuesta = signal('');
 
   mostrarModalAuth = signal(false);
   mostrarPromptParada = signal(false);
@@ -565,6 +567,9 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
   }
 
   async guardarPropuesta() {
+    this.intentoGuardarPropuesta.set(true);
+    this.estadoPropuesta.set('');
+
     if (!(await this.puedeParticipar())) return;
 
     const propuesta = this.nuevaPropuesta();
@@ -665,6 +670,11 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
         'success'
       );
 
+      this.estadoPropuesta.set(
+        this.modoActualizacion()
+          ? 'Actualización de ruta enviada correctamente.'
+          : 'Propuesta de ruta enviada correctamente.'
+      );
       sessionStorage.removeItem('mirutahn_actualizacion_ruta');
       this.resetFormulario();
     } catch (err) {
@@ -675,6 +685,7 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
         'No se pudo guardar la propuesta. Inténtalo nuevamente.',
         'error'
       );
+      this.estadoPropuesta.set('No se pudo guardar la propuesta.');
     } finally {
       this.guardando.set(false);
     }
@@ -695,7 +706,30 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
     this.modoActualizacion.set(false);
     this.rutaOrigen.set(null);
     this.motivoActualizacion.set('');
+    this.intentoGuardarPropuesta.set(false);
     sessionStorage.removeItem('mirutahn_actualizacion_ruta');
     this.limpiarMapa();
+  }
+
+  nombreRutaInvalido() {
+    return (
+      this.intentoGuardarPropuesta() && !this.nuevaPropuesta().nombre.trim()
+    );
+  }
+
+  numeroRutaInvalido() {
+    return (
+      this.intentoGuardarPropuesta() && !this.nuevaPropuesta().numero.trim()
+    );
+  }
+
+  horarioRutaInvalido() {
+    return (
+      this.intentoGuardarPropuesta() && !this.nuevaPropuesta().horario.trim()
+    );
+  }
+
+  recorridoRutaInvalido() {
+    return this.intentoGuardarPropuesta() && this.puntosGuia().length < 2;
   }
 }

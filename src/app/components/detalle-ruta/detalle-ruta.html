@@ -183,6 +183,18 @@
       </section>
     }
 
+    @if (mensaje()) {
+      <section class="feedback success" role="status" aria-live="polite">
+        {{ mensaje() }}
+      </section>
+    }
+
+    @if (error()) {
+      <section class="feedback error" role="alert" aria-live="assertive">
+        {{ error() }}
+      </section>
+    }
+
     <form
       class="nota-form"
       aria-labelledby="form-nota-title"
@@ -222,13 +234,22 @@
           [ngModel]="nuevaNota().comentario"
           (ngModelChange)="actualizarNotaCampo('comentario', $event)"
           aria-required="true"
-          aria-describedby="comentarioNotaAyuda"
+          aria-describedby="comentarioNotaAyuda comentarioNotaError"
+          [attr.aria-invalid]="comentarioNotaInvalido()"
         ></textarea>
 
         <p id="comentarioNotaAyuda" class="sr-only">
           Escribe una observación breve y clara sobre la situación actual de la ruta.
         </p>
       </fieldset>
+
+      <p
+        id="comentarioNotaError"
+        class="sr-only"
+        [hidden]="!comentarioNotaInvalido()"
+      >
+        Escribe un comentario antes de agregar la nota.
+      </p>
 
       <button
         type="button"

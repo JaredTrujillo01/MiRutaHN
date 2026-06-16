@@ -21,6 +21,9 @@ export class DetalleRuta {
 
   notas = signal<NotaComunitaria[]>([]);
   mostrarModalAuth = signal(false);
+  mensaje = signal('');
+  error = signal('');
+  intentoCrearNota = signal(false);
 
   nuevaNota = signal({
     campoMarcado: 'otro' as NonNullable<NotaComunitaria['campoMarcado']>,
@@ -101,6 +104,7 @@ export class DetalleRuta {
     const perfil = await this.authService.obtenerPerfilUsuario(usuario.uid);
 
     if (this.authService.estaUsuarioSuspendido(perfil)) {
+      this.error.set(this.authService.mensajeSuspension(perfil));
       window.alert(this.authService.mensajeSuspension(perfil));
       return null;
     }
@@ -115,32 +119,43 @@ export class DetalleRuta {
   async crearNota() {
     const rutaActual = this.ruta();
     const nota = this.nuevaNota();
+    this.intentoCrearNota.set(true);
+    this.mensaje.set('');
+    this.error.set('');
     const usuarioAuth = await this.requiereSesion();
 
     if (!usuarioAuth || !rutaActual?.id) return;
 
     if (!nota.comentario.trim()) {
+      this.error.set('Escribe un comentario antes de agregar la nota.');
       return;
     }
 
     const perfil = await this.authService.obtenerPerfilUsuario(usuarioAuth.uid);
 
-    await this.rutaService.createNotaComunitaria({
-      rutaId: String(rutaActual.id),
-      usuarioId: usuarioAuth.uid,
-      usuarioNombre: perfil?.nombre || usuarioAuth.email || 'Ciudadano',
-      comentario: nota.comentario,
-      campoMarcado: nota.campoMarcado,
-      estado: 'activa',
-      votosUtiles: 0,
-      confirmaciones: 0,
-      creadoEn: Timestamp.now(),
-    });
+    try {
+      await this.rutaService.createNotaComunitaria({
+        rutaId: String(rutaActual.id),
+        usuarioId: usuarioAuth.uid,
+        usuarioNombre: perfil?.nombre || usuarioAuth.email || 'Ciudadano',
+        comentario: nota.comentario,
+        campoMarcado: nota.campoMarcado,
+        estado: 'activa',
+        votosUtiles: 0,
+        confirmaciones: 0,
+        creadoEn: Timestamp.now(),
+      });
 
-    this.nuevaNota.set({
-      campoMarcado: 'otro',
-      comentario: '',
-    });
+      this.nuevaNota.set({
+        campoMarcado: 'otro',
+        comentario: '',
+      });
+      this.intentoCrearNota.set(false);
+      this.mensaje.set('Nota comunitaria agregada a la ruta.');
+    } catch (err) {
+      console.error(err);
+      this.error.set('No se pudo agregar la nota comunitaria.');
+    }
   }
 
   async votarNota(id?: string) {
@@ -149,7 +164,14 @@ export class DetalleRuta {
     const usuario = await this.requiereSesion();
     if (!usuario) return;
 
-    this.rutaService.votarNotaUtil(id);
+    try {
+      await this.rutaService.votarNotaUtil(id);
+      this.mensaje.set('Voto útil registrado para la nota.');
+      this.error.set('');
+    } catch (err) {
+      console.error(err);
+      this.error.set('No se pudo registrar el voto.');
+    }
   }
 
   async confirmarNota(id?: string) {
@@ -158,6 +180,17 @@ export class DetalleRuta {
     const usuario = await this.requiereSesion();
     if (!usuario) return;
 
-    this.rutaService.confirmarNota(id);
+    try {
+      await this.rutaService.confirmarNota(id);
+      this.mensaje.set('Confirmación registrada para la nota.');
+      this.error.set('');
+    } catch (err) {
+      console.error(err);
+      this.error.set('No se pudo confirmar la nota.');
+    }
+  }
+
+  comentarioNotaInvalido() {
+    return this.intentoCrearNota() && !this.nuevaNota().comentario.trim();
   }
 }

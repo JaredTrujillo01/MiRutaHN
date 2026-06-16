@@ -16,7 +16,7 @@
     }
 
     @if (error()) {
-      <section class="alerta error" role="alert">
+      <section class="alerta error" role="alert" aria-live="assertive">
         {{ error() }}
       </section>
     }
@@ -355,8 +355,18 @@
                     (ngModelChange)="nombreEdit.set($event)"
                     name="nombreEdit"
                     aria-required="true"
+                    aria-describedby="nombreEditAyuda nombreEditError"
+                    [attr.aria-invalid]="nombreInvalido()"
                   />
                 </label>
+                <p id="nombreEditAyuda" class="sr-only">
+                  Ingresa tu nombre completo como aparecerÃ¡ en tu perfil.
+                </p>
+                @if (nombreInvalido()) {
+                  <p id="nombreEditError" class="sr-only">
+                    El nombre completo es obligatorio.
+                  </p>
+                }
 
                 <label class="campo" for="telefonoEdit">
                   Teléfono
@@ -367,8 +377,13 @@
                     (ngModelChange)="telefonoEdit.set($event)"
                     name="telefonoEdit"
                     aria-required="false"
+                    aria-describedby="telefonoEditAyuda"
+                    aria-invalid="false"
                   />
                 </label>
+                <p id="telefonoEditAyuda" class="sr-only">
+                  Puedes agregar un nÃºmero de contacto opcional.
+                </p>
 
                 <label class="campo" for="ciudadEdit">
                   Ciudad
@@ -379,8 +394,13 @@
                     (ngModelChange)="ciudadEdit.set($event)"
                     name="ciudadEdit"
                     aria-required="false"
+                    aria-describedby="ciudadEditAyuda"
+                    aria-invalid="false"
                   />
                 </label>
+                <p id="ciudadEditAyuda" class="sr-only">
+                  Puedes indicar tu ciudad de residencia.
+                </p>
 
                 <label class="campo disabled" for="emailPerfil">
                   Correo electrónico
@@ -489,8 +509,18 @@
                 (ngModelChange)="passwordActual.set($event)"
                 name="passwordActual"
                 aria-required="true"
+                aria-describedby="passwordActualAyuda passwordActualError"
+                [attr.aria-invalid]="passwordActualInvalida()"
               />
             </label>
+            <p id="passwordActualAyuda" class="sr-only">
+              Escribe tu contraseÃ±a actual para confirmar el cambio.
+            </p>
+            @if (passwordActualInvalida()) {
+              <p id="passwordActualError" class="sr-only">
+                La contraseÃ±a actual es obligatoria.
+              </p>
+            }
 
             <label class="campo" for="passwordNueva">
               Nueva contraseña
@@ -501,8 +531,18 @@
                 (ngModelChange)="passwordNueva.set($event)"
                 name="passwordNueva"
                 aria-required="true"
+                aria-describedby="passwordNuevaAyuda passwordNuevaError"
+                [attr.aria-invalid]="passwordNuevaInvalida()"
               />
             </label>
+            <p id="passwordNuevaAyuda" class="sr-only">
+              La nueva contraseÃ±a debe tener al menos seis caracteres.
+            </p>
+            @if (passwordNuevaInvalida()) {
+              <p id="passwordNuevaError" class="sr-only">
+                La nueva contraseÃ±a debe tener al menos seis caracteres.
+              </p>
+            }
 
             <label class="campo" for="passwordConfirmar">
               Confirmar nueva contraseña
@@ -513,8 +553,18 @@
                 (ngModelChange)="passwordConfirmar.set($event)"
                 name="passwordConfirmar"
                 aria-required="true"
+                aria-describedby="passwordConfirmarAyuda passwordConfirmarError"
+                [attr.aria-invalid]="passwordConfirmarInvalida()"
               />
             </label>
+            <p id="passwordConfirmarAyuda" class="sr-only">
+              Repite la nueva contraseÃ±a para evitar errores.
+            </p>
+            @if (passwordConfirmarInvalida()) {
+              <p id="passwordConfirmarError" class="sr-only">
+                Las contraseÃ±as no coinciden.
+              </p>
+            }
           </form>
 
           <footer class="acciones">

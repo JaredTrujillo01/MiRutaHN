@@ -60,8 +60,18 @@
           (ngModelChange)="origen.set($event)"
           aria-label="Punto de origen"
           aria-required="true"
+          aria-describedby="origenAyuda origenError"
+          [attr.aria-invalid]="origenInvalido()"
         />
       </section>
+      <p id="origenAyuda" class="sr-only">
+        Escribe el punto de origen de tu viaje.
+      </p>
+      @if (origenInvalido()) {
+        <p id="origenError" class="sr-only">
+          El origen es obligatorio.
+        </p>
+      }
     </section>
 
     <section class="campo">
@@ -86,8 +96,18 @@
           (ngModelChange)="destino.set($event)"
           aria-label="Punto de destino"
           aria-required="true"
+          aria-describedby="destinoAyuda destinoError"
+          [attr.aria-invalid]="destinoInvalido()"
         />
       </section>
+      <p id="destinoAyuda" class="sr-only">
+        Escribe tu destino para buscar rutas disponibles.
+      </p>
+      @if (destinoInvalido()) {
+        <p id="destinoError" class="sr-only">
+          El destino es obligatorio para una bÃºsqueda precisa.
+        </p>
+      }
     </section>
 
     <section class="campo campo-horario">
@@ -134,4 +154,8 @@
       arrow_forward
     </i>
   </button>
+
+  <p class="sr-only" role="status" aria-live="polite">
+    {{ estadoBusqueda() }}
+  </p>
 </section>
