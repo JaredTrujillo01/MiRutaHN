@@ -293,10 +293,10 @@
               [disabled]="guardandoSolicitud()"
               [attr.aria-disabled]="guardandoSolicitud()"
               (click)="enviarSolicitud()"
-              aria-label="Enviar solicitud a validación"
+              [attr.aria-label]="tipoSolicitud() === 'actualizacion' ? 'Enviar solicitud a validacion' : 'Enviar reporte de ruta falsa'"
             >
               <i class="material-icons" aria-hidden="true">send</i>
-              {{ guardandoSolicitud() ? 'Enviando...' : (tipoSolicitud() === 'actualizacion' ? 'Siguiente' : 'Enviar a validación') }}
+              {{ guardandoSolicitud() ? 'Enviando...' : (tipoSolicitud() === 'actualizacion' ? 'Siguiente' : 'Enviar reporte') }}
             </button>
           </footer>
         </form>

@@ -1,4 +1,4 @@
-.usuarios-admin-page {
+.rutas-admin-page {
   min-height: 100vh;
   background:
     radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 34%),
@@ -16,7 +16,7 @@
 .page-header,
 .filters,
 .feedback,
-.users-grid,
+.routes-grid,
 .state-card {
   width: 100%;
   max-width: 1180px;
@@ -26,7 +26,7 @@
 .page-header,
 .filters,
 .state-card,
-.user-card {
+.route-card {
   background: rgba(255, 255, 255, 0.96);
   border: 1px solid var(--color-border);
   border-radius: 26px;
@@ -56,7 +56,7 @@
 .page-header h1,
 .filters h2,
 .state-card h2,
-.user-card h2 {
+.route-card h2 {
   margin: 0;
 }
 
@@ -65,7 +65,8 @@
 }
 
 .page-header p,
-.state-card p {
+.state-card p,
+.route-description {
   color: var(--color-muted);
   line-height: 1.55;
   margin: 0;
@@ -168,40 +169,44 @@
   color: var(--color-success);
 }
 
-.users-grid {
+.feedback.error {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+}
+
+.routes-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
   align-items: start;
 }
 
-.user-card {
+.route-card {
   display: grid;
   gap: 1rem;
   padding: 1rem;
   overflow: hidden;
 }
 
-.user-header {
+.route-header {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 0.85rem;
   align-items: center;
 }
 
-.user-header img {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  border: 3px solid var(--color-primary-light);
-  object-fit: cover;
+.route-color {
+  width: 10px;
+  min-height: 62px;
+  border-radius: 999px;
+  box-shadow: none;
 }
 
-.user-header section {
+.route-header section {
   min-width: 0;
 }
 
-.user-header p {
+.route-header p {
   margin: 0 0 0.25rem;
   color: var(--color-primary);
   font-size: 0.72rem;
@@ -209,7 +214,7 @@
   text-transform: uppercase;
 }
 
-.user-header h2 {
+.route-header h2 {
   font-size: 1.1rem;
   overflow-wrap: anywhere;
 }
@@ -221,185 +226,121 @@
   width: fit-content;
   border-radius: 999px;
   padding: 0.36rem 0.7rem;
-  background: var(--color-secondary-light);
-  color: var(--color-secondary);
+  background: var(--color-success-light);
+  color: var(--color-success);
   font-size: 0.68rem;
   font-weight: 900;
   text-transform: uppercase;
 }
 
-.status-badge.suspendido-temporal {
+.status-badge.inactiva {
   background: var(--color-warning-light);
   color: var(--color-warning);
 }
 
-.status-badge.suspendido-permanente {
-  background: var(--color-danger-light);
-  color: var(--color-danger);
+.route-description {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  padding: 0.85rem;
 }
 
-.user-details {
+.route-details {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0.7rem;
   margin: 0;
 }
 
-.user-details div {
+.route-details div,
+.origin-box {
   background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: 16px;
   padding: 0.75rem;
 }
 
-.user-details dt {
+.route-details dt {
   color: var(--color-muted);
   font-size: 0.68rem;
   font-weight: 900;
   text-transform: uppercase;
 }
 
-.user-details dd {
+.route-details dd {
   margin: 0.25rem 0 0;
   overflow-wrap: anywhere;
   font-weight: 850;
 }
 
-.suspension-box,
-.false-reports-box {
-  display: grid;
+.origin-box {
+  display: flex;
+  align-items: center;
   gap: 0.55rem;
-  border-radius: 18px;
-  padding: 0.85rem;
+  color: var(--color-primary);
+  background: var(--color-primary-light);
 }
 
-.suspension-box {
-  border: 1px solid var(--color-warning);
-  background: var(--color-warning-light);
-  color: #78350f;
-}
-
-.false-reports-box {
-  border: 1px solid var(--color-danger);
-  background: var(--color-danger-light);
-  color: var(--color-danger);
-}
-
-.suspension-box header,
-.false-reports-box header {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-}
-
-.false-reports-box p {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.65rem;
-  padding: 0.45rem 0;
-  border-top: 1px solid rgba(220, 38, 38, 0.18);
-}
-
-.suspension-box h3,
-.suspension-box p,
-.false-reports-box h3,
-.false-reports-box p {
+.origin-box p {
   margin: 0;
+  font-weight: 800;
 }
 
-.suspension-box h3,
-.false-reports-box h3 {
-  font-size: 0.95rem;
-}
-
-.role-actions,
-.suspension-actions {
+.route-actions {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0.65rem;
 }
 
-.role-actions button,
-.suspension-actions button {
+.route-actions button {
   min-height: 44px;
-  border: 1px solid var(--color-border);
+  border: 0;
   border-radius: 16px;
-  background: var(--color-bg);
-  color: var(--color-text);
+  padding: 0 0.85rem;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  font: inherit;
-  font-weight: 900;
-  cursor: pointer;
   transition: 0.2s ease;
 }
 
-.role-actions button:hover:not(:disabled),
-.suspension-actions button:hover:not(:disabled) {
-  transform: translateY(-2px);
-}
-
-.role-actions button.admin {
-  background: var(--color-primary);
-  color: #ffffff;
-  border-color: var(--color-primary);
-}
-
-.role-actions button.admin:hover:not(:disabled) {
-  background: var(--color-primary-hover);
-}
-
-.suspension-actions button:hover:not(:disabled) {
-  border-color: var(--color-warning);
-  color: var(--color-warning);
-}
-
-.suspension-actions button.danger {
-  background: var(--color-danger-light);
-  color: var(--color-danger);
-  border-color: transparent;
-}
-
-.suspension-actions button.danger:hover:not(:disabled) {
-  background: var(--color-danger);
-  color: #ffffff;
-}
-
-.suspension-actions button.success {
-  background: var(--color-success-light);
-  color: var(--color-success);
-  border-color: transparent;
-}
-
-.role-actions button:disabled,
-.suspension-actions button:disabled {
-  background: var(--color-secondary-light);
-  color: var(--color-secondary);
-  border-color: transparent;
-  opacity: 0.75;
+.route-actions button:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
+.route-actions button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.success {
+  background: var(--color-success-light);
+  color: var(--color-success);
+}
+
+.warning {
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+}
+
+.danger {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+}
+
 .state-card {
-  display: grid;
-  place-items: center;
-  gap: 0.55rem;
+  text-align: center;
   padding: 2rem 1rem;
   margin-bottom: 1rem;
-  text-align: center;
 }
 
 .state-card i {
   color: var(--color-primary);
-  font-size: 2.25rem;
-}
-
-.state-card.error i,
-.state-card.error h2 {
-  color: var(--color-danger);
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
 }
 
 @media (min-width: 560px) {
@@ -407,29 +348,16 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
-  .user-header {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-  }
-
-  .status-badge {
-    grid-column: auto;
-    justify-self: end;
-  }
-
-  .user-details {
+  .route-details {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .role-actions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .suspension-actions {
+  .route-actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 760px) {
   .admin-main {
     padding: 2rem;
     padding-bottom: 6rem;
@@ -441,7 +369,11 @@
   }
 
   .filter-form {
-    grid-template-columns: 190px 230px minmax(0, 1fr);
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+
+  .routes-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -452,20 +384,22 @@
     padding: 2.5rem;
   }
 
-  .users-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .user-card,
+  .route-card,
   .filters,
   .page-header,
   .summary-grid article {
     transition: 0.2s ease;
   }
 
-  .user-card:hover,
+  .route-card:hover,
   .filters:hover,
   .page-header:hover {
     transform: translateY(-2px);
+  }
+}
+
+@media (min-width: 1280px) {
+  .routes-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

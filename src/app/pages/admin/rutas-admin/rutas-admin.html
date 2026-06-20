@@ -1,0 +1,218 @@
+<section class="rutas-admin-page">
+  <app-sidebar></app-sidebar>
+
+  <main class="admin-main" aria-labelledby="rutas-admin-title">
+    <header class="page-header">
+      <section>
+        <p class="eyebrow">Administracion</p>
+        <h1 id="rutas-admin-title">Gestion de rutas publicas</h1>
+        <p>Supervisa las rutas publicadas, revisa su informacion operativa y administra su disponibilidad.</p>
+      </section>
+
+      <aside class="summary-grid" aria-label="Resumen de rutas publicas">
+        <article>
+          <strong>{{ rutas().length }}</strong>
+          <span>Total</span>
+        </article>
+
+        <article>
+          <strong>{{ rutasActivas().length }}</strong>
+          <span>Activas</span>
+        </article>
+
+        <article>
+          <strong>{{ rutasInactivas().length }}</strong>
+          <span>Inactivas</span>
+        </article>
+
+        <article>
+          <strong>{{ rutasDesdePropuesta().length }}</strong>
+          <span>Comunitarias</span>
+        </article>
+      </aside>
+    </header>
+
+    <section class="filters" aria-labelledby="rutas-filtros-title">
+      <h2 id="rutas-filtros-title">Filtros</h2>
+
+      <form class="filter-form" aria-describedby="rutas-filtros-ayuda">
+        <p id="rutas-filtros-ayuda" class="sr-only">
+          Usa estos filtros para buscar rutas por estado, nombre, numero o descripcion.
+        </p>
+
+        <section>
+          <label for="estadoRutaFiltro">Estado</label>
+          <select
+            id="estadoRutaFiltro"
+            name="estadoRutaFiltro"
+            [ngModel]="estadoFiltro()"
+            (ngModelChange)="actualizarEstadoFiltro($event)"
+            aria-describedby="rutas-filtros-ayuda"
+          >
+            <option value="todas">Todas</option>
+            <option value="activa">Activas</option>
+            <option value="inactiva">Inactivas</option>
+          </select>
+        </section>
+
+        <section>
+          <label for="buscarRuta">Buscar por nombre, numero, horario o descripcion</label>
+          <input
+            id="buscarRuta"
+            name="buscarRuta"
+            type="search"
+            [ngModel]="filtro()"
+            (ngModelChange)="actualizarFiltro($event)"
+            autocomplete="off"
+            aria-describedby="rutas-filtros-ayuda"
+          />
+        </section>
+      </form>
+    </section>
+
+    @if (mensaje()) {
+      <section class="feedback success" role="status" aria-live="polite">
+        <i class="material-icons" aria-hidden="true">check_circle</i>
+        <p>{{ mensaje() }}</p>
+      </section>
+    }
+
+    @if (error()) {
+      <section class="feedback error" role="alert">
+        <i class="material-icons" aria-hidden="true">error</i>
+        <p>{{ error() }}</p>
+      </section>
+    }
+
+    @if (cargando()) {
+      <section class="state-card" role="status" aria-live="polite">
+        <i class="material-icons" aria-hidden="true">hourglass_empty</i>
+        <h2>Cargando rutas</h2>
+        <p>Estamos consultando las rutas publicas registradas.</p>
+      </section>
+    }
+
+    @if (!cargando() && !error() && rutasFiltradas().length === 0) {
+      <section class="state-card" role="status" aria-live="polite">
+        <i class="material-icons" aria-hidden="true">route</i>
+        <h2>Sin rutas</h2>
+        <p>No hay rutas que coincidan con los filtros actuales.</p>
+      </section>
+    }
+
+    <section class="routes-grid" aria-label="Listado de rutas publicas" role="list">
+      @for (ruta of rutasFiltradas(); track ruta.id) {
+        <article class="route-card" role="listitem">
+          <header class="route-header">
+            <i
+              class="route-color"
+              [style.background]="ruta.color"
+              aria-hidden="true"
+            ></i>
+
+            <section>
+              <p>Ruta {{ ruta.numero || 'sin numero' }}</p>
+              <h2>{{ ruta.nombre || 'Ruta sin nombre' }}</h2>
+            </section>
+
+            <span
+              class="status-badge"
+              [class.inactiva]="ruta.estado === 'inactiva'"
+              [attr.aria-label]="'Estado de la ruta: ' + estadoRutaTexto(ruta)"
+            >
+              {{ estadoRutaTexto(ruta) }}
+            </span>
+          </header>
+
+          <p class="route-description">
+            {{ ruta.descripcion || 'Sin descripcion registrada.' }}
+          </p>
+
+          <dl class="route-details" aria-label="Informacion de la ruta">
+            <div>
+              <dt>Precio</dt>
+              <dd>L. {{ ruta.precio }}</dd>
+            </div>
+
+            <div>
+              <dt>Horario</dt>
+              <dd>{{ ruta.horario || 'No definido' }}</dd>
+            </div>
+
+            <div>
+              <dt>Frecuencia</dt>
+              <dd>{{ ruta.frecuencia || 'No definida' }}</dd>
+            </div>
+
+            <div>
+              <dt>Paradas</dt>
+              <dd>{{ totalParadas(ruta) }}</dd>
+            </div>
+
+            <div>
+              <dt>Puntos</dt>
+              <dd>{{ totalRecorrido(ruta) }}</dd>
+            </div>
+
+            <div>
+              <dt>Reportes falsos</dt>
+              <dd>{{ totalReportes(ruta) }}</dd>
+            </div>
+
+            <div>
+              <dt>Actualizada</dt>
+              <dd>{{ formatearFecha(ruta.actualizadoEn || ruta.creadoEn) }}</dd>
+            </div>
+          </dl>
+
+          @if (ruta.publicadoDesdePropuesta) {
+            <section class="origin-box" aria-label="Origen comunitario de la ruta">
+              <i class="material-icons" aria-hidden="true">verified</i>
+              <p>Publicada desde una propuesta comunitaria.</p>
+            </section>
+          }
+
+          <footer class="route-actions" aria-label="Acciones administrativas de la ruta">
+            @if (ruta.estado === 'activa') {
+              <button
+                type="button"
+                class="warning"
+                (click)="cambiarEstado(ruta, 'inactiva')"
+                [disabled]="actualizando() === ruta.id"
+                [attr.aria-disabled]="actualizando() === ruta.id"
+                [attr.aria-label]="'Desactivar ruta ' + ruta.nombre"
+              >
+                <i class="material-icons" aria-hidden="true">visibility_off</i>
+                Desactivar
+              </button>
+            } @else {
+              <button
+                type="button"
+                class="success"
+                (click)="cambiarEstado(ruta, 'activa')"
+                [disabled]="actualizando() === ruta.id"
+                [attr.aria-disabled]="actualizando() === ruta.id"
+                [attr.aria-label]="'Activar ruta ' + ruta.nombre"
+              >
+                <i class="material-icons" aria-hidden="true">visibility</i>
+                Activar
+              </button>
+            }
+
+            <button
+              type="button"
+              class="danger"
+              (click)="eliminarRuta(ruta)"
+              [disabled]="actualizando() === ruta.id"
+              [attr.aria-disabled]="actualizando() === ruta.id"
+              [attr.aria-label]="'Eliminar ruta ' + ruta.nombre"
+            >
+              <i class="material-icons" aria-hidden="true">delete</i>
+              Eliminar
+            </button>
+          </footer>
+        </article>
+      }
+    </section>
+  </main>
+</section>

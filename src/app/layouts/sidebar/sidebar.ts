@@ -14,8 +14,9 @@ export class Sidebar implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  rol = signal<UserRole>('usuario');
-  sesionActiva = signal(false);
+  rol = signal<UserRole>(this.rolGuardado());
+  sesionActiva = signal(!!localStorage.getItem('rol'));
+  cargandoSesion = signal(false);
 
   badgeRol = computed(() => {
     if (!this.sesionActiva()) return 'Visitante';
@@ -28,26 +29,30 @@ export class Sidebar implements OnInit {
   }
 
   async cargarSesion() {
-    const usuario = await this.authService.obtenerUsuarioActual();
+    try {
+      const usuario = await this.authService.obtenerUsuarioActual();
 
-    this.sesionActiva.set(!!usuario);
+      this.sesionActiva.set(!!usuario);
 
-    if (!usuario) {
+      if (!usuario) {
+        this.rol.set('usuario');
+        localStorage.removeItem('rol');
+        return;
+      }
+
+      const rolActual = await this.authService.getCurrentUserRole();
+
+      if (rolActual === 'admin') {
+        this.rol.set('admin');
+        localStorage.setItem('rol', 'admin');
+        return;
+      }
+
       this.rol.set('usuario');
-      localStorage.removeItem('rol');
-      return;
+      localStorage.setItem('rol', 'usuario');
+    } finally {
+      this.cargandoSesion.set(false);
     }
-
-    const rolActual = await this.authService.getCurrentUserRole();
-
-    if (rolActual === 'admin') {
-      this.rol.set('admin');
-      localStorage.setItem('rol', 'admin');
-      return;
-    }
-
-    this.rol.set('usuario');
-    localStorage.setItem('rol', 'usuario');
   }
 
   irLogin() {
@@ -65,10 +70,15 @@ export class Sidebar implements OnInit {
 
       this.sesionActiva.set(false);
       this.rol.set('usuario');
+      this.cargandoSesion.set(false);
 
       this.router.navigate(['/dashboard']);
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     }
+  }
+
+  private rolGuardado(): UserRole {
+    return localStorage.getItem('rol') === 'admin' ? 'admin' : 'usuario';
   }
 }

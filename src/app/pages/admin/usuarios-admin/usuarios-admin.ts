@@ -1,9 +1,16 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { combineLatest } from 'rxjs';
 
 import { Sidebar } from '../../../layouts/sidebar/sidebar';
 import { AuthService } from '../../../services/auth';
+import {
+  NotaComunitaria,
+  PropuestaRuta,
+  RutaService,
+  RutaTransporte,
+} from '../../../services/ruta.service';
 import {
   EstadoUsuario,
   PerfilUsuario,
@@ -20,8 +27,12 @@ import {
 export class UsuariosAdmin {
   private usuarioService = inject(UsuarioService);
   private authService = inject(AuthService);
+  private rutaService = inject(RutaService);
 
   usuarios = signal<PerfilUsuario[]>([]);
+  rutas = signal<RutaTransporte[]>([]);
+  propuestas = signal<PropuestaRuta[]>([]);
+  notas = signal<NotaComunitaria[]>([]);
   cargando = signal(true);
   error = signal('');
   mensaje = signal('');
@@ -61,12 +72,19 @@ export class UsuariosAdmin {
   constructor() {
     this.cargarAdminActual();
 
-    this.usuarioService
-      .getUsuarios()
+    combineLatest([
+      this.usuarioService.getUsuarios(),
+      this.rutaService.getRutas(),
+      this.rutaService.getPropuestasRuta(),
+      this.rutaService.getNotasActivas(),
+    ])
       .pipe(takeUntilDestroyed())
       .subscribe({
-        next: (usuarios) => {
+        next: ([usuarios, rutas, propuestas, notas]) => {
           this.usuarios.set(usuarios);
+          this.rutas.set(rutas);
+          this.propuestas.set(propuestas);
+          this.notas.set(notas);
           this.cargando.set(false);
         },
         error: () => {
@@ -135,6 +153,36 @@ export class UsuariosAdmin {
 
   totalPorEstado(estado: EstadoUsuario) {
     return this.usuarios().filter((usuario) => this.estadoUsuario(usuario) === estado).length;
+  }
+
+  propuestasUsuario(usuario: PerfilUsuario) {
+    if (!usuario.uid) return 0;
+
+    return this.propuestas().filter(
+      (propuesta) => propuesta.creadoPor === usuario.uid
+    ).length;
+  }
+
+  reportesFalsosUsuario(usuario: PerfilUsuario) {
+    return this.rutasReportadasFalsas(usuario).reduce(
+      (total, item) => total + item.reportes,
+      0
+    );
+  }
+
+  rutasReportadasFalsas(usuario: PerfilUsuario) {
+    if (!usuario.uid) return [];
+
+    return this.rutas()
+      .filter((ruta) => ruta.creadoPor === usuario.uid)
+      .map((ruta) => ({
+        ruta,
+        reportes: this.notas().filter(
+          (nota) =>
+            nota.rutaId === ruta.id && nota.campoMarcado === 'ruta_falsa'
+        ).length,
+      }))
+      .filter((item) => item.reportes > 0);
   }
 
   async suspenderTemporalmente(usuario: PerfilUsuario) {

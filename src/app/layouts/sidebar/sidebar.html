@@ -11,6 +11,7 @@
   </header>
 
   <nav class="sidebar-nav" aria-label="Navegación principal del sistema">
+    @if (!cargandoSesion()) {
     @if (rol() === 'admin' && sesionActiva()) {
       <a
         class="nav-item"
@@ -148,9 +149,11 @@
         </a>
       }
     }
+    }
   </nav>
 
   <footer class="sidebar-footer" aria-label="Acciones de sesión">
+    @if (!cargandoSesion()) {
     @if (sesionActiva()) {
       <button
         class="footer-link logout"
@@ -181,6 +184,7 @@
         <i class="material-icons" aria-hidden="true">person_add</i>
         <span>Registrarse</span>
       </button>
+    }
     }
   </footer>
 </aside>

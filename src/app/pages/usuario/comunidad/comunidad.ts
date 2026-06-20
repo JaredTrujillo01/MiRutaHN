@@ -383,6 +383,15 @@ export class Comunidad implements AfterViewInit, OnDestroy {
   async enviarValidacion(tipo: TipoValidacionRuta) {
     if (!(await this.puedeParticipar())) return;
 
+    if (this.esAdmin()) {
+      this.mostrarAlerta(
+        'Accion no permitida',
+        'El administrador solo puede supervisar las validaciones comunitarias.',
+        'warning'
+      );
+      return;
+    }
+
     const propuesta = this.propuestaSeleccionada();
     const usuario = this.usuarioAuth();
     const comentario = this.nuevaValidacion().comentario.trim();
@@ -505,6 +514,24 @@ export class Comunidad implements AfterViewInit, OnDestroy {
         'error'
       );
     }
+  }
+
+  aprobacionesValidacion() {
+    return this.validaciones().filter(
+      (validacion) => validacion.tipo === 'aprobacion'
+    );
+  }
+
+  rechazosValidacion() {
+    return this.validaciones().filter(
+      (validacion) => validacion.tipo === 'rechazo'
+    );
+  }
+
+  comentariosValidacion() {
+    return this.validaciones().filter(
+      (validacion) => validacion.tipo === 'comentario'
+    );
   }
 
   votosDelUsuario(propuesta?: PropuestaRuta | null) {

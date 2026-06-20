@@ -156,15 +156,31 @@
             </div>
 
             <div>
-              <dt>Favoritos</dt>
-              <dd>{{ usuario.rutasFavoritas?.length || 0 }}</dd>
+              <dt>Propuestas</dt>
+              <dd>{{ propuestasUsuario(usuario) }}</dd>
             </div>
 
             <div>
               <dt>Reportes falsos</dt>
-              <dd>{{ usuario.reportesFalsos || 0 }}</dd>
+              <dd>{{ reportesFalsosUsuario(usuario) }}</dd>
             </div>
           </dl>
+
+          @if (rutasReportadasFalsas(usuario).length > 0) {
+            <section class="false-reports-box" aria-label="Rutas reportadas como falsas">
+              <header>
+                <i class="material-icons" aria-hidden="true">report</i>
+                <h3>Rutas con reportes de falsa</h3>
+              </header>
+
+              @for (item of rutasReportadasFalsas(usuario); track item.ruta.id) {
+                <p>
+                  <strong>{{ item.ruta.nombre }}</strong>
+                  <span>{{ item.reportes }} reportes</span>
+                </p>
+              }
+            </section>
+          }
 
           @if (estadoUsuario(usuario) !== 'activo') {
             <section class="suspension-box" aria-label="Detalle de suspension">

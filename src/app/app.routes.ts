@@ -93,6 +93,15 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'admin/rutas',
+    canActivate: [roleGuard],
+    data: { roles: ['admin'] },
+    loadComponent: () =>
+      import('./pages/admin/rutas-admin/rutas-admin').then(
+        (m) => m.RutasAdmin
+      ),
+  },
+  {
     path: '**',
     redirectTo: 'inicio',
   },

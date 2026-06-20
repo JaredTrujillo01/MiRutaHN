@@ -467,7 +467,7 @@ export class RutasPublicas implements AfterViewInit, OnDestroy {
 
     try {
       if (this.tipoSolicitud() === 'eliminacion') {
-        await this.rutaService.crearPropuestaEliminacion(
+        await this.rutaService.crearReporteRutaFalsa(
           ruta,
           {
             uid: this.usuarioId()!,
@@ -478,7 +478,7 @@ export class RutasPublicas implements AfterViewInit, OnDestroy {
         );
 
         this.mensajeExito.set(
-          'La solicitud de eliminación fue enviada a validación comunitaria.'
+          'El reporte de ruta falsa fue enviado para revision administrativa.'
         );
       } else {
         const cambios = this.editor();

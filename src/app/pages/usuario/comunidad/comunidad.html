@@ -138,8 +138,8 @@
 
               <section class="progress-box" aria-label="Progreso de aprobación">
                 <header class="progress-text">
-                  <span>Aprobaciones</span>
-                  <strong>{{ propuesta.aprobaciones }} / {{ approvalThreshold }}</strong>
+                  <span>Aprobaciones {{ propuesta.aprobaciones }} / {{ approvalThreshold }}</span>
+                  <strong>{{ propuesta.rechazos }} rechazos</strong>
                 </header>
 
                 <section
@@ -245,8 +245,13 @@
         <article class="lista-card sticky-card">
           <header class="lista-header">
             <section>
-              <h2>Tu validación</h2>
-              <p>Selecciona una propuesta para aprobar, rechazar o comentar.</p>
+              @if (esAdmin()) {
+                <h2>Revision de validaciones</h2>
+                <p>Selecciona una propuesta para ver votos y comentarios.</p>
+              } @else {
+                <h2>Tu validación</h2>
+                <p>Selecciona una propuesta para aprobar, rechazar o comentar.</p>
+              }
             </section>
 
             <button
@@ -287,6 +292,7 @@
             </section>
 
             @if (propuestaSeleccionada()?.estado === 'pendiente') {
+              @if (!esAdmin()) {
               <section class="quick-actions" aria-label="Acciones de validación">
                 <button
                   type="button"
@@ -319,8 +325,10 @@
                   <p>Ya votaste esta propuesta. Todavía puedes comentar.</p>
                 </section>
               }
+              }
             }
 
+            @if (!esAdmin()) {
             <label class="campo" for="comentarioValidacion">
               Comentario o corrección
 
@@ -351,24 +359,86 @@
               <i class="material-icons" aria-hidden="true">chat</i>
               Comentar
             </button>
+            }
 
             <section
               class="comentarios-list"
-              aria-label="Comentarios de validación"
+              aria-label="Usuarios que aprobaron la propuesta"
               aria-live="polite"
+              role="list"
             >
-              @if (validaciones().length === 0) {
-                <p class="empty-comments" role="status">Aún no hay comentarios.</p>
+              <h3>Aprobaciones comunitarias</h3>
+
+              @if (aprobacionesValidacion().length === 0) {
+                <p class="empty-comments" role="status">Aun no hay aprobaciones.</p>
               }
 
-              @for (validacion of validaciones(); track validacion.id) {
-                <article class="comentario-card">
+              @for (validacion of aprobacionesValidacion(); track validacion.id) {
+                <article class="comentario-card" role="listitem">
                   <header>
                     <strong>{{ validacion.usuarioNombre }}</strong>
                     <span>{{ formatearFecha(validacion.creadoEn) }}</span>
                   </header>
 
-                  <p>{{ validacion.comentario || validacion.tipo }}</p>
+                  <small
+                    class="aprobacion"
+                    [attr.aria-label]="'Tipo de validacion: ' + validacion.tipo"
+                  >
+                    {{ validacion.tipo }}
+                  </small>
+                </article>
+              }
+            </section>
+
+            <section
+              class="comentarios-list"
+              aria-label="Usuarios que rechazaron la propuesta"
+              aria-live="polite"
+              role="list"
+            >
+              <h3>Rechazos comunitarios</h3>
+
+              @if (rechazosValidacion().length === 0) {
+                <p class="empty-comments" role="status">Aun no hay rechazos.</p>
+              }
+
+              @for (validacion of rechazosValidacion(); track validacion.id) {
+                <article class="comentario-card" role="listitem">
+                  <header>
+                    <strong>{{ validacion.usuarioNombre }}</strong>
+                    <span>{{ formatearFecha(validacion.creadoEn) }}</span>
+                  </header>
+
+                  <small
+                    class="rechazo"
+                    [attr.aria-label]="'Tipo de validacion: ' + validacion.tipo"
+                  >
+                    {{ validacion.tipo }}
+                  </small>
+                </article>
+              }
+            </section>
+
+            <section
+              class="comentarios-list"
+              aria-label="Comentarios de validación"
+              aria-live="polite"
+              role="list"
+            >
+              <h3>Comentarios</h3>
+
+              @if (comentariosValidacion().length === 0) {
+                <p class="empty-comments" role="status">Aún no hay comentarios.</p>
+              }
+
+              @for (validacion of comentariosValidacion(); track validacion.id) {
+                <article class="comentario-card" role="listitem">
+                  <header>
+                    <strong>{{ validacion.usuarioNombre }}</strong>
+                    <span>{{ formatearFecha(validacion.creadoEn) }}</span>
+                  </header>
+
+                  <p>{{ validacion.comentario }}</p>
 
                   <small
                     [class.aprobacion]="validacion.tipo === 'aprobacion'"

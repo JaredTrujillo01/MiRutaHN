@@ -107,7 +107,7 @@ export interface NotaComunitaria {
   usuarioId: string;
   usuarioNombre: string;
   comentario: string;
-  campoMarcado?: 'precio' | 'horario' | 'recorrido' | 'paradas' | 'descripcion' | 'otro';
+  campoMarcado?: 'precio' | 'horario' | 'recorrido' | 'paradas' | 'descripcion' | 'otro' | 'ruta_falsa';
   estado: 'activa' | 'oculta';
   votosUtiles: number;
   confirmaciones: number;
@@ -635,6 +635,29 @@ export class RutaService {
     return this.inInjectionContext(() =>
       addDoc(collection(this.firestore, this.notasCollection), nota)
     );
+  }
+
+  crearReporteRutaFalsa(
+    ruta: RutaTransporte,
+    usuario: { uid: string; nombre: string },
+    comentario: string,
+    creadoEn: any
+  ) {
+    if (!ruta.id) {
+      throw new Error('La ruta no tiene identificador.');
+    }
+
+    return this.createNotaComunitaria({
+      rutaId: ruta.id,
+      usuarioId: usuario.uid,
+      usuarioNombre: usuario.nombre,
+      comentario,
+      campoMarcado: 'ruta_falsa',
+      estado: 'activa',
+      votosUtiles: 0,
+      confirmaciones: 0,
+      creadoEn,
+    });
   }
 
   votarNotaUtil(id: string) {
