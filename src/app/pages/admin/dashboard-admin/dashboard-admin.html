@@ -4,18 +4,25 @@
   <main class="admin-main" aria-labelledby="dashboard-admin-title">
     <header class="page-header">
       <section>
-        <p class="eyebrow">Administracion</p>
+        <p class="eyebrow">Administración</p>
+
         <h1 id="dashboard-admin-title">Panel del sistema</h1>
-        <p>
-          Monitorea rutas publicas, propuestas comunitarias, usuarios y notas
+
+        <p id="dashboard-admin-description">
+          Monitorea rutas públicas, propuestas comunitarias, usuarios y notas
           activas desde una sola vista.
         </p>
       </section>
 
-      <aside class="admin-greeting" aria-label="Administrador actual">
+      <aside
+        class="admin-greeting"
+        aria-label="Administrador actual"
+        role="status"
+      >
         <i class="material-icons" aria-hidden="true">admin_panel_settings</i>
+
         <section>
-          <span>Sesion administrativa</span>
+          <span>Sesión administrativa</span>
           <strong>{{ adminActual()?.nombre || 'Administrador' }}</strong>
         </section>
       </aside>
@@ -25,7 +32,7 @@
       <section class="state-card" role="status" aria-live="polite">
         <i class="material-icons" aria-hidden="true">hourglass_empty</i>
         <h2>Cargando panel</h2>
-        <p>Estamos consultando la informacion mas reciente del sistema.</p>
+        <p>Estamos consultando la información más reciente del sistema.</p>
       </section>
     }
 
@@ -38,61 +45,71 @@
     }
 
     @if (!cargando() && !error()) {
-      <section class="summary-grid" aria-label="Resumen del sistema">
-        <article class="metric-card">
-          <span class="metric-icon">
-            <i class="material-icons" aria-hidden="true">route</i>
+      <section
+        class="summary-grid"
+        aria-label="Resumen general del sistema"
+        aria-live="polite"
+      >
+        <article class="metric-card" aria-label="Rutas públicas registradas">
+          <span class="metric-icon" aria-hidden="true">
+            <i class="material-icons">route</i>
           </span>
+
           <section>
             <strong>{{ rutasPublicas().length }}</strong>
-            <span>Rutas publicas</span>
+            <span>Rutas públicas</span>
           </section>
         </article>
 
-        <article class="metric-card warning">
-          <span class="metric-icon">
-            <i class="material-icons" aria-hidden="true">pending_actions</i>
+        <article class="metric-card warning" aria-label="Propuestas pendientes">
+          <span class="metric-icon" aria-hidden="true">
+            <i class="material-icons">pending_actions</i>
           </span>
+
           <section>
             <strong>{{ propuestasPendientes().length }}</strong>
             <span>Propuestas pendientes</span>
           </section>
         </article>
 
-        <article class="metric-card">
-          <span class="metric-icon">
-            <i class="material-icons" aria-hidden="true">groups</i>
+        <article class="metric-card" aria-label="Usuarios registrados">
+          <span class="metric-icon" aria-hidden="true">
+            <i class="material-icons">groups</i>
           </span>
+
           <section>
             <strong>{{ usuarios().length }}</strong>
             <span>Usuarios registrados</span>
           </section>
         </article>
 
-        <article class="metric-card">
-          <span class="metric-icon">
-            <i class="material-icons" aria-hidden="true">rate_review</i>
+        <article class="metric-card" aria-label="Notas comunitarias activas">
+          <span class="metric-icon" aria-hidden="true">
+            <i class="material-icons">rate_review</i>
           </span>
+
           <section>
             <strong>{{ notasActivas().length }}</strong>
             <span>Notas activas</span>
           </section>
         </article>
 
-        <article class="metric-card success">
-          <span class="metric-icon">
-            <i class="material-icons" aria-hidden="true">verified</i>
+        <article class="metric-card success" aria-label="Propuestas aprobadas">
+          <span class="metric-icon" aria-hidden="true">
+            <i class="material-icons">verified</i>
           </span>
+
           <section>
             <strong>{{ propuestasAprobadas().length }}</strong>
             <span>Propuestas aprobadas</span>
           </section>
         </article>
 
-        <article class="metric-card danger">
-          <span class="metric-icon">
-            <i class="material-icons" aria-hidden="true">block</i>
+        <article class="metric-card danger" aria-label="Propuestas rechazadas">
+          <span class="metric-icon" aria-hidden="true">
+            <i class="material-icons">block</i>
           </span>
+
           <section>
             <strong>{{ propuestasRechazadas().length }}</strong>
             <span>Propuestas rechazadas</span>
@@ -103,12 +120,12 @@
       <section class="quick-actions" aria-labelledby="acciones-title">
         <header class="section-header">
           <section>
-            <p class="eyebrow">Acciones rapidas</p>
+            <p class="eyebrow">Acciones rápidas</p>
             <h2 id="acciones-title">Administrar plataforma</h2>
           </section>
         </header>
 
-        <section class="actions-grid">
+        <nav class="actions-grid" aria-label="Acciones rápidas de administración">
           <a routerLink="/admin/usuarios" aria-label="Gestionar usuarios">
             <i class="material-icons" aria-hidden="true">manage_accounts</i>
             <span>Gestionar usuarios</span>
@@ -119,16 +136,16 @@
             <span>Revisar propuestas</span>
           </a>
 
-          <a routerLink="/rutas" aria-label="Ver rutas publicas">
+          <a routerLink="/rutas" aria-label="Ver rutas públicas">
             <i class="material-icons" aria-hidden="true">route</i>
-            <span>Ver rutas publicas</span>
+            <span>Ver rutas públicas</span>
           </a>
 
           <a routerLink="/notas-comunitarias" aria-label="Ver notas comunitarias">
             <i class="material-icons" aria-hidden="true">rate_review</i>
             <span>Ver notas comunitarias</span>
           </a>
-        </section>
+        </nav>
       </section>
 
       <section class="dashboard-grid">
@@ -141,17 +158,21 @@
           </header>
 
           @if (actividadReciente().length === 0) {
-            <section class="empty-state">
+            <section class="empty-state" role="status">
               <i class="material-icons" aria-hidden="true">history</i>
               <h3>Sin actividad reciente</h3>
-              <p>Aun no hay eventos para mostrar en el panel.</p>
+              <p>Aún no hay eventos para mostrar en el panel.</p>
             </section>
           } @else {
-            <section class="activity-list">
+            <section
+              class="activity-list"
+              role="feed"
+              aria-label="Actividad reciente del sistema"
+            >
               @for (actividad of actividadReciente(); track $index) {
-                <article class="activity-item">
-                  <span class="activity-icon">
-                    <i class="material-icons" aria-hidden="true">{{ actividad.icono }}</i>
+                <article class="activity-item" role="article">
+                  <span class="activity-icon" aria-hidden="true">
+                    <i class="material-icons">{{ actividad.icono }}</i>
                   </span>
 
                   <section>
@@ -168,7 +189,7 @@
         <article class="panel" aria-labelledby="propuestas-title">
           <header class="section-header">
             <section>
-              <p class="eyebrow">Validacion</p>
+              <p class="eyebrow">Validación</p>
               <h2 id="propuestas-title">Resumen de propuestas</h2>
             </section>
           </header>
@@ -191,19 +212,28 @@
           </section>
 
           @if (propuestasPorRevisar().length === 0) {
-            <section class="empty-state compact">
+            <section class="empty-state compact" role="status">
               <i class="material-icons" aria-hidden="true">task_alt</i>
-              <h3>Sin propuestas en revision</h3>
+              <h3>Sin propuestas en revisión</h3>
               <p>No hay propuestas con actividad de votos en este momento.</p>
             </section>
           } @else {
-            <section class="review-list" aria-label="Propuestas que necesitan revision">
+            <section
+              class="review-list"
+              aria-label="Propuestas que necesitan revisión"
+              role="list"
+            >
               @for (propuesta of propuestasPorRevisar(); track propuesta.id) {
-                <article class="review-item">
+                <article
+                  class="review-item"
+                  role="listitem"
+                  [attr.aria-label]="'Propuesta ' + propuesta.nombre"
+                >
                   <section>
                     <h3>{{ propuesta.nombre }}</h3>
                     <p>{{ tipoPropuestaTexto(propuesta) }}</p>
                   </section>
+
                   <span>{{ progresoPropuesta(propuesta) }}</span>
                 </article>
               }
@@ -217,20 +247,28 @@
           <header class="section-header">
             <section>
               <p class="eyebrow">Rutas</p>
-              <h2 id="rutas-title">Rutas publicas recientes</h2>
+              <h2 id="rutas-title">Rutas públicas recientes</h2>
             </section>
           </header>
 
           @if (rutasRecientes().length === 0) {
-            <section class="empty-state compact">
+            <section class="empty-state compact" role="status">
               <i class="material-icons" aria-hidden="true">route</i>
-              <h3>Sin rutas publicas</h3>
-              <p>No hay rutas activas publicadas todavia.</p>
+              <h3>Sin rutas públicas</h3>
+              <p>No hay rutas activas publicadas todavía.</p>
             </section>
           } @else {
-            <section class="table-list" aria-label="Rutas publicas recientes">
+            <section
+              class="table-list"
+              aria-label="Rutas públicas recientes"
+              role="list"
+            >
               @for (ruta of rutasRecientes(); track ruta.id) {
-                <article class="route-row">
+                <article
+                  class="route-row"
+                  role="listitem"
+                  [attr.aria-label]="'Ruta pública ' + ruta.nombre"
+                >
                   <section>
                     <h3>{{ ruta.nombre }}</h3>
                     <p>Ruta {{ ruta.numero }} · {{ ruta.creadoPorNombre || 'Sin autor registrado' }}</p>
@@ -281,23 +319,29 @@
           </section>
 
           @if (usuariosRecientes().length === 0) {
-            <section class="empty-state compact">
+            <section class="empty-state compact" role="status">
               <i class="material-icons" aria-hidden="true">person_off</i>
               <h3>Sin usuarios recientes</h3>
               <p>No hay perfiles registrados para mostrar.</p>
             </section>
           } @else {
-            <section class="recent-users" aria-label="Usuarios recientes">
+            <section
+              class="recent-users"
+              aria-label="Usuarios recientes"
+              role="list"
+            >
               @for (usuario of usuariosRecientes(); track usuario.uid) {
-                <article>
+                <article role="listitem">
                   <img
                     [src]="usuario.avatarUrl || 'assets/avatars/avatar-1.png'"
                     [alt]="'Avatar de ' + (usuario.nombre || usuario.email)"
                   />
+
                   <section>
                     <h3>{{ usuario.nombre || 'Usuario sin nombre' }}</h3>
                     <p>{{ usuario.email }}</p>
                   </section>
+
                   <span>{{ rolUsuario(usuario) === 'admin' ? 'Admin' : 'Usuario' }}</span>
                 </article>
               }

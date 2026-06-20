@@ -1,6 +1,8 @@
 .admin-dashboard-page {
   min-height: 100vh;
-  background: var(--color-bg);
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 34%),
+    linear-gradient(135deg, #e0f2fe, #f8fafc);
   color: var(--color-text);
   font-family: var(--font-main);
 }
@@ -26,12 +28,22 @@
   display: grid;
   gap: 1rem;
   margin-bottom: 1rem;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid var(--color-border);
+  border-radius: 26px;
+  padding: 1rem;
+  box-shadow: var(--shadow-card);
 }
 
 .eyebrow {
-  margin: 0 0 0.35rem;
+  display: inline-flex;
+  width: fit-content;
+  margin: 0 0 0.5rem;
+  background: var(--color-primary-light);
   color: var(--color-primary);
-  font-size: 0.75rem;
+  border-radius: 999px;
+  padding: 0.32rem 0.75rem;
+  font-size: 0.68rem;
   font-weight: 900;
   text-transform: uppercase;
 }
@@ -48,7 +60,7 @@
 }
 
 .page-header h1 {
-  font-size: 1.75rem;
+  font-size: 1.55rem;
 }
 
 .page-header p,
@@ -57,9 +69,11 @@
 .activity-item p,
 .review-item p,
 .route-row p,
-.recent-users p {
+.recent-users p,
+.section-header p {
   color: var(--color-muted);
   line-height: 1.55;
+  margin: 0;
 }
 
 .admin-greeting,
@@ -67,9 +81,9 @@
 .quick-actions,
 .panel,
 .state-card {
-  background: var(--color-surface);
+  background: rgba(255, 255, 255, 0.96);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: 26px;
   box-shadow: var(--shadow-card);
 }
 
@@ -109,6 +123,7 @@
   grid-template-columns: 1fr;
   gap: 1rem;
   margin-bottom: 1rem;
+  align-items: start;
 }
 
 .metric-card {
@@ -117,6 +132,7 @@
   gap: 0.85rem;
   align-items: center;
   padding: 1rem;
+  min-height: 82px;
 }
 
 .metric-card strong {
@@ -128,9 +144,9 @@
 
 .metric-icon,
 .activity-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-sm);
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -159,6 +175,7 @@
   gap: 1rem;
   padding: 1rem;
   margin-bottom: 1rem;
+  align-self: start;
 }
 
 .section-header {
@@ -179,7 +196,7 @@
 .actions-grid a {
   min-height: 48px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: 16px;
   background: var(--color-bg);
   color: var(--color-text);
   display: inline-flex;
@@ -202,10 +219,11 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
+  align-items: start;
 }
 
 .activity-panel {
-  min-height: 100%;
+  height: auto;
 }
 
 .activity-list,
@@ -214,6 +232,7 @@
 .recent-users {
   display: grid;
   gap: 0.85rem;
+  align-content: start;
 }
 
 .activity-item,
@@ -223,7 +242,7 @@
   min-width: 0;
   background: var(--color-bg);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: 18px;
   padding: 0.85rem;
 }
 
@@ -252,7 +271,7 @@
 .proposal-stats,
 .user-overview {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 0.75rem;
 }
 
@@ -262,8 +281,10 @@
   gap: 0.25rem;
   background: var(--color-bg);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 0.85rem;
+  border-radius: 18px;
+  padding: 1rem;
+  min-height: 86px;
+  align-content: center;
 }
 
 .proposal-stats strong,
@@ -289,6 +310,7 @@
 .route-row {
   display: grid;
   gap: 0.75rem;
+  min-height: 110px;
 }
 
 .route-row dl {
@@ -310,14 +332,6 @@
   font-weight: 850;
 }
 
-.user-overview {
-  grid-template-columns: 1fr;
-}
-
-.user-overview article {
-  align-items: start;
-}
-
 .user-overview i {
   color: var(--color-primary);
   font-size: 1.6rem;
@@ -325,14 +339,15 @@
 
 .recent-users article {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 0.75rem;
+  grid-template-columns: 50px minmax(0, 1fr) auto;
+  gap: 1rem;
   align-items: center;
+  min-height: 72px;
 }
 
 .recent-users img {
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border: 3px solid var(--color-primary-light);
   border-radius: 50%;
   object-fit: cover;
@@ -391,12 +406,16 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .route-row dl {
+  .proposal-stats {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .user-overview {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .route-row dl {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -415,9 +434,20 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .review-item {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel {
+    width: 100%;
+  }
+
+  .review-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .table-list {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -429,11 +459,25 @@
   }
 
   .dashboard-grid {
-    grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+    grid-template-columns: 1fr;
+    align-items: start;
   }
 
   .lower-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr);
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .activity-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .review-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .recent-users {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .metric-card,
@@ -446,5 +490,15 @@
   .panel:hover,
   .actions-grid a:hover {
     transform: translateY(-2px);
+  }
+}
+
+@media (min-width: 1280px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lower-grid {
+    grid-template-columns: 1fr;
   }
 }
