@@ -165,7 +165,7 @@ export class DetalleRuta {
     if (!usuario) return;
 
     try {
-      await this.rutaService.votarNotaUtil(id);
+      await this.rutaService.votarNotaUtil(id, usuario.uid);
       this.mensaje.set('Voto útil registrado para la nota.');
       this.error.set('');
     } catch (err) {
@@ -181,7 +181,7 @@ export class DetalleRuta {
     if (!usuario) return;
 
     try {
-      await this.rutaService.confirmarNota(id);
+      await this.rutaService.confirmarNota(id, usuario.uid);
       this.mensaje.set('Confirmación registrada para la nota.');
       this.error.set('');
     } catch (err) {

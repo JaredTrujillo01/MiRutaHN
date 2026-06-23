@@ -10,6 +10,7 @@ service cloud.firestore {
     // propuestas_rutas/propuestasRutas: community route proposals.
     // validaciones_rutas/validacionesRutas: votes and comments on proposals.
     // notas_comunitarias/notasComunitarias: public active route notes.
+    // votos_notas: one immutable useful/confirmation action per user and note.
     // usuarios: private user profiles with PII (email/phone/city/role).
     // admin_acciones: admin audit log.
     //
@@ -168,7 +169,16 @@ service cloud.firestore {
         optionalTimestamp(data, 'actualizadoEn') &&
         optionalString(data, 'campoMarcado', 40) &&
         (!data.keys().hasAny(['campoMarcado']) ||
-          data.campoMarcado in ['precio', 'horario', 'frecuencia', 'recorrido', 'paradas', 'descripcion', 'otro']);
+          data.campoMarcado in ['precio', 'horario', 'frecuencia', 'recorrido', 'paradas', 'descripcion', 'otro', 'ruta_falsa']);
+    }
+
+    function isValidAccionNota(data) {
+      return hasOnly(data, ['notaId', 'usuarioId', 'tipo', 'creadoEn']) &&
+        hasAll(data, ['notaId', 'usuarioId', 'tipo', 'creadoEn']) &&
+        data.notaId is string && data.notaId.size() > 0 && data.notaId.size() <= 128 &&
+        data.usuarioId is string && data.usuarioId.size() > 0 && data.usuarioId.size() <= 128 &&
+        data.tipo in ['util', 'confirmacion'] &&
+        data.creadoEn is timestamp;
     }
 
     function isValidUser(data) {
@@ -214,11 +224,55 @@ service cloud.firestore {
         .hasAny(['uid', 'email', 'role', 'rol', 'estadoUsuario', 'motivoSuspension', 'suspendidoPor', 'suspendidoEn', 'suspensionHasta']);
     }
 
-    function onlyNoteCountersChanged() {
-      return request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly(['votosUtiles', 'confirmaciones', 'actualizadoEn']) &&
-        request.resource.data.votosUtiles >= resource.data.votosUtiles &&
-        request.resource.data.confirmaciones >= resource.data.confirmaciones;
+    function accionNotaPath(notaId, tipo) {
+      return /databases/$(database)/documents/votos_notas/$(notaId + '_' + request.auth.uid + '_' + tipo);
+    }
+
+    function isOwnAccionNotaId(accionId) {
+      return accionId.matches('^.+_' + request.auth.uid + '_(util|confirmacion)$');
+    }
+
+    function accionCreadaEnTransaccion(notaId, tipo) {
+      let accionPath = accionNotaPath(notaId, tipo);
+      return !exists(accionPath) &&
+        existsAfter(accionPath) &&
+        getAfter(accionPath).data.notaId == notaId &&
+        getAfter(accionPath).data.usuarioId == request.auth.uid &&
+        getAfter(accionPath).data.tipo == tipo;
+    }
+
+    function onlyNoteCountersChanged(notaId) {
+      let onlyCounters = request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['votosUtiles', 'confirmaciones', 'actualizadoEn']);
+      let usefulVote =
+        request.resource.data.votosUtiles == resource.data.votosUtiles + 1 &&
+        request.resource.data.confirmaciones == resource.data.confirmaciones &&
+        accionCreadaEnTransaccion(notaId, 'util');
+      let confirmation =
+        request.resource.data.confirmaciones == resource.data.confirmaciones + 1 &&
+        request.resource.data.votosUtiles == resource.data.votosUtiles &&
+        accionCreadaEnTransaccion(notaId, 'confirmacion');
+      return onlyCounters && (usefulVote || confirmation);
+    }
+
+    function notaActualizadaConAccion(data) {
+      let notaPath = /databases/$(database)/documents/notas_comunitarias/$(data.notaId);
+      let notaLegacyPath = /databases/$(database)/documents/notasComunitarias/$(data.notaId);
+      let principalUpdated = exists(notaPath) &&
+        (
+          (data.tipo == 'util' &&
+            getAfter(notaPath).data.votosUtiles == get(notaPath).data.votosUtiles + 1) ||
+          (data.tipo == 'confirmacion' &&
+            getAfter(notaPath).data.confirmaciones == get(notaPath).data.confirmaciones + 1)
+        );
+      let legacyUpdated = exists(notaLegacyPath) &&
+        (
+          (data.tipo == 'util' &&
+            getAfter(notaLegacyPath).data.votosUtiles == get(notaLegacyPath).data.votosUtiles + 1) ||
+          (data.tipo == 'confirmacion' &&
+            getAfter(notaLegacyPath).data.confirmaciones == get(notaLegacyPath).data.confirmaciones + 1)
+        );
+      return principalUpdated || legacyUpdated;
     }
 
     function isProposalProgressUpdate() {
@@ -282,7 +336,7 @@ service cloud.firestore {
         request.resource.data.usuarioId == request.auth.uid &&
         isValidNota(request.resource.data);
       allow update: if isAdmin() && isValidNota(request.resource.data) ||
-        (isSignedIn() && isValidNota(request.resource.data) && onlyNoteCountersChanged());
+        (isSignedIn() && isValidNota(request.resource.data) && onlyNoteCountersChanged(notaId));
       allow delete: if isAdmin();
     }
 
@@ -292,8 +346,21 @@ service cloud.firestore {
         request.resource.data.usuarioId == request.auth.uid &&
         isValidNota(request.resource.data);
       allow update: if isAdmin() && isValidNota(request.resource.data) ||
-        (isSignedIn() && isValidNota(request.resource.data) && onlyNoteCountersChanged());
+        (isSignedIn() && isValidNota(request.resource.data) && onlyNoteCountersChanged(notaId));
       allow delete: if isAdmin();
+    }
+
+    match /votos_notas/{accionId} {
+      allow get: if isSignedIn() &&
+        (isOwnAccionNotaId(accionId) || isAdmin());
+      allow list: if isSignedIn() &&
+        (resource.data.usuarioId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() &&
+        request.resource.data.usuarioId == request.auth.uid &&
+        accionId == request.resource.data.notaId + '_' + request.auth.uid + '_' + request.resource.data.tipo &&
+        isValidAccionNota(request.resource.data) &&
+        notaActualizadaConAccion(request.resource.data);
+      allow update, delete: if false;
     }
 
     match /usuarios/{userId} {

@@ -174,7 +174,7 @@ export class UsuariosAdmin {
     if (!usuario.uid) return [];
 
     return this.rutas()
-      .filter((ruta) => ruta.creadoPor === usuario.uid)
+      .filter((ruta) => this.creadorRutaId(ruta) === usuario.uid)
       .map((ruta) => ({
         ruta,
         reportes: this.notas().filter(
@@ -183,6 +183,19 @@ export class UsuariosAdmin {
         ).length,
       }))
       .filter((item) => item.reportes > 0);
+  }
+
+  private creadorRutaId(ruta: RutaTransporte) {
+    if (ruta.creadoPor) return ruta.creadoPor;
+
+    const propuestaOrigen = this.propuestas().find(
+      (propuesta) =>
+        propuesta.id === ruta.propuestaOrigenId ||
+        propuesta.id === ruta.origenPropuestaId ||
+        propuesta.rutaPublicadaId === ruta.id
+    );
+
+    return propuestaOrigen?.creadoPor;
   }
 
   async suspenderTemporalmente(usuario: PerfilUsuario) {

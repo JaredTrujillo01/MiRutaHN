@@ -9,6 +9,7 @@ import {
   increment,
   query,
   runTransaction,
+  Timestamp,
   updateDoc,
   where,
 } from '@angular/fire/firestore';
@@ -45,6 +46,7 @@ export interface RutaTransporte {
 
   publicadoDesdePropuesta?: boolean;
   propuestaOrigenId?: string;
+  origenPropuestaId?: string;
 
   creadoPor?: string;
   creadoPorNombre?: string;
@@ -114,6 +116,16 @@ export interface NotaComunitaria {
   creadoEn: any;
 }
 
+export type TipoAccionNota = 'util' | 'confirmacion';
+
+export interface AccionNota {
+  id?: string;
+  notaId: string;
+  usuarioId: string;
+  tipo: TipoAccionNota;
+  creadoEn: any;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -127,6 +139,7 @@ export class RutaService {
   private readonly validacionesLegacyCollection = 'validacionesRutas';
   private readonly notasCollection = 'notas_comunitarias';
   private readonly notasLegacyCollection = 'notasComunitarias';
+  private readonly accionesNotasCollection = 'votos_notas';
 
   private inInjectionContext<T>(callback: () => T): T {
     return runInInjectionContext(this.injector, callback);
@@ -660,23 +673,82 @@ export class RutaService {
     });
   }
 
-  votarNotaUtil(id: string) {
-    return this.updateDocInCollections(
-      [this.notasCollection, this.notasLegacyCollection],
-      id,
-      {
-      votosUtiles: increment(1),
-      }
+  getAccionesNotasUsuario(usuarioId: string): Observable<AccionNota[]> {
+    return this.inInjectionContext(
+      () =>
+        collectionData(
+          query(
+            collection(this.firestore, this.accionesNotasCollection),
+            where('usuarioId', '==', usuarioId)
+          ),
+          { idField: 'id' }
+        ) as Observable<AccionNota[]>
     );
   }
 
-  confirmarNota(id: string) {
-    return this.updateDocInCollections(
-      [this.notasCollection, this.notasLegacyCollection],
-      id,
-      {
-      confirmaciones: increment(1),
-      }
+  votarNotaUtil(id: string, usuarioId: string) {
+    return this.registrarAccionNota(id, usuarioId, 'util');
+  }
+
+  confirmarNota(id: string, usuarioId: string) {
+    return this.registrarAccionNota(id, usuarioId, 'confirmacion');
+  }
+
+  private registrarAccionNota(
+    notaId: string,
+    usuarioId: string,
+    tipo: TipoAccionNota
+  ) {
+    return this.inInjectionContext(() =>
+      runTransaction(this.firestore, async (transaction) => {
+        const accionId = `${notaId}_${usuarioId}_${tipo}`;
+        const accionRef = doc(
+          this.firestore,
+          this.accionesNotasCollection,
+          accionId
+        );
+        const notaRef = doc(this.firestore, this.notasCollection, notaId);
+        const notaLegacyRef = doc(
+          this.firestore,
+          this.notasLegacyCollection,
+          notaId
+        );
+
+        const accionSnap = await transaction.get(accionRef);
+        const notaSnap = await transaction.get(notaRef);
+        const notaLegacySnap = notaSnap.exists()
+          ? null
+          : await transaction.get(notaLegacyRef);
+
+        if (accionSnap.exists()) {
+          throw new Error(
+            tipo === 'util'
+              ? 'Ya marcaste esta nota como util.'
+              : 'Ya confirmaste esta nota.'
+          );
+        }
+
+        const notaActivaRef = notaSnap.exists() ? notaRef : notaLegacyRef;
+        const notaActivaSnap = notaSnap.exists() ? notaSnap : notaLegacySnap;
+
+        if (!notaActivaSnap?.exists()) {
+          throw new Error('La nota no existe.');
+        }
+
+        const nota = notaActivaSnap.data() as NotaComunitaria;
+        const contador = tipo === 'util' ? 'votosUtiles' : 'confirmaciones';
+
+        transaction.set(accionRef, {
+          notaId,
+          usuarioId,
+          tipo,
+          creadoEn: Timestamp.now(),
+        });
+        transaction.update(notaActivaRef, {
+          [contador]: (nota[contador] || 0) + 1,
+          actualizadoEn: Timestamp.now(),
+        });
+      })
     );
   }
 

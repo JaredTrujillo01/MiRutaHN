@@ -2,17 +2,21 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Timestamp } from '@angular/fire/firestore';
 
+import { AppAlertModal, AlertModalType } from '../../../components/app-alert-modal/app-alert-modal';
+import { AuthRequiredModal } from '../../../components/auth-required-modal/auth-required-modal';
 import { Sidebar } from '../../../layouts/sidebar/sidebar';
 import { AuthService } from '../../../services/auth';
 import {
+  AccionNota,
   NotaComunitaria,
   RutaService,
   RutaTransporte,
+  TipoAccionNota,
 } from '../../../services/ruta.service';
 
 @Component({
   selector: 'app-notas-comunitarias',
-  imports: [FormsModule, Sidebar],
+  imports: [FormsModule, Sidebar, AuthRequiredModal, AppAlertModal],
   templateUrl: './notas-comunitarias.html',
   styleUrl: './notas-comunitarias.scss',
 })
@@ -22,13 +26,21 @@ export class NotasComunitarias {
 
   rutas = signal<RutaTransporte[]>([]);
   notas = signal<NotaComunitaria[]>([]);
+  accionesUsuario = signal<AccionNota[]>([]);
   cargando = signal(true);
   guardando = signal(false);
   esAdmin = signal(false);
+  rolCargado = signal(false);
   filtro = signal('');
   mensaje = signal('');
   error = signal('');
   intentoCrearNota = signal(false);
+
+  mostrarModalAuth = signal(false);
+  alertaVisible = signal(false);
+  alertaTitulo = signal('');
+  alertaMensaje = signal('');
+  alertaTipo = signal<AlertModalType>('info');
 
   usuarioAuth: Awaited<ReturnType<AuthService['obtenerUsuarioActual']>> = null;
   usuarioPerfil: any = null;
@@ -45,15 +57,20 @@ export class NotasComunitarias {
   }
 
   async cargarUsuario() {
-    this.usuarioAuth = await this.authService.obtenerUsuarioActual();
+    try {
+      this.usuarioAuth = await this.authService.obtenerUsuarioActual();
 
-    if (this.usuarioAuth) {
-      this.usuarioPerfil = await this.authService.obtenerPerfilUsuario(
-        this.usuarioAuth.uid
-      );
+      if (this.usuarioAuth) {
+        this.usuarioPerfil = await this.authService.obtenerPerfilUsuario(
+          this.usuarioAuth.uid
+        );
+        this.cargarAccionesUsuario(this.usuarioAuth.uid);
+      }
+
+      this.esAdmin.set(await this.authService.isAdmin());
+    } finally {
+      this.rolCargado.set(true);
     }
-
-    this.esAdmin.set(await this.authService.isAdmin());
   }
 
   cargarDatos() {
@@ -96,16 +113,8 @@ export class NotasComunitarias {
 
     if (!(await this.puedeParticipar())) return;
 
-    if (!this.usuarioAuth) {
-      this.error.set('Debes iniciar sesión para participar en notas comunitarias.');
-      this.error.set('Debes iniciar sesión para agregar notas.');
-      alert('Debes iniciar sesión para agregar notas.');
-      return;
-    }
-
     if (!nota.rutaId || !nota.comentario.trim()) {
-      this.error.set('Selecciona una ruta y escribe la observación.');
-      alert('Selecciona una ruta y escribe la observación.');
+      this.error.set('Selecciona una ruta y escribe la observacion.');
       return;
     }
 
@@ -114,9 +123,9 @@ export class NotasComunitarias {
     try {
       await this.rutaService.createNotaComunitaria({
         rutaId: nota.rutaId,
-        usuarioId: this.usuarioAuth.uid,
+        usuarioId: this.usuarioAuth!.uid,
         usuarioNombre:
-          this.usuarioPerfil?.nombre || this.usuarioAuth.email || 'Ciudadano',
+          this.usuarioPerfil?.nombre || this.usuarioAuth!.email || 'Ciudadano',
         comentario: nota.comentario.trim(),
         campoMarcado: nota.campoMarcado,
         estado: 'activa',
@@ -131,41 +140,54 @@ export class NotasComunitarias {
         comentario: '',
       });
       this.intentoCrearNota.set(false);
-      this.mensaje.set('Nota comunitaria agregada correctamente.');
+      this.mostrarAlerta(
+        'Nota agregada',
+        'Tu nota comunitaria se agrego correctamente.',
+        'success'
+      );
     } catch (err) {
       console.error(err);
-      this.error.set('No se pudo guardar la nota.');
-      alert('No se pudo guardar la nota.');
+      this.mostrarAlerta(
+        'No se pudo agregar',
+        'No se pudo guardar la nota comunitaria.',
+        'error'
+      );
     } finally {
       this.guardando.set(false);
     }
   }
 
   async votarNota(id?: string) {
-    if (!id) return;
-    if (!(await this.puedeParticipar())) return;
+    if (!id || !(await this.puedeParticipar())) return;
 
     try {
-      await this.rutaService.votarNotaUtil(id);
-      this.mensaje.set('Voto útil registrado.');
+      await this.rutaService.votarNotaUtil(id, this.usuarioAuth!.uid);
+      this.mensaje.set('Voto util registrado.');
       this.error.set('');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      this.error.set('No se pudo registrar el voto.');
+      this.mostrarAlerta(
+        'No se pudo votar',
+        err?.message || 'No se pudo registrar el voto.',
+        'warning'
+      );
     }
   }
 
   async confirmarNota(id?: string) {
-    if (!id) return;
-    if (!(await this.puedeParticipar())) return;
+    if (!id || !(await this.puedeParticipar())) return;
 
     try {
-      await this.rutaService.confirmarNota(id);
-      this.mensaje.set('Confirmación de nota registrada.');
+      await this.rutaService.confirmarNota(id, this.usuarioAuth!.uid);
+      this.mensaje.set('Confirmacion de nota registrada.');
       this.error.set('');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      this.error.set('No se pudo confirmar la nota.');
+      this.mostrarAlerta(
+        'No se pudo confirmar',
+        err?.message || 'No se pudo confirmar la nota.',
+        'warning'
+      );
     }
   }
 
@@ -185,22 +207,19 @@ export class NotasComunitarias {
   notasFiltradas() {
     const filtro = this.filtro().trim().toLowerCase();
 
-    if (!filtro) {
-      return this.notas();
-    }
+    if (!filtro) return this.notas();
 
-    return this.notas().filter((nota) => {
-      const texto = [
+    return this.notas().filter((nota) =>
+      [
         nota.comentario,
         nota.campoMarcado,
         nota.usuarioNombre,
         this.nombreRuta(nota.rutaId),
       ]
         .join(' ')
-        .toLowerCase();
-
-      return texto.includes(filtro);
-    });
+        .toLowerCase()
+        .includes(filtro)
+    );
   }
 
   nombreRuta(rutaId: string) {
@@ -218,23 +237,31 @@ export class NotasComunitarias {
     });
   }
 
-  private async puedeParticipar() {
-    if (!this.usuarioAuth) {
-      alert('Debes iniciar sesiÃ³n para participar en notas comunitarias.');
-      return false;
-    }
+  accionRealizada(notaId: string | undefined, tipo: TipoAccionNota) {
+    if (!notaId || !this.usuarioAuth) return false;
 
-    const perfil =
-      this.usuarioPerfil ||
-      (await this.authService.obtenerPerfilUsuario(this.usuarioAuth.uid));
+    return this.accionesUsuario().some(
+      (accion) => accion.notaId === notaId && accion.tipo === tipo
+    );
+  }
 
-    if (this.authService.estaUsuarioSuspendido(perfil)) {
-      this.error.set(this.authService.mensajeSuspension(perfil));
-      alert(this.authService.mensajeSuspension(perfil));
-      return false;
-    }
+  cerrarModalAuth() {
+    this.mostrarModalAuth.set(false);
+  }
 
-    return true;
+  mostrarAlerta(
+    titulo: string,
+    mensaje: string,
+    tipo: AlertModalType = 'info'
+  ) {
+    this.alertaTitulo.set(titulo);
+    this.alertaMensaje.set(mensaje);
+    this.alertaTipo.set(tipo);
+    this.alertaVisible.set(true);
+  }
+
+  cerrarAlerta() {
+    this.alertaVisible.set(false);
   }
 
   rutaNotaInvalida() {
@@ -243,5 +270,51 @@ export class NotasComunitarias {
 
   comentarioNotaInvalido() {
     return this.intentoCrearNota() && !this.nuevaNota().comentario.trim();
+  }
+
+  private cargarAccionesUsuario(usuarioId: string) {
+    this.rutaService.getAccionesNotasUsuario(usuarioId).subscribe({
+      next: (acciones) => this.accionesUsuario.set(acciones),
+      error: (err) => console.error(err),
+    });
+  }
+
+  private async puedeParticipar() {
+    if (!this.usuarioAuth) {
+      this.usuarioAuth = await this.authService.obtenerUsuarioActual();
+
+      if (!this.usuarioAuth) {
+        this.mostrarModalAuth.set(true);
+        return false;
+      }
+
+      this.usuarioPerfil = await this.authService.obtenerPerfilUsuario(
+        this.usuarioAuth.uid
+      );
+      this.cargarAccionesUsuario(this.usuarioAuth.uid);
+    }
+
+    const perfil =
+      this.usuarioPerfil ||
+      (await this.authService.obtenerPerfilUsuario(this.usuarioAuth.uid));
+
+    const esAdministrador =
+      perfil?.role === 'admin' || perfil?.rol === 'admin';
+
+    if (esAdministrador) {
+      this.esAdmin.set(true);
+      return false;
+    }
+
+    if (this.authService.estaUsuarioSuspendido(perfil)) {
+      this.mostrarAlerta(
+        'Participacion suspendida',
+        this.authService.mensajeSuspension(perfil),
+        'warning'
+      );
+      return false;
+    }
+
+    return true;
   }
 }

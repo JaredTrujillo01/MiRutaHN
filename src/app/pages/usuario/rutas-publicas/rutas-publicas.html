@@ -56,13 +56,6 @@
       </form>
     </section>
 
-    @if (mensajeExito()) {
-      <section class="feedback success" role="status" aria-live="polite">
-        <i class="material-icons" aria-hidden="true">check_circle</i>
-        <p>{{ mensajeExito() }}</p>
-      </section>
-    }
-
     @if (mensajeError()) {
       <section class="feedback error" role="alert">
         <i class="material-icons" aria-hidden="true">error</i>
@@ -310,4 +303,12 @@
     mensaje="Puedes consultar rutas sin cuenta, pero para proponer actualizaciones, reportar rutas falsas o validar cambios debes iniciar sesión o registrarte."
     (cerrar)="cerrarModalAuth()"
   ></app-auth-required-modal>
+
+  <app-alert-modal
+    [visible]="alertaVisible()"
+    [titulo]="alertaTitulo()"
+    [mensaje]="alertaMensaje()"
+    [tipo]="alertaTipo()"
+    (cerrar)="cerrarAlerta()"
+  ></app-alert-modal>
 </section>

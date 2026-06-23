@@ -4,13 +4,15 @@
   <main class="notas-main" aria-labelledby="notas-title">
     <header class="page-header">
       <section>
-        <p class="badge">Comunidad</p>
+        <p class="badge">{{ esAdmin() ? 'Supervisión' : 'Comunidad' }}</p>
 
         <h1 id="notas-title">Notas comunitarias</h1>
 
         <p id="notas-description">
-          Comparte observaciones sobre rutas aprobadas y ayuda a confirmar datos
-          útiles para otros pasajeros.
+          {{ esAdmin()
+            ? 'Revisa las observaciones sobre rutas aprobadas y gestiona las notas que ya fueron atendidas.'
+            : 'Comparte observaciones sobre rutas aprobadas y ayuda a confirmar datos útiles para otros pasajeros.'
+          }}
         </p>
       </section>
 
@@ -25,13 +27,6 @@
       </aside>
     </header>
 
-    @if (mensaje()) {
-      <section class="feedback success" role="status" aria-live="polite">
-        <i class="material-icons" aria-hidden="true">check_circle</i>
-        <p>{{ mensaje() }}</p>
-      </section>
-    }
-
     @if (error()) {
       <section class="feedback error" role="alert" aria-live="assertive">
         <i class="material-icons" aria-hidden="true">error</i>
@@ -39,11 +34,12 @@
       </section>
     }
 
-    <section
-      class="form-card"
-      aria-labelledby="nueva-nota-title"
-      aria-describedby="nueva-nota-description"
-    >
+    @if (rolCargado() && !esAdmin()) {
+      <section
+        class="form-card"
+        aria-labelledby="nueva-nota-title"
+        aria-describedby="nueva-nota-description"
+      >
       <header class="section-header">
         <section>
           <h2 id="nueva-nota-title">Nueva nota</h2>
@@ -149,7 +145,8 @@
           </button>
         </footer>
       </form>
-    </section>
+      </section>
+    }
 
     <section class="lista-card" aria-labelledby="notas-activas-title">
       <header class="section-header tools">
@@ -157,7 +154,10 @@
           <h2 id="notas-activas-title">Notas activas</h2>
 
           <p id="notas-activas-description">
-            Marca como útil o confirma las notas que reflejan la situación actual.
+            {{ esAdmin()
+              ? 'Consulta las notas activas y resuelve las que ya fueron atendidas.'
+              : 'Marca como útil o confirma las notas que reflejan la situación actual.'
+            }}
           </p>
         </section>
 
@@ -238,24 +238,50 @@
               </section>
             }
 
-            <footer class="nota-actions" aria-label="Acciones de la nota">
-              <button
-                type="button"
-                (click)="votarNota(nota.id)"
-                [attr.aria-label]="'Marcar nota como útil. Votos actuales: ' + nota.votosUtiles"
+            @if (esAdmin()) {
+              <section
+                class="nota-metrics"
+                aria-label="Participación comunitaria en la nota"
               >
-                <i class="material-icons" aria-hidden="true">thumb_up</i>
-                Útil ({{ nota.votosUtiles }})
-              </button>
+                <p>
+                  <i class="material-icons" aria-hidden="true">thumb_up</i>
+                  {{ nota.votosUtiles }} útiles
+                </p>
+                <p>
+                  <i class="material-icons" aria-hidden="true">verified</i>
+                  {{ nota.confirmaciones }} confirmaciones
+                </p>
+              </section>
+            }
 
-              <button
-                type="button"
-                (click)="confirmarNota(nota.id)"
-                [attr.aria-label]="'Confirmar nota. Confirmaciones actuales: ' + nota.confirmaciones"
-              >
-                <i class="material-icons" aria-hidden="true">verified</i>
-                Confirmar ({{ nota.confirmaciones }})
-              </button>
+            <footer class="nota-actions" aria-label="Acciones de la nota">
+              @if (rolCargado() && !esAdmin()) {
+                <button
+                  type="button"
+                  class="useful-action"
+                  [class.completed]="accionRealizada(nota.id, 'util')"
+                  (click)="votarNota(nota.id)"
+                  [disabled]="accionRealizada(nota.id, 'util')"
+                  [attr.aria-disabled]="accionRealizada(nota.id, 'util')"
+                  [attr.aria-label]="'Marcar nota como útil. Votos actuales: ' + nota.votosUtiles"
+                >
+                  <i class="material-icons" aria-hidden="true">thumb_up</i>
+                  Útil ({{ nota.votosUtiles }})
+                </button>
+
+                <button
+                  type="button"
+                  class="confirm-action"
+                  [class.completed]="accionRealizada(nota.id, 'confirmacion')"
+                  (click)="confirmarNota(nota.id)"
+                  [disabled]="accionRealizada(nota.id, 'confirmacion')"
+                  [attr.aria-disabled]="accionRealizada(nota.id, 'confirmacion')"
+                  [attr.aria-label]="'Confirmar nota. Confirmaciones actuales: ' + nota.confirmaciones"
+                >
+                  <i class="material-icons" aria-hidden="true">verified</i>
+                  Confirmar ({{ nota.confirmaciones }})
+                </button>
+              }
 
               @if (esAdmin()) {
                 <button
@@ -274,4 +300,19 @@
       </section>
     </section>
   </main>
+
+  <app-auth-required-modal
+    [visible]="mostrarModalAuth()"
+    titulo="Inicia sesion para colaborar"
+    mensaje="Puedes consultar las notas sin cuenta, pero para agregar, marcar como util o confirmar debes iniciar sesion o registrarte."
+    (cerrar)="cerrarModalAuth()"
+  ></app-auth-required-modal>
+
+  <app-alert-modal
+    [visible]="alertaVisible()"
+    [titulo]="alertaTitulo()"
+    [mensaje]="alertaMensaje()"
+    [tipo]="alertaTipo()"
+    (cerrar)="cerrarAlerta()"
+  ></app-alert-modal>
 </section>

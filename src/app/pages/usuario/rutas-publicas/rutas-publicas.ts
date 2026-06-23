@@ -26,6 +26,10 @@ import {
 } from '../../../services/ruta.service';
 import { AuthService } from '../../../services/auth';
 import { AuthRequiredModal } from '../../../components/auth-required-modal/auth-required-modal';
+import {
+  AppAlertModal,
+  AlertModalType,
+} from '../../../components/app-alert-modal/app-alert-modal';
 
 type TipoSolicitudRuta = 'actualizacion' | 'eliminacion';
 
@@ -41,7 +45,7 @@ interface EditorActualizacion {
 
 @Component({
   selector: 'app-rutas-publicas',
-  imports: [FormsModule, Sidebar, AuthRequiredModal],
+  imports: [FormsModule, Sidebar, AuthRequiredModal, AppAlertModal],
   templateUrl: './rutas-publicas.html',
   styleUrl: './rutas-publicas.scss',
 })
@@ -63,13 +67,16 @@ export class RutasPublicas implements AfterViewInit, OnDestroy {
   usuarioNombre = signal('Ciudadano');
 
   mostrarModalAuth = signal(false);
+  alertaVisible = signal(false);
+  alertaTitulo = signal('');
+  alertaMensaje = signal('');
+  alertaTipo = signal<AlertModalType>('info');
   guardandoSolicitud = signal(false);
 
   rutaSeleccionada = signal<RutaTransporte | null>(null);
   tipoSolicitud = signal<TipoSolicitudRuta>('actualizacion');
   comentarioSolicitud = signal('');
 
-  mensajeExito = signal('');
   mensajeError = signal('');
 
   editor = signal<EditorActualizacion>({
@@ -257,7 +264,6 @@ export class RutasPublicas implements AfterViewInit, OnDestroy {
     this.rutaSeleccionada.set(ruta);
     this.tipoSolicitud.set(tipo);
     this.comentarioSolicitud.set('');
-    this.mensajeExito.set('');
     this.mensajeError.set('');
 
     this.editor.set({
@@ -287,6 +293,21 @@ export class RutasPublicas implements AfterViewInit, OnDestroy {
 
   cerrarModalAuth() {
     this.mostrarModalAuth.set(false);
+  }
+
+  mostrarAlerta(
+    titulo: string,
+    mensaje: string,
+    tipo: AlertModalType = 'info'
+  ) {
+    this.alertaTitulo.set(titulo);
+    this.alertaMensaje.set(mensaje);
+    this.alertaTipo.set(tipo);
+    this.alertaVisible.set(true);
+  }
+
+  cerrarAlerta() {
+    this.alertaVisible.set(false);
   }
 
   actualizarComentario(valor: string) {
@@ -477,8 +498,10 @@ export class RutasPublicas implements AfterViewInit, OnDestroy {
           Timestamp.now()
         );
 
-        this.mensajeExito.set(
-          'El reporte de ruta falsa fue enviado para revision administrativa.'
+        this.mostrarAlerta(
+          'Reporte enviado',
+          'El reporte de ruta falsa fue enviado para revisión administrativa.',
+          'success'
         );
       } else {
         const cambios = this.editor();
@@ -506,8 +529,10 @@ export class RutasPublicas implements AfterViewInit, OnDestroy {
           Timestamp.now()
         );
 
-        this.mensajeExito.set(
-          'La propuesta de actualización fue enviada a validación comunitaria.'
+        this.mostrarAlerta(
+          'Propuesta enviada',
+          'La propuesta de actualización fue enviada a validación comunitaria.',
+          'success'
         );
       }
 

@@ -319,6 +319,41 @@ button:disabled {
   color: var(--color-primary);
 }
 
+.nota-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1rem;
+  color: var(--color-muted);
+}
+
+.nota-metrics p {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.nota-metrics i {
+  font-size: 1rem;
+  color: var(--color-primary);
+}
+
+.nota-actions .useful-action.completed:disabled {
+  background: var(--color-success-light);
+  color: var(--color-success);
+  border-color: var(--color-success);
+  opacity: 1;
+}
+
+.nota-actions .confirm-action.completed:disabled {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+  opacity: 1;
+}
+
 .nota-actions .danger {
   background: var(--color-danger-light);
   color: var(--color-danger);
