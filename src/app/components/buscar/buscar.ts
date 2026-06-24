@@ -11,7 +11,7 @@ export class Buscar {
   buscar = output<string>();
   cancelar = output<void>();
 
-  origen = signal('Colonia Miraflores');
+  origen = signal('');
   destino = signal('');
   horario = signal('Ahora');
   busquedaIntentada = signal(false);

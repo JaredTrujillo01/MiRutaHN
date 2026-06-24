@@ -1,4 +1,11 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  ViewChild,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { doc, Firestore, updateDoc } from '@angular/fire/firestore';
@@ -21,6 +28,9 @@ import {
   styleUrl: './perfil.scss',
 })
 export class Perfil {
+  @ViewChild('seccionEdicionPerfil')
+  seccionEdicionPerfil?: ElementRef<HTMLElement>;
+
   private authService = inject(AuthService);
   private rutaService = inject(RutaService);
   private firestore = inject(Firestore);
@@ -229,6 +239,13 @@ export class Perfil {
     this.intentoGuardarPerfil.set(false);
     this.mensaje.set('');
     this.error.set('');
+
+    setTimeout(() => {
+      this.seccionEdicionPerfil?.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
   }
 
   cancelarEdicion() {

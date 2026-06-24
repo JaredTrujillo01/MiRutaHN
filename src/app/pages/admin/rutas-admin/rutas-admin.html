@@ -150,8 +150,10 @@
             </div>
 
             <div>
-              <dt>Puntos</dt>
-              <dd>{{ totalRecorrido(ruta) }}</dd>
+              <dt>Publicada por</dt>
+              <dd>
+                {{ ruta.creadoPorNombre || (ruta.publicadoDesdePropuesta ? 'Propuesta comunitaria' : 'Registro administrativo') }}
+              </dd>
             </div>
 
             <div>
@@ -164,13 +166,6 @@
               <dd>{{ formatearFecha(ruta.actualizadoEn || ruta.creadoEn) }}</dd>
             </div>
           </dl>
-
-          @if (ruta.publicadoDesdePropuesta) {
-            <section class="origin-box" aria-label="Origen comunitario de la ruta">
-              <i class="material-icons" aria-hidden="true">verified</i>
-              <p>Publicada desde una propuesta comunitaria.</p>
-            </section>
-          }
 
           <footer class="route-actions" aria-label="Acciones administrativas de la ruta">
             @if (ruta.estado === 'activa') {

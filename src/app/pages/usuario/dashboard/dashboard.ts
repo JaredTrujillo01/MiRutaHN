@@ -24,6 +24,7 @@ import { RutaService, RutaTransporte } from '../../../services/ruta.service';
 export class Dashboard implements AfterViewInit, OnDestroy {
   @ViewChild('mapaExplorar') mapaExplorar!: ElementRef<HTMLDivElement>;
   @ViewChild('mapaDetalle') mapaDetalle?: ElementRef<HTMLDivElement>;
+  @ViewChild(Buscar) buscador?: Buscar;
 
   private rutaService = inject(RutaService);
 
@@ -122,35 +123,153 @@ export class Dashboard implements AfterViewInit, OnDestroy {
   }
 
   buscarRutas(termino: string) {
-    const texto = termino.trim().toLowerCase();
-    this.terminoBusqueda.set(texto);
+    const origen = this.buscador?.origen() || '';
+    const destino = termino || this.buscador?.destino() || '';
+    const resumenBusqueda = [origen.trim(), destino.trim()]
+      .filter(Boolean)
+      .join(' → ');
 
-    if (!texto) {
-      this.rutasFiltradas.set(this.rutas());
-      this.dibujarRutas(this.rutas());
-      this.paso.set(3);
-      return;
-    }
+    this.terminoBusqueda.set(resumenBusqueda);
 
-    const filtradas = this.rutas().filter((ruta) => {
-      const contenido = [
+    const filtradas = this.rutas()
+      .filter((ruta) => ruta.estado === 'activa')
+      .map((ruta, indice) => ({
+        ...this.coincideRuta(ruta, origen, destino),
+        indice,
+      }))
+      .filter((resultado) => resultado.score > 0)
+      .sort(
+        (a, b) => b.score - a.score || a.indice - b.indice
+      )
+      .map((resultado) => resultado.ruta);
+
+    this.rutasFiltradas.set(filtradas);
+    this.dibujarRutas(filtradas);
+    this.paso.set(3);
+  }
+
+  normalizarTexto(valor: unknown): string {
+    return String(valor ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  textoRuta(ruta: RutaTransporte): string {
+    const datosOpcionales = ruta as RutaTransporte &
+      Record<string, unknown>;
+
+    return this.normalizarTexto(
+      [
         ruta.nombre,
         ruta.numero,
         ruta.descripcion,
         ruta.horario,
         ruta.frecuencia,
-        ruta.precio,
         ...(ruta.paradas || []).map((parada) => parada.nombre),
-      ]
-        .join(' ')
-        .toLowerCase();
+        this.extraerTexto(datosOpcionales['zonas']),
+        this.extraerTexto(datosOpcionales['referencias']),
+        this.extraerTexto(datosOpcionales['puntosGuia']),
+        this.extraerTexto(datosOpcionales['recorrido']),
+      ].join(' ')
+    );
+  }
 
-      return contenido.includes(texto);
-    });
+  coincideRuta(
+    ruta: RutaTransporte,
+    origen: string,
+    destino: string
+  ): { ruta: RutaTransporte; score: number } {
+    const origenNormalizado = this.normalizarTexto(origen);
+    const destinoNormalizado = this.normalizarTexto(destino);
+    const textoGeneral = this.textoRuta(ruta);
+    const textoParadas = this.normalizarTexto(
+      (ruta.paradas || []).map((parada) => parada.nombre).join(' ')
+    );
+    const textoPrincipal = this.normalizarTexto(
+      [ruta.nombre, ruta.numero, ruta.descripcion].join(' ')
+    );
 
-    this.rutasFiltradas.set(filtradas);
-    this.dibujarRutas(filtradas);
-    this.paso.set(3);
+    const coincideOrigen = this.coincideTexto(
+      textoGeneral,
+      origenNormalizado
+    );
+    const coincideDestino = this.coincideTexto(
+      textoGeneral,
+      destinoNormalizado
+    );
+    const origenEnParadas = this.coincideTexto(
+      textoParadas,
+      origenNormalizado
+    );
+    const destinoEnParadas = this.coincideTexto(
+      textoParadas,
+      destinoNormalizado
+    );
+
+    let score = 0;
+
+    if (coincideOrigen && coincideDestino) {
+      score = origenEnParadas && destinoEnParadas ? 100 : 80;
+    } else if (coincideDestino) {
+      score = 50;
+    } else if (coincideOrigen) {
+      score = 40;
+    } else if (
+      this.coincideTextoGeneral(
+        textoPrincipal,
+        origenNormalizado,
+        destinoNormalizado
+      )
+    ) {
+      score = 20;
+    }
+
+    if (score >= 40 && score < 100) {
+      if (destinoEnParadas) score += 5;
+      if (origenEnParadas) score += 3;
+    }
+
+    return { ruta, score };
+  }
+
+  private coincideTexto(texto: string, criterio: string): boolean {
+    if (!texto || !criterio) return false;
+    if (texto.includes(criterio)) return true;
+
+    const palabras = criterio.split(' ').filter(Boolean);
+    return palabras.length > 1 && palabras.every((palabra) => texto.includes(palabra));
+  }
+
+  private coincideTextoGeneral(
+    texto: string,
+    origen: string,
+    destino: string
+  ): boolean {
+    const palabras = [origen, destino]
+      .flatMap((criterio) => criterio.split(' '))
+      .filter((palabra) => palabra.length >= 3);
+
+    return palabras.some((palabra) => texto.includes(palabra));
+  }
+
+  private extraerTexto(valor: unknown): string {
+    if (typeof valor === 'string') return valor.trim();
+
+    if (Array.isArray(valor)) {
+      return valor.map((item) => this.extraerTexto(item)).filter(Boolean).join(' ');
+    }
+
+    if (valor && typeof valor === 'object') {
+      return Object.values(valor)
+        .map((item) => this.extraerTexto(item))
+        .filter(Boolean)
+        .join(' ');
+    }
+
+    return '';
   }
 
   verDetalle(ruta: RutaTransporte) {
