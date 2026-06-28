@@ -1,12 +1,14 @@
 import {
   AfterViewInit,
   Component,
+  DestroyRef,
   ElementRef,
   OnDestroy,
   ViewChild,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import * as L from 'leaflet';
 
 import { Sidebar } from '../../../layouts/sidebar/sidebar';
@@ -27,6 +29,7 @@ export class Dashboard implements AfterViewInit, OnDestroy {
   @ViewChild(Buscar) buscador?: Buscar;
 
   private rutaService = inject(RutaService);
+  private destroyRef = inject(DestroyRef);
 
   paso = signal(1);
   rutas = signal<RutaTransporte[]>([]);
@@ -37,6 +40,8 @@ export class Dashboard implements AfterViewInit, OnDestroy {
 
   private map?: L.Map;
   private detailMap?: L.Map;
+  private destruido = false;
+  private temporizadores = new Set<number>();
 
   private rutasLayer = L.layerGroup();
   private paradasLayer = L.layerGroup();
@@ -44,29 +49,31 @@ export class Dashboard implements AfterViewInit, OnDestroy {
   private detalleParadasLayer = L.layerGroup();
 
   ngAfterViewInit() {
-    setTimeout(() => {
+    this.programar(() => {
       this.iniciarMapa();
       this.cargarRutas();
     }, 300);
   }
 
   ngOnDestroy() {
-    this.map?.off();
-    this.map?.remove();
-    this.detailMap?.off();
-    this.detailMap?.remove();
+    this.destruido = true;
+    this.temporizadores.forEach((temporizador) => clearTimeout(temporizador));
+    this.temporizadores.clear();
+    this.destruirMapa(this.map);
+    this.destruirMapa(this.detailMap);
+    this.map = undefined;
+    this.detailMap = undefined;
   }
 
   iniciarMapa() {
-    if (!this.mapaExplorar) return;
+    if (!this.mapaExplorar?.nativeElement.isConnected || this.destruido) return;
 
     if (this.map) {
-      this.map.off();
-      this.map.remove();
+      this.destruirMapa(this.map);
       this.map = undefined;
     }
 
-    this.map = L.map(this.mapaExplorar.nativeElement, {
+    const mapa = L.map(this.mapaExplorar.nativeElement, {
       zoomAnimation: false,
       fadeAnimation: false,
       markerZoomAnimation: false,
@@ -74,22 +81,30 @@ export class Dashboard implements AfterViewInit, OnDestroy {
       [15.5042, -88.025],
       13
     );
+    this.map = mapa;
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap',
-    }).addTo(this.map);
+    }).addTo(mapa);
 
-    this.rutasLayer = L.layerGroup().addTo(this.map);
-    this.paradasLayer = L.layerGroup().addTo(this.map);
+    this.rutasLayer = L.layerGroup().addTo(mapa);
+    this.paradasLayer = L.layerGroup().addTo(mapa);
 
-    setTimeout(() => this.map?.invalidateSize({ animate: false }), 400);
+    this.programar(() => {
+      if (this.map === mapa && this.mapaDisponible(mapa)) {
+        mapa.invalidateSize({ animate: false });
+      }
+    }, 400);
   }
 
   cargarRutas() {
     this.cargandoRutas.set(true);
 
-    this.rutaService.getRutas().subscribe({
+    this.rutaService
+      .getRutas()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (rutas) => {
         const activas = rutas.filter((ruta) => ruta.estado === 'activa');
 
@@ -97,13 +112,13 @@ export class Dashboard implements AfterViewInit, OnDestroy {
         this.rutasFiltradas.set(activas);
         this.cargandoRutas.set(false);
 
-        setTimeout(() => this.dibujarRutas(activas), 300);
+        this.programar(() => this.dibujarRutas(activas), 300);
       },
       error: (err) => {
         console.error(err);
         this.cargandoRutas.set(false);
       },
-    });
+      });
   }
 
   abrirBusqueda() {
@@ -116,8 +131,10 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     this.rutasFiltradas.set(this.rutas());
     this.rutaSeleccionada.set(null);
 
-    setTimeout(() => {
-      this.map?.invalidateSize();
+    this.programar(() => {
+      if (this.map && this.mapaDisponible(this.map)) {
+        this.map.invalidateSize({ animate: false });
+      }
       this.dibujarRutas(this.rutas());
     }, 250);
   }
@@ -276,11 +293,10 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     this.rutaSeleccionada.set(ruta);
     this.paso.set(4);
 
-    this.map?.off();
-    this.map?.remove();
+    this.destruirMapa(this.map);
     this.map = undefined;
 
-    setTimeout(() => {
+    this.programar(() => {
       this.iniciarMapaDetalle();
       this.dibujarRutaEnMapaDetalle(ruta);
     }, 300);
@@ -293,30 +309,28 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     this.rutasFiltradas.set(this.rutas());
 
     if (this.detailMap) {
-      this.detailMap.off();
-      this.detailMap.remove();
+      this.destruirMapa(this.detailMap);
       this.detailMap = undefined;
     }
 
-    setTimeout(() => {
+    this.programar(() => {
       this.iniciarMapa();
 
-      setTimeout(() => {
+      this.programar(() => {
         this.dibujarRutas(this.rutas());
       }, 300);
     }, 300);
   }
 
   iniciarMapaDetalle() {
-    if (!this.mapaDetalle) return;
+    if (!this.mapaDetalle?.nativeElement.isConnected || this.destruido) return;
 
     if (this.detailMap) {
-      this.detailMap.off();
-      this.detailMap.remove();
+      this.destruirMapa(this.detailMap);
       this.detailMap = undefined;
     }
 
-    this.detailMap = L.map(this.mapaDetalle.nativeElement, {
+    const mapa = L.map(this.mapaDetalle.nativeElement, {
       zoomAnimation: false,
       fadeAnimation: false,
       markerZoomAnimation: false,
@@ -324,20 +338,26 @@ export class Dashboard implements AfterViewInit, OnDestroy {
       [15.5042, -88.025],
       13
     );
+    this.detailMap = mapa;
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap',
-    }).addTo(this.detailMap);
+    }).addTo(mapa);
 
-    this.detalleRutaLayer = L.layerGroup().addTo(this.detailMap);
-    this.detalleParadasLayer = L.layerGroup().addTo(this.detailMap);
+    this.detalleRutaLayer = L.layerGroup().addTo(mapa);
+    this.detalleParadasLayer = L.layerGroup().addTo(mapa);
 
-    setTimeout(() => this.detailMap?.invalidateSize({ animate: false }), 300);
+    this.programar(() => {
+      if (this.detailMap === mapa && this.mapaDisponible(mapa)) {
+        mapa.invalidateSize({ animate: false });
+      }
+    }, 300);
   }
 
   dibujarRutas(rutas: RutaTransporte[]) {
-    if (!this.map) return;
+    const mapa = this.map;
+    if (!mapa || !this.mapaDisponible(mapa)) return;
 
     this.rutasLayer.clearLayers();
     this.paradasLayer.clearLayers();
@@ -383,15 +403,23 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     });
 
     if (bounds.length > 0) {
-      this.map.fitBounds(L.latLngBounds(bounds), {
-        padding: [40, 40],
-        animate: false,
-      });
+      try {
+        if (this.map !== mapa || !this.mapaDisponible(mapa)) return;
+
+        mapa.invalidateSize({ animate: false });
+        mapa.fitBounds(L.latLngBounds(bounds), {
+          padding: [40, 40],
+          animate: false,
+        });
+      } catch (error) {
+        console.warn('No se pudo ajustar el mapa principal.', error);
+      }
     }
   }
 
   dibujarRutaEnMapaDetalle(ruta: RutaTransporte) {
-    if (!this.detailMap) return;
+    const mapa = this.detailMap;
+    if (!mapa || !this.mapaDisponible(mapa)) return;
 
     this.detalleRutaLayer.clearLayers();
     this.detalleParadasLayer.clearLayers();
@@ -407,10 +435,17 @@ export class Dashboard implements AfterViewInit, OnDestroy {
         .bindTooltip(`${ruta.nombre} - Ruta ${ruta.numero}`, { sticky: true })
         .addTo(this.detalleRutaLayer);
 
-      this.detailMap.fitBounds(L.latLngBounds(recorrido), {
-        padding: [40, 40],
-        animate: false,
-      });
+      try {
+        if (this.detailMap !== mapa || !this.mapaDisponible(mapa)) return;
+
+        mapa.invalidateSize({ animate: false });
+        mapa.fitBounds(L.latLngBounds(recorrido), {
+          padding: [40, 40],
+          animate: false,
+        });
+      } catch (error) {
+        console.warn('No se pudo ajustar el mapa de detalle.', error);
+      }
     }
 
     ruta.paradas?.forEach((parada) => {
@@ -433,5 +468,34 @@ export class Dashboard implements AfterViewInit, OnDestroy {
         : ruta.puntosGuia || [];
 
     return puntos.map((punto) => [punto.lat, punto.lng] as [number, number]);
+  }
+
+  private programar(tarea: () => void, demora: number): void {
+    const temporizador = window.setTimeout(() => {
+      this.temporizadores.delete(temporizador);
+
+      if (!this.destruido) tarea();
+    }, demora);
+
+    this.temporizadores.add(temporizador);
+  }
+
+  private mapaDisponible(mapa: L.Map): boolean {
+    try {
+      return mapa.getContainer().isConnected;
+    } catch {
+      return false;
+    }
+  }
+
+  private destruirMapa(mapa?: L.Map): void {
+    if (!mapa) return;
+
+    try {
+      mapa.off();
+      mapa.remove();
+    } catch {
+      // El contenedor puede haber sido retirado por Angular antes que Leaflet.
+    }
   }
 }

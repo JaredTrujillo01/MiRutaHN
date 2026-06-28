@@ -556,6 +556,7 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
 
     if (boundsSource.length > 0) {
       try {
+        this.map.invalidateSize({ animate: false });
         this.map.fitBounds(L.latLngBounds(boundsSource), {
           padding: [30, 30],
           animate: false,
@@ -611,7 +612,7 @@ export class ProponerRuta implements AfterViewInit, OnDestroy {
 
     const data: Omit<PropuestaRuta, 'id'> = {
       tipoPropuesta: this.modoActualizacion() ? 'actualizacion' : 'nueva',
-      rutaOrigenId: this.rutaOrigen()?.id,
+      ...(this.rutaOrigen()?.id ? { rutaOrigenId: this.rutaOrigen()!.id } : {}),
       motivoCambio: propuesta.comentarios || this.motivoActualizacion(),
 
       nombre: propuesta.nombre.trim(),

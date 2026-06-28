@@ -232,8 +232,12 @@ export class RutaService {
   }
 
   createPropuestaRuta(propuesta: Omit<PropuestaRuta, 'id'>) {
+    const sanitizedPropuesta = Object.fromEntries(
+      Object.entries(propuesta).filter(([, value]) => value !== undefined)
+    ) as Omit<PropuestaRuta, 'id'>;
+
     return this.inInjectionContext(() =>
-      addDoc(collection(this.firestore, this.propuestasCollection), propuesta)
+      addDoc(collection(this.firestore, this.propuestasCollection), sanitizedPropuesta)
     );
   }
 
